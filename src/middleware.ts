@@ -2,7 +2,7 @@ import { type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function middleware(request: NextRequest) {
+export default async function middleware(request: NextRequest) {
   return await updateSession(request);
 }
 
