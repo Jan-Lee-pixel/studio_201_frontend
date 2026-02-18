@@ -1,0 +1,2229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio 201 — Cebu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400;1,500&family=Karla:wght@300;400;500&family=DM+Mono:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════════════ */
+:root {
+  --parchment:    #F5F2EC;
+  --linen:        #EDE9E1;
+  --bone:         #FAF8F4;
+  --near-black:   #1A1814;
+  --warm-slate:   #6B6560;
+  --dust:         #9E9690;
+  --sienna:       #A85C40;
+  --ochre:        #C4884A;
+  --charcoal:     #17160F;
+  --cream:        #F0EDE5;
+  --rule:         #D8D3CB;
+
+  --ff-display: 'Playfair Display', Georgia, serif;
+  --ff-sub:     'Cormorant Garamond', Georgia, serif;
+  --ff-body:    'Karla', sans-serif;
+  --ff-mono:    'DM Mono', monospace;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-gallery:  cubic-bezier(0.25, 0, 0, 1);
+}
+
+/* ═══════════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  background: var(--parchment);
+  color: var(--near-black);
+  font-family: var(--ff-body);
+  font-weight: 400;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+
+/* ═══════════════════════════════════════════════
+   PAGES (SPA-like)
+═══════════════════════════════════════════════ */
+.page { display: none; opacity: 0; transition: opacity 400ms var(--ease-gallery); }
+.page.active { display: block; }
+.page.visible { opacity: 1; }
+
+/* ═══════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════ */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 24px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 400ms ease, backdrop-filter 400ms ease;
+}
+nav.scrolled {
+  background: rgba(245,242,236,0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--rule);
+}
+nav.dark {
+  /* over dark hero */
+}
+
+.nav-wordmark {
+  font-family: var(--ff-display);
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--cream);
+  transition: color 400ms ease;
+  cursor: pointer;
+}
+nav.scrolled .nav-wordmark { color: var(--near-black); }
+nav.opaque .nav-wordmark { color: var(--near-black); }
+
+.nav-links {
+  display: flex;
+  gap: 40px;
+  list-style: none;
+}
+.nav-links a {
+  font-family: var(--ff-body);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(240,237,229,0.8);
+  transition: color 400ms ease;
+  position: relative;
+  cursor: pointer;
+}
+nav.scrolled .nav-links a,
+nav.opaque .nav-links a { color: var(--warm-slate); }
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0;
+  width: 100%; height: 1px;
+  background: var(--sienna);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 300ms var(--ease-out-expo);
+}
+.nav-links a:hover::after,
+.nav-links a.active::after { transform: scaleX(1); }
+nav.scrolled .nav-links a:hover,
+nav.opaque .nav-links a:hover { color: var(--near-black); }
+
+/* Mobile menu */
+.nav-mobile-btn {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 4px;
+}
+.nav-mobile-btn span {
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: var(--cream);
+  transition: background 400ms ease, transform 300ms ease, opacity 300ms ease;
+}
+nav.scrolled .nav-mobile-btn span,
+nav.opaque .nav-mobile-btn span { background: var(--near-black); }
+
+.mobile-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--charcoal);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 400ms ease;
+}
+.mobile-overlay.open { opacity: 1; pointer-events: all; }
+.mobile-overlay a {
+  font-family: var(--ff-display);
+  font-size: clamp(32px, 8vw, 56px);
+  color: var(--cream);
+  letter-spacing: -0.02em;
+  cursor: pointer;
+}
+.mobile-close {
+  position: absolute;
+  top: 24px; right: 48px;
+  color: var(--dust);
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+/* ═══════════════════════════════════════════════
+   REVEAL ANIMATIONS
+═══════════════════════════════════════════════ */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 600ms var(--ease-out-expo), transform 600ms var(--ease-out-expo);
+}
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-d1 { transition-delay: 60ms; }
+.reveal-d2 { transition-delay: 120ms; }
+.reveal-d3 { transition-delay: 180ms; }
+.reveal-d4 { transition-delay: 240ms; }
+.reveal-d5 { transition-delay: 300ms; }
+
+/* ═══════════════════════════════════════════════
+   SECTION LABELS
+═══════════════════════════════════════════════ */
+.section-label {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sienna);
+  margin-bottom: 48px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.section-label::before {
+  content: '';
+  display: block;
+  width: 32px;
+  height: 1px;
+  background: var(--sienna);
+}
+
+.section-title {
+  font-family: var(--ff-display);
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--near-black);
+}
+
+/* ═══════════════════════════════════════════════
+   UNDERLINE LINK
+═══════════════════════════════════════════════ */
+.link-bare {
+  position: relative;
+  display: inline-block;
+  font-family: var(--ff-body);
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+}
+.link-bare::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0;
+  width: 100%; height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 300ms var(--ease-out-expo);
+}
+.link-bare:hover::after { transform: scaleX(1); }
+
+/* ═══════════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════════ */
+.btn-outline {
+  display: inline-block;
+  font-family: var(--ff-body);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 12px 28px;
+  border: 1px solid var(--near-black);
+  color: var(--near-black);
+  background: transparent;
+  cursor: pointer;
+  transition: background 300ms ease, color 300ms ease;
+  border-radius: 0;
+}
+.btn-outline:hover {
+  background: var(--near-black);
+  color: var(--cream);
+}
+.btn-outline-light {
+  border-color: rgba(240,237,229,0.6);
+  color: var(--cream);
+}
+.btn-outline-light:hover {
+  background: var(--cream);
+  color: var(--near-black);
+}
+
+/* ═══════════════════════════════════════════════
+   RULED DIVIDER
+═══════════════════════════════════════════════ */
+.rule { width: 100%; height: 1px; background: var(--rule); }
+
+/* ═══════════════════════════════════════════════
+   ████  HOME PAGE
+═══════════════════════════════════════════════ */
+/* --- Hero --- */
+.hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+.hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.6);
+  animation: heroReveal 1.4s var(--ease-gallery) forwards;
+  transform-origin: center;
+}
+@keyframes heroReveal {
+  to { filter: brightness(0.75); }
+}
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(23,22,15,0.82) 0%, rgba(23,22,15,0.1) 55%, transparent 100%);
+}
+.hero-content {
+  position: absolute;
+  bottom: 72px;
+  left: 48px;
+  right: 48px;
+  max-width: 680px;
+}
+.hero-label {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sienna);
+  margin-bottom: 20px;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: slideUp 600ms 200ms var(--ease-gallery) forwards;
+}
+.hero-title {
+  font-family: var(--ff-display);
+  font-size: clamp(48px, 7vw, 88px);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--cream);
+  margin-bottom: 16px;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: slideUp 600ms 320ms var(--ease-gallery) forwards;
+}
+.hero-artist {
+  font-family: var(--ff-sub);
+  font-size: 20px;
+  font-style: italic;
+  font-weight: 300;
+  color: var(--dust);
+  margin-bottom: 8px;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: slideUp 600ms 400ms var(--ease-gallery) forwards;
+}
+.hero-date {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  color: var(--dust);
+  letter-spacing: 0.06em;
+  margin-bottom: 36px;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: slideUp 600ms 460ms var(--ease-gallery) forwards;
+}
+.hero-cta {
+  opacity: 0;
+  transform: translateY(12px);
+  animation: slideUp 600ms 540ms var(--ease-gallery) forwards;
+  color: var(--cream);
+}
+@keyframes slideUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-scroll-hint {
+  position: absolute;
+  bottom: 36px;
+  right: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  animation: slideUp 600ms 800ms var(--ease-gallery) forwards;
+}
+.hero-scroll-hint span {
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(240,237,229,0.4);
+  writing-mode: vertical-rl;
+}
+.scroll-line {
+  width: 1px;
+  height: 48px;
+  background: rgba(240,237,229,0.2);
+  position: relative;
+  overflow: hidden;
+}
+.scroll-line::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(240,237,229,0.6);
+  animation: scrollDrop 1.8s ease-in-out infinite;
+}
+@keyframes scrollDrop {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+/* --- Upcoming Exhibitions --- */
+.section-upcoming {
+  padding: 120px 48px;
+  background: var(--parchment);
+}
+.upcoming-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  margin-top: 64px;
+}
+.upcoming-card {
+  background: var(--bone);
+  border: 1px solid var(--rule);
+  transition: border-color 400ms ease;
+  cursor: pointer;
+  overflow: hidden;
+}
+.upcoming-card:hover { border-color: var(--sienna); }
+.upcoming-card-img-wrap {
+  aspect-ratio: 3/2;
+  overflow: hidden;
+}
+.upcoming-card-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.8);
+  transition: filter 400ms ease, brightness 400ms ease;
+}
+.upcoming-card:hover .upcoming-card-img-wrap img {
+  filter: saturate(1);
+  brightness: 1.05;
+}
+.upcoming-card-body {
+  padding: 28px 28px 32px;
+}
+.upcoming-card-date {
+  font-family: var(--ff-sub);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--warm-slate);
+  margin-bottom: 12px;
+}
+.upcoming-card-title {
+  font-family: var(--ff-display);
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  margin-bottom: 8px;
+  color: var(--near-black);
+}
+.upcoming-card-artist {
+  font-family: var(--ff-body);
+  font-size: 13px;
+  color: var(--warm-slate);
+}
+
+/* --- Featured Artists --- */
+.section-artists {
+  padding: 120px 48px;
+  background: var(--linen);
+}
+.artists-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 40px;
+  margin-top: 64px;
+}
+.artist-card {
+  cursor: pointer;
+}
+.artist-card-img-wrap {
+  aspect-ratio: 2/3;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.artist-card-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: brightness 400ms ease;
+}
+.artist-card:hover .artist-card-img-wrap img { filter: brightness(0.9); }
+
+.artist-card-name {
+  font-family: var(--ff-display);
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--near-black);
+  margin-bottom: 6px;
+  position: relative;
+  display: inline-block;
+}
+.artist-card-name::after {
+  content: '';
+  position: absolute;
+  bottom: -3px; left: 0;
+  width: 100%; height: 1px;
+  background: var(--sienna);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 300ms var(--ease-out-expo);
+}
+.artist-card:hover .artist-card-name::after { transform: scaleX(1); }
+.artist-card-medium {
+  font-family: var(--ff-sub);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--warm-slate);
+}
+
+/* --- Events List --- */
+.section-events {
+  padding: 120px 48px;
+  background: var(--parchment);
+}
+.events-list {
+  margin-top: 64px;
+}
+.event-row {
+  border-top: 1px solid var(--rule);
+  padding: 32px 0;
+  display: grid;
+  grid-template-columns: 160px 1fr auto;
+  align-items: start;
+  gap: 40px;
+  cursor: pointer;
+  transition: background 200ms ease;
+}
+.event-row:last-child { border-bottom: 1px solid var(--rule); }
+.event-row.external { padding-left: 32px; }
+
+.event-date-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.event-date {
+  font-family: var(--ff-mono);
+  font-size: 13px;
+  color: var(--near-black);
+}
+.event-day {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  color: var(--dust);
+  letter-spacing: 0.06em;
+}
+
+.event-type-tag {
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sienna);
+  margin-bottom: 10px;
+}
+.event-row.external .event-type-tag { color: var(--dust); }
+
+.event-title {
+  font-family: var(--ff-display);
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--near-black);
+  margin-bottom: 6px;
+  transition: color 200ms ease;
+}
+.event-row.external .event-title {
+  font-family: var(--ff-body);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--warm-slate);
+}
+.event-row:hover .event-title { color: var(--sienna); }
+
+.event-subtitle {
+  font-family: var(--ff-sub);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--warm-slate);
+}
+
+.event-venue {
+  font-family: var(--ff-body);
+  font-size: 12px;
+  color: var(--dust);
+  text-align: right;
+  letter-spacing: 0.03em;
+}
+
+/* --- Archive Preview --- */
+.section-archive {
+  padding: 120px 48px;
+  background: var(--linen);
+}
+.archive-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  margin-top: 64px;
+}
+.archive-item {
+  cursor: pointer;
+}
+.archive-img-wrap {
+  aspect-ratio: 3/2;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.archive-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.85) saturate(0.65);
+  transition: filter 500ms ease;
+}
+.archive-item:hover .archive-img-wrap img {
+  filter: brightness(1) saturate(1);
+}
+.archive-item-title {
+  font-family: var(--ff-display);
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--warm-slate);
+  margin-bottom: 4px;
+}
+.archive-item-meta {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  color: var(--dust);
+  letter-spacing: 0.06em;
+}
+
+/* ═══════════════════════════════════════════════
+   ████  EXHIBITION PAGE
+═══════════════════════════════════════════════ */
+.exhibition-hero {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+}
+.exhibition-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.75);
+}
+.exhibition-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(23,22,15,0.85) 0%, transparent 60%);
+}
+.exhibition-hero-text {
+  position: absolute;
+  bottom: 80px;
+  left: 48px;
+  right: 48px;
+  border-top: 1px solid rgba(240,237,229,0.2);
+  padding-top: 32px;
+}
+.exhibition-hero-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 16px;
+}
+.exhibition-tag {
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sienna);
+}
+.exhibition-dates {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  color: var(--dust);
+  letter-spacing: 0.06em;
+}
+.exhibition-title-main {
+  font-family: var(--ff-display);
+  font-size: clamp(40px, 6vw, 72px);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+.exhibition-artist-sub {
+  font-family: var(--ff-sub);
+  font-style: italic;
+  font-size: 20px;
+  color: var(--dust);
+}
+
+/* Exhibition body */
+.exhibition-body {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 48px;
+}
+.exhibition-intro {
+  display: grid;
+  grid-template-columns: 1fr 480px;
+  gap: 120px;
+  padding: 96px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.exhibition-intro-text h3 {
+  font-family: var(--ff-sub);
+  font-style: italic;
+  font-size: 26px;
+  font-weight: 300;
+  color: var(--warm-slate);
+  margin-bottom: 32px;
+  line-height: 1.4;
+}
+.exhibition-intro-text p {
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--warm-slate);
+  margin-bottom: 20px;
+}
+.exhibition-sidebar-label {
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dust);
+  margin-bottom: 16px;
+}
+.exhibition-sidebar-value {
+  font-family: var(--ff-body);
+  font-size: 15px;
+  color: var(--near-black);
+  margin-bottom: 32px;
+}
+
+.pull-quote {
+  font-family: var(--ff-sub);
+  font-style: italic;
+  font-size: clamp(22px, 3vw, 32px);
+  font-weight: 300;
+  color: var(--warm-slate);
+  line-height: 1.4;
+  padding: 64px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  margin: 48px 0;
+  max-width: 720px;
+  margin-left: auto;
+}
+
+/* Artwork grid */
+.artwork-section {
+  padding: 80px 0;
+}
+.artwork-section h2 {
+  font-family: var(--ff-display);
+  font-size: 28px;
+  font-weight: 400;
+  margin-bottom: 48px;
+  letter-spacing: -0.01em;
+}
+.artwork-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 64px 48px;
+}
+.artwork-item {}
+.artwork-img-wrap {
+  border: 1px solid var(--rule);
+  overflow: hidden;
+  margin-bottom: 16px;
+  transition: border-color 400ms ease;
+  cursor: pointer;
+}
+.artwork-img-wrap:hover { border-color: var(--sienna); }
+.artwork-img-wrap img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  transition: brightness 400ms ease;
+}
+.artwork-img-wrap:hover img { filter: brightness(0.9); }
+.artwork-title {
+  font-family: var(--ff-body);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--near-black);
+  margin-bottom: 4px;
+}
+.artwork-meta {
+  font-family: var(--ff-body);
+  font-size: 13px;
+  color: var(--dust);
+}
+
+/* ═══════════════════════════════════════════════
+   ████  ARTIST PAGE
+═══════════════════════════════════════════════ */
+.artist-page {
+  padding-top: 80px;
+}
+.artist-hero {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  min-height: 100vh;
+}
+.artist-portrait-col {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+.artist-portrait-col img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.artist-bio-col {
+  padding: 80px 80px 80px 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.artist-bio-name {
+  font-family: var(--ff-display);
+  font-size: clamp(36px, 5vw, 60px);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 12px;
+  color: var(--near-black);
+}
+.artist-bio-location {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--dust);
+  text-transform: uppercase;
+  margin-bottom: 48px;
+}
+.artist-bio-lead {
+  font-family: var(--ff-sub);
+  font-style: italic;
+  font-size: 20px;
+  font-weight: 300;
+  color: var(--warm-slate);
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+.artist-bio-body {
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--warm-slate);
+  max-width: 540px;
+}
+
+.artist-works-section {
+  padding: 96px 48px;
+  background: var(--linen);
+}
+.artist-works-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  margin-top: 48px;
+}
+.artist-work-item {
+  cursor: pointer;
+}
+.artist-work-item .frame {
+  border: 1px solid var(--rule);
+  overflow: hidden;
+  margin-bottom: 14px;
+  transition: border-color 400ms ease;
+}
+.artist-work-item:hover .frame { border-color: var(--sienna); }
+.artist-work-item img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  transition: brightness 400ms ease;
+}
+.artist-work-item:hover img { filter: brightness(0.9); }
+
+.artist-shows-section {
+  padding: 80px 48px;
+  max-width: 900px;
+}
+.artist-shows-section h2 {
+  font-family: var(--ff-display);
+  font-size: 28px;
+  font-weight: 400;
+  margin-bottom: 48px;
+  letter-spacing: -0.01em;
+}
+.show-item {
+  border-top: 1px solid var(--rule);
+  padding: 28px 0;
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 40px;
+}
+.show-item:last-child { border-bottom: 1px solid var(--rule); }
+.show-item.external { padding-left: 32px; }
+.show-date {
+  font-family: var(--ff-mono);
+  font-size: 12px;
+  color: var(--warm-slate);
+  letter-spacing: 0.04em;
+  padding-top: 4px;
+}
+.show-tag {
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sienna);
+  margin-bottom: 8px;
+}
+.show-item.external .show-tag { color: var(--dust); }
+.show-title {
+  font-family: var(--ff-display);
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--near-black);
+  margin-bottom: 6px;
+}
+.show-item.external .show-title {
+  font-family: var(--ff-body);
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--warm-slate);
+}
+.show-venue {
+  font-family: var(--ff-body);
+  font-size: 13px;
+  color: var(--dust);
+}
+
+/* ═══════════════════════════════════════════════
+   ████  EVENTS PAGE
+═══════════════════════════════════════════════ */
+.events-page {
+  padding-top: 120px;
+  min-height: 100vh;
+}
+.events-page-header {
+  padding: 0 48px 64px;
+  border-bottom: 1px solid var(--rule);
+}
+.events-page-title {
+  font-family: var(--ff-display);
+  font-size: clamp(40px, 6vw, 72px);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  margin-bottom: 40px;
+  line-height: 1.1;
+}
+.events-filters {
+  display: flex;
+  gap: 32px;
+}
+.events-filter-btn {
+  font-family: var(--ff-body);
+  font-size: 13px;
+  color: var(--warm-slate);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  position: relative;
+  transition: color 200ms ease;
+}
+.events-filter-btn::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; left: 0;
+  width: 100%; height: 1px;
+  background: var(--sienna);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 300ms var(--ease-out-expo);
+}
+.events-filter-btn.active { color: var(--near-black); }
+.events-filter-btn.active::after { transform: scaleX(1); }
+.events-filter-btn:hover { color: var(--near-black); }
+
+.events-calendar {
+  padding: 0 48px;
+}
+.month-group {
+  padding: 64px 0 0;
+}
+.month-label {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dust);
+  margin-bottom: 0;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--rule);
+}
+.cal-event {
+  border-bottom: 1px solid var(--rule);
+  padding: 36px 0;
+  display: grid;
+  grid-template-columns: 140px 1fr auto;
+  gap: 40px;
+  cursor: pointer;
+  transition: padding-left 300ms ease;
+}
+.cal-event.external { padding-left: 32px; }
+.cal-event:hover { padding-left: 8px; }
+.cal-event.external:hover { padding-left: 40px; }
+
+.cal-date {
+  font-family: var(--ff-mono);
+  font-size: 13px;
+  color: var(--near-black);
+  line-height: 1.4;
+}
+.cal-weekday {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  color: var(--dust);
+  letter-spacing: 0.06em;
+  margin-top: 4px;
+}
+.cal-event-type {
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sienna);
+  margin-bottom: 8px;
+}
+.cal-event.external .cal-event-type { color: var(--dust); }
+
+.cal-event-title {
+  font-family: var(--ff-display);
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--near-black);
+  margin-bottom: 6px;
+  transition: color 200ms ease;
+}
+.cal-event:hover .cal-event-title { color: var(--sienna); }
+.cal-event.external .cal-event-title {
+  font-family: var(--ff-body);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--warm-slate);
+}
+.cal-event-artist {
+  font-family: var(--ff-sub);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--warm-slate);
+}
+.cal-venue {
+  font-family: var(--ff-body);
+  font-size: 12px;
+  color: var(--dust);
+  text-align: right;
+  padding-top: 2px;
+  white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════════════
+   ████  ARCHIVE PAGE
+═══════════════════════════════════════════════ */
+.archive-page {
+  padding-top: 140px;
+  min-height: 100vh;
+  padding-bottom: 120px;
+}
+.archive-page-header {
+  padding: 0 48px 80px;
+}
+.archive-page-intro {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 80px;
+  align-items: end;
+}
+.archive-main-grid {
+  padding: 0 48px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+.archive-main-item {
+  background: var(--bone);
+  cursor: pointer;
+  overflow: hidden;
+  border: 1px solid var(--rule);
+  transition: border-color 400ms ease;
+}
+.archive-main-item:hover { border-color: var(--sienna); }
+.archive-main-img {
+  aspect-ratio: 3/2;
+  overflow: hidden;
+}
+.archive-main-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.85) saturate(0.6);
+  transition: filter 500ms ease;
+}
+.archive-main-item:hover .archive-main-img img {
+  filter: brightness(1) saturate(1);
+}
+.archive-main-body {
+  padding: 28px;
+}
+.archive-main-year {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  color: var(--dust);
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+.archive-main-title {
+  font-family: var(--ff-display);
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--warm-slate);
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+.archive-main-artist {
+  font-family: var(--ff-body);
+  font-size: 13px;
+  color: var(--dust);
+}
+
+/* ═══════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════ */
+footer {
+  background: var(--near-black);
+  padding: 64px 48px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: end;
+}
+.footer-left {}
+.footer-wordmark {
+  font-family: var(--ff-display);
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--cream);
+  margin-bottom: 8px;
+}
+.footer-location {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  color: var(--dust);
+  letter-spacing: 0.08em;
+}
+.footer-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 24px;
+}
+.footer-links {
+  display: flex;
+  gap: 32px;
+}
+.footer-links a {
+  font-family: var(--ff-body);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--dust);
+  cursor: pointer;
+  transition: color 200ms ease;
+}
+.footer-links a:hover { color: var(--cream); }
+.footer-social {
+  display: flex;
+  gap: 24px;
+}
+.footer-social a {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  color: var(--dust);
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: color 200ms ease;
+}
+.footer-social a:hover { color: var(--sienna); }
+.footer-copy {
+  border-top: 1px solid #2A2920;
+  padding-top: 24px;
+  margin-top: 24px;
+  width: 100%;
+  text-align: right;
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  color: #3A3830;
+  letter-spacing: 0.06em;
+  grid-column: 1 / -1;
+}
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .upcoming-grid { grid-template-columns: repeat(2, 1fr); }
+  .artists-grid { grid-template-columns: repeat(2, 1fr); }
+  .exhibition-intro { grid-template-columns: 1fr; gap: 48px; }
+  .artist-hero { grid-template-columns: 340px 1fr; }
+  .artist-bio-col { padding: 80px 48px; }
+  .artist-works-grid { grid-template-columns: repeat(2, 1fr); }
+  .archive-main-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  nav { padding: 20px 24px; }
+  .nav-links { display: none; }
+  .nav-mobile-btn { display: flex; }
+  .mobile-close { right: 24px; }
+
+  .hero-content { left: 24px; right: 24px; bottom: 48px; }
+  .hero-title { font-size: clamp(36px, 10vw, 64px); }
+
+  .section-upcoming,
+  .section-artists,
+  .section-events,
+  .section-archive { padding: 80px 24px; }
+
+  .upcoming-grid { grid-template-columns: 1fr; }
+  .artists-grid { grid-template-columns: repeat(2, 1fr); }
+
+  .event-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .event-venue { text-align: left; }
+
+  .archive-grid { grid-template-columns: 1fr; }
+
+  .exhibition-body { padding: 0 24px; }
+  .artwork-grid { grid-template-columns: 1fr; }
+
+  .artist-hero { grid-template-columns: 1fr; min-height: auto; }
+  .artist-portrait-col { position: relative; height: 60vw; max-height: 480px; }
+  .artist-bio-col { padding: 48px 24px; }
+
+  .events-page { padding-top: 100px; }
+  .events-page-header { padding: 0 24px 48px; }
+  .events-calendar { padding: 0 24px; }
+  .cal-event { grid-template-columns: 1fr; gap: 8px; }
+
+  .archive-page { padding-top: 100px; }
+  .archive-page-header { padding: 0 24px 64px; }
+  .archive-page-intro { grid-template-columns: 1fr; }
+  .archive-main-grid { padding: 0 24px; grid-template-columns: 1fr; }
+
+  footer { grid-template-columns: 1fr; gap: 32px; padding: 48px 24px; }
+  .footer-right { align-items: flex-start; }
+}
+
+/* ═══════════════════════════════════════════════
+   UTILITY
+═══════════════════════════════════════════════ */
+.text-center { text-align: center; }
+.mt-0 { margin-top: 0; }
+.page-inner { padding-top: 80px; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     NAV
+═══════════════════════════════════════════ -->
+<nav id="main-nav">
+  <span class="nav-wordmark" onclick="showPage('home')">Studio 201</span>
+  <ul class="nav-links">
+    <li><a onclick="showPage('home')"     id="nav-home">Exhibitions</a></li>
+    <li><a onclick="showPage('artists')"  id="nav-artists">Artists</a></li>
+    <li><a onclick="showPage('events')"   id="nav-events">Events</a></li>
+    <li><a onclick="showPage('archive')"  id="nav-archive">Archive</a></li>
+  </ul>
+  <button class="nav-mobile-btn" onclick="toggleMobile()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- Mobile overlay -->
+<div class="mobile-overlay" id="mobile-overlay">
+  <button class="mobile-close" onclick="toggleMobile()">CLOSE ×</button>
+  <a onclick="showPage('home'); toggleMobile()">Exhibitions</a>
+  <a onclick="showPage('artists'); toggleMobile()">Artists</a>
+  <a onclick="showPage('events'); toggleMobile()">Events</a>
+  <a onclick="showPage('archive'); toggleMobile()">Archive</a>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     HOME PAGE
+═══════════════════════════════════════════ -->
+<div class="page active visible" id="page-home">
+
+  <!-- HERO -->
+  <section class="hero">
+    <img class="hero-img"
+         src="https://images.unsplash.com/photo-1578926375605-eaf7559b1458?w=1800&q=80"
+         alt="Mga Paa sa Alapaap — Maria Santos">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-label">Now on View</div>
+      <h1 class="hero-title">Mga Paa<br>sa Alapaap</h1>
+      <div class="hero-artist">Maria Santos</div>
+      <div class="hero-date">Oct 3 – Nov 28, 2025</div>
+      <div class="hero-cta">
+        <a class="link-bare" onclick="showPage('exhibition')" style="color:var(--cream);">View Exhibition →</a>
+      </div>
+    </div>
+    <div class="hero-scroll-hint">
+      <div class="scroll-line"></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+  <!-- UPCOMING EXHIBITIONS -->
+  <section class="section-upcoming">
+    <div class="section-label reveal">Upcoming Exhibitions</div>
+    <div class="upcoming-grid">
+      <div class="upcoming-card reveal reveal-d1" onclick="showPage('exhibition')">
+        <div class="upcoming-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=800&q=80" alt="Exhibition">
+        </div>
+        <div class="upcoming-card-body">
+          <div class="upcoming-card-date">Opening Nov 30, 2025</div>
+          <div class="upcoming-card-title">Lupa at Langit</div>
+          <div class="upcoming-card-artist">Jun Manlangit</div>
+        </div>
+      </div>
+      <div class="upcoming-card reveal reveal-d2" onclick="showPage('exhibition')">
+        <div class="upcoming-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1620510625142-b45cbb784397?w=800&q=80" alt="Exhibition">
+        </div>
+        <div class="upcoming-card-body">
+          <div class="upcoming-card-date">Opening Jan 15, 2026</div>
+          <div class="upcoming-card-title">Ulan sa Disyembre</div>
+          <div class="upcoming-card-artist">Elena Yap</div>
+        </div>
+      </div>
+      <div class="upcoming-card reveal reveal-d3" onclick="showPage('exhibition')">
+        <div class="upcoming-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1541367777708-7905fe3296c0?w=800&q=80" alt="Exhibition">
+        </div>
+        <div class="upcoming-card-body">
+          <div class="upcoming-card-date">Opening Mar 5, 2026</div>
+          <div class="upcoming-card-title">Dagat ng Alaala</div>
+          <div class="upcoming-card-artist">Carlo Reyes</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURED ARTISTS -->
+  <section class="section-artists">
+    <div class="section-label reveal">Artists</div>
+    <div class="artists-grid">
+      <div class="artist-card reveal reveal-d1" onclick="showPage('artist-profile')">
+        <div class="artist-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&q=80" alt="Maria Santos">
+        </div>
+        <div class="artist-card-name">Maria Santos</div>
+        <div class="artist-card-medium">Painting, Mixed Media</div>
+      </div>
+      <div class="artist-card reveal reveal-d2" onclick="showPage('artist-profile')">
+        <div class="artist-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600&q=80" alt="Jun Manlangit">
+        </div>
+        <div class="artist-card-name">Jun Manlangit</div>
+        <div class="artist-card-medium">Sculpture, Installation</div>
+      </div>
+      <div class="artist-card reveal reveal-d3" onclick="showPage('artist-profile')">
+        <div class="artist-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=600&q=80" alt="Elena Yap">
+        </div>
+        <div class="artist-card-name">Elena Yap</div>
+        <div class="artist-card-medium">Photography, Video</div>
+      </div>
+      <div class="artist-card reveal reveal-d4" onclick="showPage('artist-profile')">
+        <div class="artist-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80" alt="Carlo Reyes">
+        </div>
+        <div class="artist-card-name">Carlo Reyes</div>
+        <div class="artist-card-medium">Drawing, Printmaking</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EVENTS -->
+  <section class="section-events">
+    <div class="section-label reveal">Events</div>
+    <div class="events-list">
+      <div class="event-row reveal">
+        <div class="event-date-col">
+          <div class="event-date">Nov 5, 2025</div>
+          <div class="event-day">Wednesday</div>
+        </div>
+        <div>
+          <div class="event-type-tag">Artist Talk</div>
+          <div class="event-title">Painting as Memory</div>
+          <div class="event-subtitle">A Conversation with Maria Santos</div>
+        </div>
+        <div class="event-venue">Studio 201<br>7:00 PM</div>
+      </div>
+
+      <div class="event-row reveal reveal-d1">
+        <div class="event-date-col">
+          <div class="event-date">Nov 12, 2025</div>
+          <div class="event-day">Wednesday</div>
+        </div>
+        <div>
+          <div class="event-type-tag">Opening Night</div>
+          <div class="event-title">Mga Paa sa Alapaap</div>
+          <div class="event-subtitle">Maria Santos</div>
+        </div>
+        <div class="event-venue">Studio 201<br>6:00 PM</div>
+      </div>
+
+      <div class="event-row external reveal reveal-d2">
+        <div class="event-date-col">
+          <div class="event-date">Dec 2, 2025</div>
+          <div class="event-day">Tuesday</div>
+        </div>
+        <div>
+          <div class="event-type-tag">Workshop [External]</div>
+          <div class="event-title">Relief Printmaking</div>
+          <div class="event-subtitle">with Jun Manlangit</div>
+        </div>
+        <div class="event-venue">Sugbo Mercado<br>2:00 PM</div>
+      </div>
+
+      <div class="event-row reveal reveal-d3">
+        <div class="event-date-col">
+          <div class="event-date">Dec 15, 2025</div>
+          <div class="event-day">Monday</div>
+        </div>
+        <div>
+          <div class="event-type-tag">Symposium</div>
+          <div class="event-title">Contemporary Art in the Visayas</div>
+          <div class="event-subtitle">Panel Discussion</div>
+        </div>
+        <div class="event-venue">Studio 201<br>10:00 AM</div>
+      </div>
+    </div>
+    <div style="margin-top:48px;" class="reveal">
+      <a class="link-bare" onclick="showPage('events')">View all events →</a>
+    </div>
+  </section>
+
+  <!-- ARCHIVE PREVIEW -->
+  <section class="section-archive">
+    <div class="section-label reveal">Selected Archive</div>
+    <div class="archive-grid">
+      <div class="archive-item reveal reveal-d1" onclick="showPage('archive')">
+        <div class="archive-img-wrap">
+          <img src="https://images.unsplash.com/photo-1590907047706-ee9c08cf3189?w=800&q=80" alt="Archive">
+        </div>
+        <div class="archive-item-title">Halina at Luha</div>
+        <div class="archive-item-meta">Maria Santos — 2024</div>
+      </div>
+      <div class="archive-item reveal reveal-d2" onclick="showPage('archive')">
+        <div class="archive-img-wrap">
+          <img src="https://images.unsplash.com/photo-1544967082-d9d25d867d66?w=800&q=80" alt="Archive">
+        </div>
+        <div class="archive-item-title">Tahanan</div>
+        <div class="archive-item-meta">Group Exhibition — 2024</div>
+      </div>
+      <div class="archive-item reveal reveal-d3" onclick="showPage('archive')">
+        <div class="archive-img-wrap">
+          <img src="https://images.unsplash.com/photo-1547891654-e66ed7ebb968?w=800&q=80" alt="Archive">
+        </div>
+        <div class="archive-item-title">Sa Pamamagitan ng Kahoy</div>
+        <div class="archive-item-meta">Jun Manlangit — 2023</div>
+      </div>
+    </div>
+    <div style="margin-top:48px;" class="reveal">
+      <a class="link-bare" onclick="showPage('archive')">View full archive →</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-left">
+      <div class="footer-wordmark">Studio 201</div>
+      <div class="footer-location">Cebu, Philippines</div>
+    </div>
+    <div class="footer-right">
+      <div class="footer-links">
+        <a onclick="showPage('home')">Exhibitions</a>
+        <a onclick="showPage('artists')">Artists</a>
+        <a onclick="showPage('events')">Events</a>
+        <a onclick="showPage('archive')">Archive</a>
+      </div>
+      <div class="footer-social">
+        <a>Instagram</a>
+        <a>Email</a>
+      </div>
+    </div>
+    <div class="footer-copy">© 2025 Studio 201. All rights reserved.</div>
+  </footer>
+
+</div><!-- /page-home -->
+
+
+<!-- ═══════════════════════════════════════════
+     EXHIBITION PAGE
+═══════════════════════════════════════════ -->
+<div class="page" id="page-exhibition">
+
+  <section class="exhibition-hero">
+    <img src="https://images.unsplash.com/photo-1578926375605-eaf7559b1458?w=1800&q=80" alt="Mga Paa sa Alapaap">
+    <div class="exhibition-hero-overlay"></div>
+    <div class="exhibition-hero-text">
+      <div class="exhibition-hero-meta">
+        <div class="exhibition-tag">Exhibition</div>
+        <div class="exhibition-dates">Oct 3 – Nov 28, 2025</div>
+      </div>
+      <h1 class="exhibition-title-main">Mga Paa sa Alapaap</h1>
+      <div class="exhibition-artist-sub">Maria Santos</div>
+    </div>
+  </section>
+
+  <div class="exhibition-body">
+    <div class="exhibition-intro">
+      <div class="exhibition-intro-text reveal">
+        <h3>"To paint is to remember. To remember is to survive."</h3>
+        <p>Mga Paa sa Alapaap is a collection of large-format paintings rooted in Santos's experience of displacement, childhood memory, and the landscape of Southern Philippines. The works navigate between the personal and the mythic — feet that never quite touch ground, skies that hold the weight of everything unsaid.</p>
+        <p>Santos works predominantly in oil with occasional mixed-media interventions — fragments of abaca fiber, scorched cloth, and earth gathered from specific sites in Cebu and Leyte. Each work is both document and dream.</p>
+        <div style="margin-top:48px;">
+          <a class="link-bare" onclick="showPage('artist-profile')">View artist profile →</a>
+        </div>
+      </div>
+      <div class="reveal reveal-d2">
+        <div class="exhibition-sidebar-label">Artist</div>
+        <div class="exhibition-sidebar-value">Maria Santos</div>
+        <div class="exhibition-sidebar-label">Medium</div>
+        <div class="exhibition-sidebar-value">Oil, Mixed Media</div>
+        <div class="exhibition-sidebar-label">Duration</div>
+        <div class="exhibition-sidebar-value">Oct 3 – Nov 28, 2025</div>
+        <div class="exhibition-sidebar-label">Location</div>
+        <div class="exhibition-sidebar-value">Studio 201 Main Gallery<br>Cebu, Philippines</div>
+        <div style="margin-top:40px;">
+          <button class="btn-outline">Inquire about works</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pull-quote reveal">
+      The body always knows where home is, even when the mind has learned to forget.
+    </div>
+
+    <div class="artwork-section">
+      <h2 class="reveal">Works in Exhibition</h2>
+      <div class="artwork-grid">
+        <div class="artwork-item reveal reveal-d1">
+          <div class="artwork-img-wrap">
+            <img src="https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=800&q=80" alt="Artwork">
+          </div>
+          <div class="artwork-title">Ang Paa na Hindi Lumupad, I</div>
+          <div class="artwork-meta">2025 · Oil on canvas · 180 × 240 cm</div>
+        </div>
+        <div class="artwork-item reveal reveal-d2">
+          <div class="artwork-img-wrap">
+            <img src="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=800&q=80" alt="Artwork">
+          </div>
+          <div class="artwork-title">Ang Paa na Hindi Lumupad, II</div>
+          <div class="artwork-meta">2025 · Oil, abaca fiber · 120 × 180 cm</div>
+        </div>
+        <div class="artwork-item reveal reveal-d3">
+          <div class="artwork-img-wrap">
+            <img src="https://images.unsplash.com/photo-1541367777708-7905fe3296c0?w=800&q=80" alt="Artwork">
+          </div>
+          <div class="artwork-title">Dagat na Walang Hangganan</div>
+          <div class="artwork-meta">2024 · Oil, earth, cloth · 200 × 300 cm</div>
+        </div>
+        <div class="artwork-item reveal reveal-d4">
+          <div class="artwork-img-wrap">
+            <img src="https://images.unsplash.com/photo-1547891654-e66ed7ebb968?w=800&q=80" alt="Artwork">
+          </div>
+          <div class="artwork-title">Langit ng Aking Ina</div>
+          <div class="artwork-meta">2025 · Oil on linen · 150 × 200 cm</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding: 80px 0; border-top: 1px solid var(--rule);" class="reveal">
+      <div class="section-label">Artists in this Exhibition</div>
+      <div style="margin-top:32px;">
+        <div style="font-family: var(--ff-display); font-size:22px; font-weight:400; margin-bottom:6px;">Maria Santos</div>
+        <div style="font-family:var(--ff-mono);font-size:10px;color:var(--dust);letter-spacing:.08em;margin-bottom:16px;">CEBU, PHILIPPINES</div>
+        <a class="link-bare" onclick="showPage('artist-profile')">View full profile →</a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-left">
+      <div class="footer-wordmark">Studio 201</div>
+      <div class="footer-location">Cebu, Philippines</div>
+    </div>
+    <div class="footer-right">
+      <div class="footer-links">
+        <a onclick="showPage('home')">Exhibitions</a>
+        <a onclick="showPage('artists')">Artists</a>
+        <a onclick="showPage('events')">Events</a>
+        <a onclick="showPage('archive')">Archive</a>
+      </div>
+      <div class="footer-social"><a>Instagram</a><a>Email</a></div>
+    </div>
+    <div class="footer-copy">© 2025 Studio 201.</div>
+  </footer>
+
+</div><!-- /page-exhibition -->
+
+
+<!-- ═══════════════════════════════════════════
+     ARTIST PROFILE PAGE
+═══════════════════════════════════════════ -->
+<div class="page" id="page-artist-profile">
+  <div class="artist-page">
+
+    <div class="artist-hero">
+      <div class="artist-portrait-col">
+        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&q=80" alt="Maria Santos">
+      </div>
+      <div class="artist-bio-col reveal">
+        <div class="artist-bio-name">Maria<br>Santos</div>
+        <div class="artist-bio-location">Cebu, Philippines · b. 1986</div>
+        <p class="artist-bio-lead">Santos works at the intersection of memory, myth, and the landscapes of Southern Philippines — translating displacement into large-format oil paintings that feel both intimate and immense.</p>
+        <p class="artist-bio-body">Her practice has expanded over the past decade to include found materials: scorched cloth, earth from specific sites, abaca fiber woven into paint surfaces. Each work is both document and dream, rooted in the geography of the Visayas while reaching toward something universal and wordless.<br><br>Santos has exhibited across the Philippines and Southeast Asia. She maintains a studio in Carcar, Cebu.</p>
+        <div style="margin-top:48px; display:flex; gap:32px; align-items:center;">
+          <button class="btn-outline">Download CV</button>
+          <a class="link-bare" style="font-size:13px;color:var(--warm-slate)">Instagram →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="artist-works-section">
+      <div class="section-label reveal">Selected Works</div>
+      <div class="artist-works-grid">
+        <div class="artist-work-item reveal reveal-d1">
+          <div class="frame"><img src="https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=600&q=80" alt="Work"></div>
+          <div class="artwork-title">Ang Paa na Hindi Lumupad, I</div>
+          <div class="artwork-meta">2025 · Oil on canvas</div>
+        </div>
+        <div class="artist-work-item reveal reveal-d2">
+          <div class="frame"><img src="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=600&q=80" alt="Work"></div>
+          <div class="artwork-title">Dagat na Walang Hangganan</div>
+          <div class="artwork-meta">2024 · Oil, earth, cloth</div>
+        </div>
+        <div class="artist-work-item reveal reveal-d3">
+          <div class="frame"><img src="https://images.unsplash.com/photo-1547891654-e66ed7ebb968?w=600&q=80" alt="Work"></div>
+          <div class="artwork-title">Langit ng Aking Ina</div>
+          <div class="artwork-meta">2025 · Oil on linen</div>
+        </div>
+        <div class="artist-work-item reveal reveal-d4">
+          <div class="frame"><img src="https://images.unsplash.com/photo-1541367777708-7905fe3296c0?w=600&q=80" alt="Work"></div>
+          <div class="artwork-title">Halina at Luha</div>
+          <div class="artwork-meta">2023 · Mixed media</div>
+        </div>
+        <div class="artist-work-item reveal reveal-d5">
+          <div class="frame"><img src="https://images.unsplash.com/photo-1620510625142-b45cbb784397?w=600&q=80" alt="Work"></div>
+          <div class="artwork-title">Ang Katahimikan ng Tubig</div>
+          <div class="artwork-meta">2022 · Oil on canvas</div>
+        </div>
+        <div class="artist-work-item reveal reveal-d1">
+          <div class="frame"><img src="https://images.unsplash.com/photo-1590907047706-ee9c08cf3189?w=600&q=80" alt="Work"></div>
+          <div class="artwork-title">Bundok at Dagat</div>
+          <div class="artwork-meta">2022 · Oil, abaca</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="artist-shows-section" style="padding:80px 48px;">
+      <div class="section-label reveal">Upcoming Shows</div>
+      <div style="margin-top:48px;">
+        <div class="show-item reveal">
+          <div class="show-date">Nov 30, 2025</div>
+          <div>
+            <div class="show-tag">Studio 201 Exhibition</div>
+            <div class="show-title">Mga Paa sa Alapaap</div>
+            <div class="show-venue">Studio 201 · Cebu, Philippines</div>
+          </div>
+        </div>
+        <div class="show-item external reveal reveal-d1">
+          <div class="show-date">Jan 10, 2026</div>
+          <div>
+            <div class="show-tag">External · Group Show</div>
+            <div class="show-title">Visayan Contemporary</div>
+            <div class="show-venue">Ayala Museum · Manila, Philippines</div>
+          </div>
+        </div>
+        <div class="show-item external reveal reveal-d2">
+          <div class="show-date">Mar 15, 2026</div>
+          <div>
+            <div class="show-tag">External · Solo</div>
+            <div class="show-title">Roots and Routes</div>
+            <div class="show-venue">Art Fair Singapore</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="footer-left">
+      <div class="footer-wordmark">Studio 201</div>
+      <div class="footer-location">Cebu, Philippines</div>
+    </div>
+    <div class="footer-right">
+      <div class="footer-links">
+        <a onclick="showPage('home')">Exhibitions</a>
+        <a onclick="showPage('artists')">Artists</a>
+        <a onclick="showPage('events')">Events</a>
+        <a onclick="showPage('archive')">Archive</a>
+      </div>
+      <div class="footer-social"><a>Instagram</a><a>Email</a></div>
+    </div>
+    <div class="footer-copy">© 2025 Studio 201.</div>
+  </footer>
+
+</div><!-- /page-artist-profile -->
+
+
+<!-- ═══════════════════════════════════════════
+     ARTISTS LIST PAGE
+═══════════════════════════════════════════ -->
+<div class="page" id="page-artists">
+  <div style="padding-top:140px; padding-bottom:120px;">
+    <div style="padding:0 48px 80px;">
+      <div class="section-label reveal">The Artists</div>
+      <h1 class="reveal" style="font-family:var(--ff-display);font-size:clamp(40px,6vw,72px);font-weight:400;letter-spacing:-0.02em;line-height:1.1;max-width:600px;">The artists<br>of Studio 201</h1>
+    </div>
+    <div class="artists-grid" style="padding:0 48px;">
+      <div class="artist-card reveal reveal-d1" onclick="showPage('artist-profile')">
+        <div class="artist-card-img-wrap"><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&q=80" alt="Maria Santos"></div>
+        <div class="artist-card-name">Maria Santos</div>
+        <div class="artist-card-medium">Painting, Mixed Media</div>
+      </div>
+      <div class="artist-card reveal reveal-d2" onclick="showPage('artist-profile')">
+        <div class="artist-card-img-wrap"><img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600&q=80" alt="Jun Manlangit"></div>
+        <div class="artist-card-name">Jun Manlangit</div>
+        <div class="artist-card-medium">Sculpture, Installation</div>
+      </div>
+      <div class="artist-card reveal reveal-d3" onclick="showPage('artist-profile')">
+        <div class="artist-card-img-wrap"><img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=600&q=80" alt="Elena Yap"></div>
+        <div class="artist-card-name">Elena Yap</div>
+        <div class="artist-card-medium">Photography, Video</div>
+      </div>
+      <div class="artist-card reveal reveal-d4" onclick="showPage('artist-profile')">
+        <div class="artist-card-img-wrap"><img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80" alt="Carlo Reyes"></div>
+        <div class="artist-card-name">Carlo Reyes</div>
+        <div class="artist-card-medium">Drawing, Printmaking</div>
+      </div>
+      <div class="artist-card reveal reveal-d1" onclick="showPage('artist-profile')">
+        <div class="artist-card-img-wrap"><img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=600&q=80" alt="Ana Buenaventura"></div>
+        <div class="artist-card-name">Ana Buenaventura</div>
+        <div class="artist-card-medium">Textile, Fiber Arts</div>
+      </div>
+      <div class="artist-card reveal reveal-d2" onclick="showPage('artist-profile')">
+        <div class="artist-card-img-wrap"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&q=80" alt="Rene Dela Cruz"></div>
+        <div class="artist-card-name">Rene Dela Cruz</div>
+        <div class="artist-card-medium">Ceramics, Earthwork</div>
+      </div>
+      <div class="artist-card reveal reveal-d3" onclick="showPage('artist-profile')">
+        <div class="artist-card-img-wrap"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&q=80" alt="Ligaya Ferrer"></div>
+        <div class="artist-card-name">Ligaya Ferrer</div>
+        <div class="artist-card-medium">Performance, Sound</div>
+      </div>
+      <div class="artist-card reveal reveal-d4" onclick="showPage('artist-profile')">
+        <div class="artist-card-img-wrap"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=600&q=80" alt="Bernard Ong"></div>
+        <div class="artist-card-name">Bernard Ong</div>
+        <div class="artist-card-medium">New Media, Digital</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer-left">
+      <div class="footer-wordmark">Studio 201</div>
+      <div class="footer-location">Cebu, Philippines</div>
+    </div>
+    <div class="footer-right">
+      <div class="footer-links">
+        <a onclick="showPage('home')">Exhibitions</a>
+        <a onclick="showPage('artists')">Artists</a>
+        <a onclick="showPage('events')">Events</a>
+        <a onclick="showPage('archive')">Archive</a>
+      </div>
+      <div class="footer-social"><a>Instagram</a><a>Email</a></div>
+    </div>
+    <div class="footer-copy">© 2025 Studio 201.</div>
+  </footer>
+</div><!-- /page-artists -->
+
+
+<!-- ═══════════════════════════════════════════
+     EVENTS PAGE
+═══════════════════════════════════════════ -->
+<div class="page" id="page-events">
+  <div class="events-page">
+    <div class="events-page-header">
+      <div class="section-label reveal">Cultural Calendar</div>
+      <h1 class="events-page-title reveal">Events &<br>Programming</h1>
+      <div class="events-filters reveal">
+        <button class="events-filter-btn active" onclick="filterEvents('all', this)">All</button>
+        <button class="events-filter-btn" onclick="filterEvents('studio', this)">Studio Events</button>
+        <button class="events-filter-btn" onclick="filterEvents('external', this)">External Shows</button>
+        <button class="events-filter-btn" onclick="filterEvents('archive', this)">Archive</button>
+      </div>
+    </div>
+
+    <div class="events-calendar">
+      <div class="month-group">
+        <div class="month-label">November 2025</div>
+        <div class="cal-event studio-event reveal">
+          <div>
+            <div class="cal-date">Nov 5</div>
+            <div class="cal-weekday">Wednesday</div>
+          </div>
+          <div>
+            <div class="cal-event-type">Artist Talk</div>
+            <div class="cal-event-title">Painting as Memory</div>
+            <div class="cal-event-artist">A Conversation with Maria Santos</div>
+          </div>
+          <div class="cal-venue">Studio 201<br>7:00 PM</div>
+        </div>
+        <div class="cal-event studio-event reveal reveal-d1">
+          <div>
+            <div class="cal-date">Nov 12</div>
+            <div class="cal-weekday">Wednesday</div>
+          </div>
+          <div>
+            <div class="cal-event-type">Opening Night</div>
+            <div class="cal-event-title">Mga Paa sa Alapaap</div>
+            <div class="cal-event-artist">Maria Santos</div>
+          </div>
+          <div class="cal-venue">Studio 201<br>6:00 PM</div>
+        </div>
+        <div class="cal-event studio-event reveal reveal-d2">
+          <div>
+            <div class="cal-date">Nov 22</div>
+            <div class="cal-weekday">Saturday</div>
+          </div>
+          <div>
+            <div class="cal-event-type">Workshop</div>
+            <div class="cal-event-title">Oil Painting Fundamentals</div>
+            <div class="cal-event-artist">Masterclass · Limited seats</div>
+          </div>
+          <div class="cal-venue">Studio 201<br>9:00 AM</div>
+        </div>
+      </div>
+
+      <div class="month-group">
+        <div class="month-label">December 2025</div>
+        <div class="cal-event external reveal">
+          <div>
+            <div class="cal-date">Dec 2</div>
+            <div class="cal-weekday">Tuesday</div>
+          </div>
+          <div>
+            <div class="cal-event-type">Workshop [External]</div>
+            <div class="cal-event-title">Relief Printmaking</div>
+            <div class="cal-event-artist">with Jun Manlangit</div>
+          </div>
+          <div class="cal-venue">Sugbo Mercado<br>2:00 PM</div>
+        </div>
+        <div class="cal-event studio-event reveal reveal-d1">
+          <div>
+            <div class="cal-date">Dec 15</div>
+            <div class="cal-weekday">Monday</div>
+          </div>
+          <div>
+            <div class="cal-event-type">Symposium</div>
+            <div class="cal-event-title">Contemporary Art in the Visayas</div>
+            <div class="cal-event-artist">Panel Discussion</div>
+          </div>
+          <div class="cal-venue">Studio 201<br>10:00 AM</div>
+        </div>
+        <div class="cal-event studio-event reveal reveal-d2">
+          <div>
+            <div class="cal-date">Dec 30</div>
+            <div class="cal-weekday">Tuesday</div>
+          </div>
+          <div>
+            <div class="cal-event-type">Exhibition Closing</div>
+            <div class="cal-event-title">Mga Paa sa Alapaap — Closing</div>
+            <div class="cal-event-artist">Maria Santos</div>
+          </div>
+          <div class="cal-venue">Studio 201<br>5:00 PM</div>
+        </div>
+      </div>
+
+      <div class="month-group" style="padding-bottom:80px;">
+        <div class="month-label">January 2026</div>
+        <div class="cal-event studio-event reveal">
+          <div>
+            <div class="cal-date">Jan 15</div>
+            <div class="cal-weekday">Thursday</div>
+          </div>
+          <div>
+            <div class="cal-event-type">Opening Night</div>
+            <div class="cal-event-title">Ulan sa Disyembre</div>
+            <div class="cal-event-artist">Elena Yap</div>
+          </div>
+          <div class="cal-venue">Studio 201<br>6:00 PM</div>
+        </div>
+        <div class="cal-event external reveal reveal-d1">
+          <div>
+            <div class="cal-date">Jan 10</div>
+            <div class="cal-weekday">Saturday</div>
+          </div>
+          <div>
+            <div class="cal-event-type">Group Show [External]</div>
+            <div class="cal-event-title">Visayan Contemporary</div>
+            <div class="cal-event-artist">Maria Santos — group exhibition</div>
+          </div>
+          <div class="cal-venue">Ayala Museum, Manila<br>Opening 6:00 PM</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-left">
+      <div class="footer-wordmark">Studio 201</div>
+      <div class="footer-location">Cebu, Philippines</div>
+    </div>
+    <div class="footer-right">
+      <div class="footer-links">
+        <a onclick="showPage('home')">Exhibitions</a>
+        <a onclick="showPage('artists')">Artists</a>
+        <a onclick="showPage('events')">Events</a>
+        <a onclick="showPage('archive')">Archive</a>
+      </div>
+      <div class="footer-social"><a>Instagram</a><a>Email</a></div>
+    </div>
+    <div class="footer-copy">© 2025 Studio 201.</div>
+  </footer>
+</div><!-- /page-events -->
+
+
+<!-- ═══════════════════════════════════════════
+     ARCHIVE PAGE
+═══════════════════════════════════════════ -->
+<div class="page" id="page-archive">
+  <div class="archive-page">
+    <div class="archive-page-header">
+      <div class="section-label reveal">Archive</div>
+      <div class="archive-page-intro">
+        <h1 class="reveal" style="font-family:var(--ff-display);font-size:clamp(40px,6vw,72px);font-weight:400;letter-spacing:-0.02em;line-height:1.1;">Selected<br>Archive</h1>
+        <p class="reveal reveal-d2" style="font-family:var(--ff-sub);font-style:italic;font-size:18px;color:var(--warm-slate);line-height:1.6;align-self:end;">A record of exhibitions held at Studio 201 since its founding. Every show is remembered.</p>
+      </div>
+    </div>
+
+    <div class="archive-main-grid">
+      <div class="archive-main-item reveal reveal-d1">
+        <div class="archive-main-img"><img src="https://images.unsplash.com/photo-1578926375605-eaf7559b1458?w=800&q=80" alt="Archive"></div>
+        <div class="archive-main-body">
+          <div class="archive-main-year">2025 · EXH-2025-04</div>
+          <div class="archive-main-title">Mga Paa sa Alapaap</div>
+          <div class="archive-main-artist">Maria Santos</div>
+        </div>
+      </div>
+      <div class="archive-main-item reveal reveal-d2">
+        <div class="archive-main-img"><img src="https://images.unsplash.com/photo-1590907047706-ee9c08cf3189?w=800&q=80" alt="Archive"></div>
+        <div class="archive-main-body">
+          <div class="archive-main-year">2024 · EXH-2024-12</div>
+          <div class="archive-main-title">Halina at Luha</div>
+          <div class="archive-main-artist">Maria Santos</div>
+        </div>
+      </div>
+      <div class="archive-main-item reveal reveal-d3">
+        <div class="archive-main-img"><img src="https://images.unsplash.com/photo-1544967082-d9d25d867d66?w=800&q=80" alt="Archive"></div>
+        <div class="archive-main-body">
+          <div class="archive-main-year">2024 · EXH-2024-08</div>
+          <div class="archive-main-title">Tahanan</div>
+          <div class="archive-main-artist">Group Exhibition</div>
+        </div>
+      </div>
+      <div class="archive-main-item reveal reveal-d1">
+        <div class="archive-main-img"><img src="https://images.unsplash.com/photo-1547891654-e66ed7ebb968?w=800&q=80" alt="Archive"></div>
+        <div class="archive-main-body">
+          <div class="archive-main-year">2023 · EXH-2023-11</div>
+          <div class="archive-main-title">Sa Pamamagitan ng Kahoy</div>
+          <div class="archive-main-artist">Jun Manlangit</div>
+        </div>
+      </div>
+      <div class="archive-main-item reveal reveal-d2">
+        <div class="archive-main-img"><img src="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=800&q=80" alt="Archive"></div>
+        <div class="archive-main-body">
+          <div class="archive-main-year">2023 · EXH-2023-05</div>
+          <div class="archive-main-title">Kulay ng Araw</div>
+          <div class="archive-main-artist">Elena Yap</div>
+        </div>
+      </div>
+      <div class="archive-main-item reveal reveal-d3">
+        <div class="archive-main-img"><img src="https://images.unsplash.com/photo-1620510625142-b45cbb784397?w=800&q=80" alt="Archive"></div>
+        <div class="archive-main-body">
+          <div class="archive-main-year">2022 · EXH-2022-10</div>
+          <div class="archive-main-title">Pagbabalik</div>
+          <div class="archive-main-artist">Carlo Reyes</div>
+        </div>
+      </div>
+      <div class="archive-main-item reveal reveal-d1">
+        <div class="archive-main-img"><img src="https://images.unsplash.com/photo-1541367777708-7905fe3296c0?w=800&q=80" alt="Archive"></div>
+        <div class="archive-main-body">
+          <div class="archive-main-year">2022 · EXH-2022-04</div>
+          <div class="archive-main-title">Anino</div>
+          <div class="archive-main-artist">Group Exhibition</div>
+        </div>
+      </div>
+      <div class="archive-main-item reveal reveal-d2">
+        <div class="archive-main-img"><img src="https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=800&q=80" alt="Archive"></div>
+        <div class="archive-main-body">
+          <div class="archive-main-year">2021 · EXH-2021-09</div>
+          <div class="archive-main-title">Kung Sino Ang Nandito</div>
+          <div class="archive-main-artist">Maria Santos</div>
+        </div>
+      </div>
+      <div class="archive-main-item reveal reveal-d3">
+        <div class="archive-main-img"><img src="https://images.unsplash.com/photo-1590907047706-ee9c08cf3189?w=800&q=80" alt="Archive"></div>
+        <div class="archive-main-body">
+          <div class="archive-main-year">2021 · EXH-2021-02</div>
+          <div class="archive-main-title">Simula</div>
+          <div class="archive-main-artist">Inaugural Exhibition</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-left">
+      <div class="footer-wordmark">Studio 201</div>
+      <div class="footer-location">Cebu, Philippines</div>
+    </div>
+    <div class="footer-right">
+      <div class="footer-links">
+        <a onclick="showPage('home')">Exhibitions</a>
+        <a onclick="showPage('artists')">Artists</a>
+        <a onclick="showPage('events')">Events</a>
+        <a onclick="showPage('archive')">Archive</a>
+      </div>
+      <div class="footer-social"><a>Instagram</a><a>Email</a></div>
+    </div>
+    <div class="footer-copy">© 2025 Studio 201.</div>
+  </footer>
+</div><!-- /page-archive -->
+
+
+<script>
+// ═══════════════════════════════════════
+// PAGE NAVIGATION
+// ═══════════════════════════════════════
+const heroPages = ['home', 'exhibition'];
+let currentPage = 'home';
+
+function showPage(id) {
+  // Hide current
+  const current = document.getElementById('page-' + currentPage);
+  if (current) {
+    current.classList.remove('visible');
+    setTimeout(() => { current.classList.remove('active'); }, 350);
+  }
+
+  // Show new
+  setTimeout(() => {
+    const next = document.getElementById('page-' + id);
+    if (!next) return;
+    next.classList.add('active');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        next.classList.add('visible');
+      });
+    });
+    currentPage = id;
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    updateNav(id);
+    initReveals();
+  }, 350);
+}
+
+function updateNav(id) {
+  const nav = document.getElementById('main-nav');
+  const wordmark = nav.querySelector('.nav-wordmark');
+  const links = nav.querySelectorAll('.nav-links a');
+  const mobileSpans = nav.querySelectorAll('.nav-mobile-btn span');
+
+  // Hero pages: nav starts transparent
+  const isHero = heroPages.includes(id);
+  if (isHero) {
+    nav.classList.remove('opaque');
+  } else {
+    nav.classList.add('opaque');
+    nav.classList.remove('scrolled');
+  }
+
+  // Active state
+  links.forEach(l => l.classList.remove('active'));
+  const map = { home: 'nav-home', artists: 'nav-artists', 'artist-profile': 'nav-artists', events: 'nav-events', archive: 'nav-archive', exhibition: 'nav-home' };
+  const activeId = map[id];
+  if (activeId) {
+    const activeLink = document.getElementById(activeId);
+    if (activeLink) activeLink.classList.add('active');
+  }
+}
+
+// ═══════════════════════════════════════
+// NAV SCROLL BEHAVIOR
+// ═══════════════════════════════════════
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('main-nav');
+  const isHero = heroPages.includes(currentPage);
+  if (isHero) {
+    if (window.scrollY > 60) {
+      nav.classList.add('scrolled');
+    } else {
+      nav.classList.remove('scrolled');
+    }
+  }
+});
+
+// ═══════════════════════════════════════
+// MOBILE MENU
+// ═══════════════════════════════════════
+function toggleMobile() {
+  document.getElementById('mobile-overlay').classList.toggle('open');
+}
+
+// ═══════════════════════════════════════
+// SCROLL REVEALS
+// ═══════════════════════════════════════
+function initReveals() {
+  setTimeout(() => {
+    const reveals = document.querySelectorAll('#page-' + currentPage + ' .reveal:not(.revealed)');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+    reveals.forEach(el => observer.observe(el));
+  }, 200);
+}
+
+// ═══════════════════════════════════════
+// EVENTS FILTER
+// ═══════════════════════════════════════
+function filterEvents(type, btn) {
+  document.querySelectorAll('.events-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const calEvents = document.querySelectorAll('.cal-event');
+  calEvents.forEach(ev => {
+    if (type === 'all') {
+      ev.style.display = '';
+    } else if (type === 'studio') {
+      ev.style.display = ev.classList.contains('external') ? 'none' : '';
+    } else if (type === 'external') {
+      ev.style.display = ev.classList.contains('external') ? '' : 'none';
+    } else {
+      ev.style.display = 'none';
+    }
+  });
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  // Activate home page
+  const homePage = document.getElementById('page-home');
+  homePage.classList.add('active');
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      homePage.classList.add('visible');
+      initReveals();
+    });
+  });
+
+  updateNav('home');
+});
+</script>
+</body>
+</html>

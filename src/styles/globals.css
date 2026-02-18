@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+:root {
+  /* Colors from template.html */
+  --parchment:    #F5F2EC;
+  --linen:        #EDE9E1;
+  --bone:         #FAF8F4;
+  --near-black:   #1A1814;
+  --warm-slate:   #6B6560;
+  --dust:         #9E9690;
+  --sienna:       #A85C40;
+  --ochre:        #C4884A;
+  --charcoal:     #17160F;
+  --cream:        #F0EDE5;
+  --rule:         #D8D3CB;
+
+  /* Easing */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-gallery:  cubic-bezier(0.25, 0, 0, 1);
+}
+
+@theme inline {
+  /* Font Families mapped to Next.js font variables */
+  --font-display: var(--font-playfair), Georgia, serif;
+  --font-sub:     var(--font-cormorant), Georgia, serif;
+  --font-body:    var(--font-karla), sans-serif;
+  --font-mono:    var(--font-dm-mono), monospace;
+
+  /* Colors */
+  --color-parchment: var(--parchment);
+  --color-linen: var(--linen);
+  --color-bone: var(--bone);
+  --color-near-black: var(--near-black);
+  --color-warm-slate: var(--warm-slate);
+  --color-dust: var(--dust);
+  --color-sienna: var(--sienna);
+  --color-ochre: var(--ochre);
+  --color-charcoal: var(--charcoal);
+  --color-cream: var(--cream);
+  --color-rule: var(--rule);
+
+  /* Animations */
+  --animate-hero-reveal: heroReveal 1.4s var(--ease-gallery) forwards;
+  --animate-slide-up: slideUp 600ms var(--ease-gallery) forwards;
+  --animate-scroll-drop: scrollDrop 1.8s ease-in-out infinite;
+  
+  @keyframes heroReveal {
+    to { filter: brightness(0.75); }
+  }
+  @keyframes slideUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scrollDrop {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+  }
+}
+
+/* Base Styles */
+body {
+  background: var(--parchment);
+  color: var(--near-black);
+  font-family: var(--font-body);
+  font-weight: 400;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  text-wrap: balance;
+}
+
+/* Global Utility Classes that mimic template.html mechanics */
+
+/* Reveal Animation Utility */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 600ms var(--ease-out-expo), transform 600ms var(--ease-out-expo);
+}
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger Delays */
+.reveal-d1 { transition-delay: 60ms; }
+.reveal-d2 { transition-delay: 120ms; }
+.reveal-d3 { transition-delay: 180ms; }
+.reveal-d4 { transition-delay: 240ms; }
+.reveal-d5 { transition-delay: 300ms; }
