@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  pull_request:
+    branches: ["main"]
+  push:
+    branches: ["main"]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend:
+    name: Frontend (Next.js)
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      # - name: Lint
+      #   run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      # wala pay test
+      # - name: Test
+      #   run: npm test --if-present
+
+      - name: Build
+        run: npm run build
+
+      # upload build output as an artifact
+      - name: Upload frontend build (artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-next-build
+          path: |
+            .next
+            public
+          if-no-files-found: warn
+
+  # comment out sa tanan kay wala pay backend
+  # backend:
+  #   name: Backend(.NET)
+  #   runs-on: ubuntu-latest
+
+  # steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v4
+
+  #   - name: Setup .NET
+  #     uses: actions/setup-dotnet@v4
+  #     with:
+  #       dotnet-version: "8.0.x"
+
+  #   - name: Restore
+  #     run: dotnet restore backend/**/*.sln
+
+  #   - name: Build
+  #     run: dotnet build backend/**/*.sln -c Release --no-restore
+
+  #   - name: Test
+  #     run: dotnet test backend/**/*.sln -c Release --no-build --verbosity normal
+
+  # publish artifact
+  # - name: Publish
+  #   run: dotnet publish backend/**/*.sln -c Release -o backend_publish --no-build
+
+  # - name: Upload backend publish (artifact)
+  #   uses: actions/upload-artifact@v4
+  #   with:
+  #     name: backend-dotnet-publish
+  #     path: backend_publish
+  #     if-no-files-found: warn
