@@ -18,7 +18,6 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: studio_201
 
     steps:
       - name: Checkout
@@ -51,8 +50,8 @@ jobs:
         with:
           name: frontend-next-build
           path: |
-            studio_201/.next
-            studio_201/public
+            .next
+            public
           if-no-files-found: warn
 
   # comment out sa tanan kay wala pay backend
