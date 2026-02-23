@@ -40,6 +40,8 @@ export function PublicHeader() {
     { href: "/exhibitions", label: "Exhibitions" },
     { href: "/artists", label: "Artists" },
     { href: "/events", label: "Events" },
+    { href: "/editions", label: "Editions" },
+    { href: "/spaces", label: "Spaces" },
     { href: "/archive", label: "Archive" },
   ];
 
