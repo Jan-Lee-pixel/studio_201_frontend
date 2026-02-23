@@ -23,7 +23,7 @@ export default function EventsPage() {
       month: "November 2025",
       items: [
         { date: "Nov 5", day: "Wednesday", type: "Artist Talk", title: "Painting as Memory", subtitle: "A Conversation with Maria Santos", venue: "Studio 201", time: "7:00 PM", isExternal: false },
-        { date: "Nov 12", day: "Wednesday", type: "Opening Night", title: "Mga Paa sa Alapaap", subtitle: "Maria Santos", venue: "Studio 201", time: "6:00 PM", isExternal: false },
+        { slug: "mga-paa-sa-alapaap-opening", hasDocumentation: true, date: "Nov 12", day: "Wednesday", type: "Opening Night", title: "Mga Paa sa Alapaap", subtitle: "Maria Santos", venue: "Studio 201", time: "6:00 PM", isExternal: false },
         { date: "Nov 22", day: "Saturday", type: "Workshop", title: "Oil Painting Fundamentals", subtitle: "Masterclass · Limited seats", venue: "Studio 201", time: "9:00 AM", isExternal: false },
       ]
     },
@@ -38,8 +38,8 @@ export default function EventsPage() {
     {
       month: "January 2026",
       items: [
-        { date: "Jan 10", day: "Saturday", type: "Group Show [External]", title: "Visayan Contemporary", subtitle: "Maria Santos — group exhibition", venue: "Ayala Museum, Manila", time: "Opening 6:00 PM", isExternal: true },
-        { date: "Jan 15", day: "Thursday", type: "Opening Night", title: "Ulan sa Disyembre", subtitle: "Elena Yap", venue: "Studio 201", time: "6:00 PM", isExternal: false },
+        { slug: "visayan-contemporary", hasDocumentation: true, date: "Jan 10", day: "Saturday", type: "Group Show [External]", title: "Visayan Contemporary", subtitle: "Maria Santos — group exhibition", venue: "Ayala Museum, Manila", time: "Opening 6:00 PM", isExternal: true },
+        { slug: "ulan-sa-disyembre-opening", date: "Jan 15", day: "Thursday", type: "Opening Night", title: "Ulan sa Disyembre", subtitle: "Elena Yap", venue: "Studio 201", time: "6:00 PM", isExternal: false },
       ]
     }
   ];
@@ -60,7 +60,7 @@ export default function EventsPage() {
       <div className="px-6 md:px-12 pb-16 border-b border-[var(--color-rule)]">
         <Reveal><SectionLabel>Cultural Calendar</SectionLabel></Reveal>
         <Reveal><h1 className="font-display text-[clamp(40px,6vw,72px)] font-normal leading-[1.1] mb-10 tracking-[-0.02em]">Events &<br />Programming</h1></Reveal>
-        
+
         <Reveal className="flex gap-8 overflow-x-auto pb-2">
           {filters.map((f) => (
             <button
@@ -89,7 +89,7 @@ export default function EventsPage() {
               <EventRow
                 key={`${group.month}-${i}`}
                 {...event}
-                delay={((i % 5) + 1) as 0|1|2|3|4|5}
+                delay={((i % 5) + 1) as 0 | 1 | 2 | 3 | 4 | 5}
               />
             ))}
           </div>
