@@ -33,6 +33,8 @@ export default function EventsPage() {
           isExternal: false,
         },
         {
+          slug: "mga-paa-sa-alapaap-opening",
+          hasDocumentation: true,
           date: "Nov 12",
           day: "Wednesday",
           type: "Opening Night",
@@ -93,6 +95,8 @@ export default function EventsPage() {
       month: "January 2026",
       items: [
         {
+          slug: "visayan-contemporary",
+          hasDocumentation: true,
           date: "Jan 10",
           day: "Saturday",
           type: "Group Show [External]",
