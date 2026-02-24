@@ -75,7 +75,6 @@ export default function AdminLayout({
                   <rect x="1" y="1" width="14" height="14" rx="1" />
                 </svg>
                 Submissions
-                <span className="nav-badge admin-sidebar-badge-ochre">7</span>
               </Link>
             </li>
             <li>
@@ -107,7 +106,6 @@ export default function AdminLayout({
                   <path d="M11 10c2 0 3.5 1 3.5 3" />
                 </svg>
                 Artists
-                <span className="nav-badge admin-sidebar-badge-ochre">24</span>
               </Link>
             </li>
             <li>
@@ -150,7 +148,7 @@ export default function AdminLayout({
               </div>
               <div className="sidebar-user-info">
                 <div className="sidebar-user-name">{profile.fullName}</div>
-                <div className="sidebar-user-role">Curator / Admin</div>
+                <div className="sidebar-user-role" style={{ textTransform: 'capitalize' }}>{profile.role}</div>
               </div>
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5">
                 <path d="M3 5l3 3 3-3" />

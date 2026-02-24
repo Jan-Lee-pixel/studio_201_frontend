@@ -9,48 +9,41 @@ export interface ArtworkSubmission {
   status: 'Pending' | 'Approved' | 'Rejected';
   mediaAssetId?: string;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface CreateSubmissionPayload {
   exhibitionId: string;
   title: string;
   description?: string;
-  mediaAssetId?: string; // Points to media_assets table from Supabase direct upload
+  mediaAssetId?: string;
 }
 
 export const artworkSubmissionService = {
   /**
+   * Artist: Fetch all of the current artist's submissions
+   */
+  async getMySubmissions(token?: string): Promise<ArtworkSubmission[]> {
+    return apiClient<ArtworkSubmission[]>('/artworksubmissions/me', {}, token);
+  },
+
+  /**
    * Artist: Submit a new artwork to an exhibition
    */
-  async submitArtwork(payload: CreateSubmissionPayload): Promise<ArtworkSubmission> {
+  async submitArtwork(payload: CreateSubmissionPayload, token?: string): Promise<ArtworkSubmission> {
     return apiClient<ArtworkSubmission>('/artworksubmissions', {
       method: 'POST',
       body: JSON.stringify(payload),
-    });
+    }, token);
   },
 
   /**
-   * Fetch a specific submission
+   * Admin Only: Update submission status
    */
-  async getSubmission(id: string): Promise<ArtworkSubmission> {
-    return apiClient<ArtworkSubmission>(`/artworksubmissions/${id}`);
-  },
-
-  /**
-   * Admin Only: Approve a submission
-   */
-  async approveSubmission(id: string): Promise<{ message: string; id: string }> {
-    return apiClient<{ message: string; id: string }>(`/artworksubmissions/${id}/approve`, {
-      method: 'PUT',
-    });
-  },
-
-  /**
-   * Admin Only: Reject a submission
-   */
-  async rejectSubmission(id: string): Promise<{ message: string; id: string }> {
-    return apiClient<{ message: string; id: string }>(`/artworksubmissions/${id}/reject`, {
-      method: 'PUT',
-    });
+  async updateStatus(id: string, status: string, token?: string): Promise<ArtworkSubmission> {
+    return apiClient<ArtworkSubmission>(`/artworksubmissions/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify(status),
+    }, token);
   },
 };

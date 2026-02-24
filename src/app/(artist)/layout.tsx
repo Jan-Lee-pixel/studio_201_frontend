@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import { useAuth } from "@/providers/AuthProvider";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -76,7 +78,6 @@ export default function ArtistLayout({
                   <rect x="1" y="1" width="14" height="14" rx="1" />
                 </svg>
                 My Artworks
-                <span className="nav-badge">4</span>
               </Link>
             </li>
             <li>
@@ -86,7 +87,6 @@ export default function ArtistLayout({
                   <path d="M8 5v3l2 2" />
                 </svg>
                 Submissions
-                <span className="nav-badge">1</span>
               </Link>
             </li>
             <li>
@@ -116,7 +116,6 @@ export default function ArtistLayout({
                   <path d="M5 7h6M5 10h4" />
                 </svg>
                 Messages
-                <span className="nav-badge">2</span>
               </Link>
             </li>
           </ul>
@@ -128,7 +127,7 @@ export default function ArtistLayout({
               </div>
               <div className="sidebar-user-info">
                 <div className="sidebar-user-name">{profile.fullName}</div>
-                <div className="sidebar-user-role">Artist</div>
+                <div className="sidebar-user-role" style={{ textTransform: "capitalize" }}>{profile.role}</div>
               </div>
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5">
                 <path d="M3 5l3 3 3-3" />
@@ -154,7 +153,6 @@ export default function ArtistLayout({
                   <path d="M7 1a5 5 0 015 5c0 3-1.5 4.5-1.5 6H3.5C3.5 10.5 2 9 2 6a5 5 0 015-5z" />
                   <path d="M5 12h4" />
                 </svg>
-                <span className="notif-dot"></span>
               </button>
               <button className="topbar-icon-btn">
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
