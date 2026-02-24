@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/client';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5203/api';
 
 /**
  * An authenticated fetch wrapper.
@@ -8,10 +8,23 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/a
  */
 export async function apiClient<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  overrideToken?: string
 ): Promise<T> {
-  const supabase = createClient();
-  const { data: { session } } = await supabase.auth.getSession();
+  let token = overrideToken;
+
+  // If no token was explicitly provided, fetch the latest session
+  if (!token && typeof window !== 'undefined') {
+    try {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.access_token) {
+        token = session.access_token;
+      }
+    } catch (e) {
+      console.warn('apiClient: Failed to fetch session from Supabase', e);
+    }
+  }
 
   const headers = new Headers(options.headers || {});
   
@@ -20,9 +33,9 @@ export async function apiClient<T>(
     headers.set('Content-Type', 'application/json');
   }
 
-  // Inject JWT from latest session
-  if (session?.access_token) {
-    headers.set('Authorization', `Bearer ${session.access_token}`);
+  // Inject JWT if found
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
   }
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {

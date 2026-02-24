@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { apiClient } from '@/lib/apiClient';
 
 export default function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -19,19 +20,22 @@ export default function LoginPage() {
     setError(null);
 
     let authError;
+    let authData;
 
     if (isSignUp) {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
       authError = error;
+      authData = data;
     } else {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       authError = error;
+      authData = data;
     }
 
     if (authError) {
@@ -40,9 +44,39 @@ export default function LoginPage() {
       return;
     }
 
-    // Refresh layout and naturally fall into the correct protected dashboard
-    router.refresh();
-    router.push('/admin'); // Or wherever artists/admin land
+    if (!authData?.session) {
+      if (isSignUp) {
+        setError('Please check your email to verify your account, or sign in if you already have an account.');
+      } else {
+        setError('Login failed: No session returned.');
+      }
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // Ensure the user exists in the .NET backend and get their role
+      const profileInfo = await apiClient<{ role: string }>('/profile/ensure', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: email,
+          fullName: isSignUp ? email.split('@')[0] : '' // Default name for new sign ups
+        })
+      });
+
+      // Refresh layout
+      router.refresh();
+
+      // Route based on role
+      if (profileInfo.role === 'Admin') {
+        router.push('/admin');
+      } else {
+        router.push('/dashboard'); // Target artist route
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to sync profile with server');
+      setLoading(false);
+    }
   };
 
   return (
