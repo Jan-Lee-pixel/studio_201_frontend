@@ -6,6 +6,7 @@ import {
   DM_Mono,
 } from "next/font/google";
 import "../styles/globals.css";
+import { AuthProvider } from "@/providers/AuthProvider";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -48,7 +49,9 @@ export default function RootLayout({
       <body
         className={`${playfair.variable} ${cormorant.variable} ${karla.variable} ${dmMono.variable} antialiased`}
       >
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
