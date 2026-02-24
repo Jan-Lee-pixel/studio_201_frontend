@@ -693,7 +693,7 @@
 
 /* ─── PROGRESS BAR ─── */
 .progress-row { display: flex; flex-direction: column; gap: 10px; }
-.progress-item { }
+
 .progress-meta { display: flex; justify-content: space-between; margin-bottom: 5px; }
 .progress-label { font-size: 10px; color: var(--ink-60); }
 .progress-val { font-size: 10px; color: var(--warm-mid); }
