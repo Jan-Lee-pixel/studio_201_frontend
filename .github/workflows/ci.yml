@@ -53,6 +53,9 @@ jobs:
       #   run: npm test --if-present
 
       - name: Build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-key
         run: npm run build
 
       # upload build output as an artifact
