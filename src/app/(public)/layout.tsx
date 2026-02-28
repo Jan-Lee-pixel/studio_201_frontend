@@ -1,5 +1,6 @@
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { PublicFooter } from "@/components/layout/PublicFooter";
+import { FeedbackFab } from "@/features/feedback/FeedbackFab";
 
 export default function PublicLayout({
   children,
@@ -13,6 +14,7 @@ export default function PublicLayout({
         {children}
       </main>
       <PublicFooter />
+      <FeedbackFab />
     </div>
   );
 }
