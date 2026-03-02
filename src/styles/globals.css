@@ -90,3 +90,24 @@ h1, h2, h3, h4, h5, h6 {
 .reveal-d3 { transition-delay: 180ms; }
 .reveal-d4 { transition-delay: 240ms; }
 .reveal-d5 { transition-delay: 300ms; }
+
+/* ── Feedback Feature Animations ── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUpModal {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fabPulse {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
