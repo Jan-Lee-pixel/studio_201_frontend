@@ -1,23 +1,65 @@
+'use client';
+
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Reveal } from "@/components/animation/Reveal";
 import { ArtworkCard } from "@/features/artworks/components/ArtworkCard";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Exhibiions - Studio 201",
-  description: "Lorem Ipsum",
-};
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { exhibitionService, Exhibition } from "@/features/exhibitions/services/exhibitionService";
+import { artworkService, PublicArtworkDto } from "@/features/artworks/services/artworkService";
 
 export default function ExhibitionResultPage() {
+  const params = useParams();
+  const slug = params.slug as string;
+
+  const [exhibition, setExhibition] = useState<Exhibition | null>(null);
+  const [artworks, setArtworks] = useState<PublicArtworkDto[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!slug) return;
+
+    exhibitionService.getExhibitionBySlug(slug)
+      .then(async (data) => {
+        setExhibition(data);
+        if (data && data.id) {
+          try {
+            const fetchedArtworks = await artworkService.getApprovedArtworksByExhibition(data.id);
+            setArtworks(fetchedArtworks);
+          } catch (e) {
+            console.error("Failed to load artworks:", e);
+          }
+        }
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [slug]);
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center font-dm-mono text-gray-500 uppercase tracking-widest text-sm bg-[var(--color-charcoal)]">Loading Exhibition...</div>;
+  }
+
+  if (!exhibition) {
+    return <div className="min-h-screen flex items-center justify-center font-dm-mono text-gray-500 uppercase tracking-widest text-sm bg-[var(--color-charcoal)]">Exhibition Not Found</div>;
+  }
+
+  // Formatting helpers
+  const getDurationString = (start?: string, end?: string) => {
+    if (!start) return "Upcoming";
+    const startDate = new Date(start).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    const endDate = end ? new Date(end).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Ongoing";
+    return `${startDate} – ${endDate}`;
+  };
+
   return (
     <div>
       {/* HERO */}
       <section className="relative h-screen overflow-hidden">
         <img
-          src="https://images.unsplash.com/photo-1578926375605-eaf7559b1458?w=1800&q=80"
-          alt="Mga Paa sa Alapaap"
+          src={exhibition.coverImageUrl || "https://images.unsplash.com/photo-1578926375605-eaf7559b1458?w=1800&q=80"}
+          alt={exhibition.title}
           className="w-full h-full object-cover brightness-75"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[rgba(23,22,15,0.85)] to-transparent via-transparent via-60%"></div>
@@ -27,14 +69,14 @@ export default function ExhibitionResultPage() {
               Exhibition
             </div>
             <div className="font-mono text-[11px] text-[var(--color-dust)] tracking-[0.06em]">
-              Oct 3 – Nov 28, 2025
+              {getDurationString(exhibition.startDate, exhibition.endDate)}
             </div>
           </div>
           <h1 className="font-display text-[clamp(40px,6vw,72px)] font-normal tracking-[-0.02em] leading-[1.05] text-[var(--color-cream)] mb-3">
-            Mga Paa sa Alapaap
+            {exhibition.title}
           </h1>
           <div className="font-sub italic text-xl text-[var(--color-dust)]">
-            Maria Santos
+            Artists Group // Studio 201 Collection
           </div>
         </div>
       </section>
@@ -44,27 +86,17 @@ export default function ExhibitionResultPage() {
         <div className="grid grid-cols-1 md:grid-cols-[1fr_480px] gap-12 md:gap-30 py-24 border-b border-[var(--color-rule)]">
           <Reveal className="text-[var(--color-warm-slate)]">
             <h3 className="font-sub italic text-[26px] font-light mb-8 leading-[1.4]">
-              "To paint is to remember. To remember is to survive."
+              Exploring New Horizons in Philippine Arts.
             </h3>
             <p className="text-base leading-[1.75] mb-5">
-              Mga Paa sa Alapaap is a collection of large-format paintings
-              rooted in Santos's experience of displacement, childhood memory,
-              and the landscape of Southern Philippines. The works navigate
-              between the personal and the mythic — feet that never quite touch
-              ground, skies that hold the weight of everything unsaid.
-            </p>
-            <p className="text-base leading-[1.75] mb-5">
-              Santos works predominantly in oil with occasional mixed-media
-              interventions — fragments of abaca fiber, scorched cloth, and
-              earth gathered from specific sites in Cebu and Leyte. Each work is
-              both document and dream.
+              {exhibition.description || "The works in this collection represent a curated journey into the depths of identity, space, and contemporary artistic practice."}
             </p>
             <div className="mt-12">
               <Link
-                href="/artists/maria-santos"
+                href="/artists"
                 className="relative inline-block font-body font-medium text-sm tracking-[0.02em] text-[var(--color-near-black)] after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-[1px] after:bg-current after:scale-x-0 after:origin-left after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.16,1,0.3,1)] hover:after:scale-x-100"
               >
-                View artist profile →
+                View our roster of artists →
               </Link>
             </div>
           </Reveal>
@@ -120,30 +152,19 @@ export default function ExhibitionResultPage() {
             </h2>
           </Reveal>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16">
-            <ArtworkCard
-              image="https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=800&q=80"
-              title="Ang Paa na Hindi Lumupad, I"
-              meta="2025 · Oil on canvas · 180 × 240 cm"
-              delay={1}
-            />
-            <ArtworkCard
-              image="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=800&q=80"
-              title="Ang Paa na Hindi Lumupad, II"
-              meta="2025 · Oil, abaca fiber · 120 × 180 cm"
-              delay={2}
-            />
-            <ArtworkCard
-              image="https://images.unsplash.com/photo-1541367777708-7905fe3296c0?w=800&q=80"
-              title="Dagat na Walang Hangganan"
-              meta="2024 · Oil, earth, cloth · 200 × 300 cm"
-              delay={3}
-            />
-            <ArtworkCard
-              image="https://images.unsplash.com/photo-1547891654-e66ed7ebb968?w=800&q=80"
-              title="Langit ng Aking Ina"
-              meta="2025 · Oil on linen · 150 × 200 cm"
-              delay={4}
-            />
+            {artworks.length > 0 ? artworks.map((artwork, i) => (
+              <ArtworkCard
+                key={artwork.id}
+                image={"https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=800&q=80"} // Use actual artwork URL if provided later
+                title={artwork.title}
+                meta={artwork.description || "Digital submission"}
+                delay={((i % 4) + 1) as 1 | 2 | 3 | 4}
+              />
+            )) : (
+              <div className="col-span-2 text-center py-12 text-gray-500 font-dm-mono text-xs tracking-widest uppercase">
+                No artworks have been submitted for this exhibition yet.
+              </div>
+            )}
           </div>
         </div>
 

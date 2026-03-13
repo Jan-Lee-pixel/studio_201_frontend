@@ -3,11 +3,26 @@
 export const dynamic = 'force-dynamic';
 
 import { useAuth } from '@/providers/AuthProvider';
+import { adminService, AdminStats } from '@/features/admin/services/adminService';
+import { useEffect, useState } from 'react';
 
 export default function DashboardPage() {
-  const { profile, loading } = useAuth();
+  const { profile, loading: authLoading } = useAuth();
+  const [stats, setStats] = useState<AdminStats | null>(null);
+  const [loadingStats, setLoadingStats] = useState(true);
 
-  if (loading) {
+  useEffect(() => {
+    if (profile?.role === 'Admin') {
+      adminService.getStats()
+        .then(setStats)
+        .catch(console.error)
+        .finally(() => setLoadingStats(false));
+    } else {
+      setLoadingStats(false);
+    }
+  }, [profile]);
+
+  if (authLoading || loadingStats) {
     return (
       <div className="flex justify-center items-center h-64 font-dm-mono text-gray-500 uppercase tracking-widest text-sm">
         Loading...
@@ -80,7 +95,7 @@ export default function DashboardPage() {
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             </div>
             <span className="bg-red-500 text-white text-xs font-dm-mono font-bold px-2.5 py-1 rounded-full animate-bounce">
-              3 NEW
+              {stats?.pendingSubmissions || 0} NEW
             </span>
           </div>
           <h2 className="text-2xl font-playfair font-medium mb-3 relative z-10">Artwork Submissions</h2>

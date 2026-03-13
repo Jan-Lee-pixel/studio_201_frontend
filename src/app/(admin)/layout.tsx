@@ -71,7 +71,7 @@ export default function AdminLayout({
           <span className="sidebar-section-label">Curation</span>
           <ul className="sidebar-nav">
             <li>
-              <Link href="#">
+              <Link href="/admin/submissions" className={pathname === "/admin/submissions" ? "active" : ""}>
                 <svg className="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M2 11L5.5 7 8 9.5 10.5 6 14 11H2z" />
                   <rect x="1" y="1" width="14" height="14" rx="1" />

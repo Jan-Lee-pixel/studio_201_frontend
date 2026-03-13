@@ -23,17 +23,31 @@ export interface CreateExhibitionPayload {
 
 export const exhibitionService = {
   /**
-   * Public: Fetches all exhibitions
+   * Public: Fetches all approved exhibitions
    */
   async getExhibitions(): Promise<Exhibition[]> {
-    return apiClient<Exhibition[]>('/exhibitions');
+    return apiClient<Exhibition[]>('/Exhibitions');
+  },
+
+  /**
+   * Public: Fetches a single exhibition by ID
+   */
+  async getExhibitionById(id: string): Promise<Exhibition> {
+    return apiClient<Exhibition>(`/Exhibitions/${id}`);
+  },
+
+  /**
+   * Public: Fetches a single exhibition by slug
+   */
+  async getExhibitionBySlug(slug: string): Promise<Exhibition> {
+    return apiClient<Exhibition>(`/Exhibitions/slug/${slug}`);
   },
 
   /**
    * Admin Only: Creates a new exhibition
    */
   async createExhibition(payload: CreateExhibitionPayload): Promise<Exhibition> {
-    return apiClient<Exhibition>('/exhibitions', {
+    return apiClient<Exhibition>('/Exhibitions', {
       method: 'POST',
       body: JSON.stringify(payload),
     });
