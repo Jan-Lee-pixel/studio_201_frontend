@@ -12,7 +12,7 @@ export default function DashboardPage() {
   const [loadingStats, setLoadingStats] = useState(true);
 
   useEffect(() => {
-    if (profile?.role === 'Admin') {
+    if (profile?.accountStatus?.toLowerCase() === 'approved' && profile?.role?.toLowerCase() === 'admin') {
       adminService.getStats()
         .then(setStats)
         .catch(console.error)
@@ -50,7 +50,7 @@ export default function DashboardPage() {
           <div>
             <div className="flex items-center gap-3 mb-3">
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-dm-mono font-medium tracking-widest uppercase bg-indigo-50 text-indigo-700 border border-indigo-200">
-                {profile.role}
+                {profile.role ?? profile.accountStatus}
               </span>
               <span className="text-sm font-dm-mono text-gray-500 flex items-center gap-1.5 border border-gray-200 px-2 py-0.5 rounded-full bg-gray-50">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> SYSTEM ONLINE

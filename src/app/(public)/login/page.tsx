@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { apiClient } from '@/lib/apiClient';
+import type { UserProfile } from '@/features/auth/services/authService';
 
 export default function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -55,23 +56,39 @@ export default function LoginPage() {
     }
 
     try {
-      // Ensure the user exists in the .NET backend and get their role
-      const profileInfo = await apiClient<{ role: string }>('/profile/ensure', {
+      // Ensure the user exists in the Django backend and get their access status
+      const accessToken = authData?.session?.access_token;
+      const profileInfo = await apiClient<UserProfile>('/profile/ensure', {
         method: 'POST',
         body: JSON.stringify({
           email: email,
           fullName: isSignUp ? email.split('@')[0] : '' // Default name for new sign ups
         })
-      });
+      }, accessToken);
 
       // Refresh layout
       router.refresh();
 
-      // Route based on role
-      if (profileInfo.role === 'Admin') {
+      // Route based on approval status and role
+      const accountStatus = profileInfo.accountStatus?.toLowerCase();
+      const role = profileInfo.role?.toLowerCase();
+      if (accountStatus === 'rejected') {
+        await supabase.auth.signOut();
+        setError('Your application was not approved. Please contact Studio 201 for assistance.');
+        setLoading(false);
+        return;
+      }
+      if (accountStatus === 'pending') {
+        router.push('/pending');
+        return;
+      }
+      if (role === 'admin') {
         router.push('/admin');
+      } else if (role === 'artist') {
+        router.push('/artist/dashboard');
       } else {
-        router.push('/dashboard'); // Target artist route
+        setError('Your account is awaiting approval. Please check back later.');
+        setLoading(false);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to sync profile with server');

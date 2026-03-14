@@ -7,30 +7,64 @@ import { EventRow } from "@/features/events/components/EventRow";
 
 import { Metadata } from "next";
 
+type PublicArtist = {
+  id: string;
+  fullName: string;
+  slug: string;
+  bio?: string;
+  profileImageUrl?: string;
+};
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5203/api";
+
+async function getArtist(slug: string): Promise<PublicArtist | null> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/Profile/artists/${slug}`, { cache: "no-store" });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
+
 // dynamic metadata
 export async function generateMetadata({
   params,
 }: {
   params: { slug: string };
 }): Promise<Metadata> {
-  // fetch artist name:
-  const artistName = "Janlie Pisot";
-  const description = "lorem ipsum";
+  const artist = await getArtist(params.slug);
+  if (!artist) {
+    return { title: "Artist - Studio 201" };
+  }
   return {
-    title: `${artistName} - Studio 201`,
-    description: `${description}`,
+    title: `${artist.fullName} - Studio 201`,
+    description: artist.bio || `Explore works and exhibitions by ${artist.fullName}.`,
   };
 }
 
-export default function ArtistProfilePage() {
+export default async function ArtistProfilePage({ params }: { params: { slug: string } }) {
+  const artist = await getArtist(params.slug);
+  if (!artist) {
+    return (
+      <div className="min-h-screen flex items-center justify-center font-dm-mono text-gray-500 uppercase tracking-widest text-sm bg-[var(--color-charcoal)]">
+        Artist Not Found
+      </div>
+    );
+  }
+
+  const nameParts = artist.fullName.split(" ");
+  const firstName = nameParts[0] || artist.fullName;
+  const lastName = nameParts.slice(1).join(" ");
+
   return (
     <div className="pt-20">
       {/* HERO */}
       <div className="grid grid-cols-1 md:grid-cols-[420px_1fr] min-h-screen">
         <div className="relative h-[60vh] md:h-screen md:sticky md:top-0 overflow-hidden">
           <img
-            src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&q=80"
-            alt="Maria Santos"
+            src={artist.profileImageUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&q=80"}
+            alt={artist.fullName}
             className="w-full h-full object-cover"
           />
         </div>
@@ -38,31 +72,28 @@ export default function ArtistProfilePage() {
         <div className="p-6 md:p-20 flex flex-col justify-end">
           <Reveal>
             <h1 className="font-display text-[clamp(36px,5vw,60px)] font-normal tracking-[-0.02em] leading-[1.1] mb-3 text-[var(--color-near-black)]">
-              Maria
-              <br />
-              Santos
+              {firstName}
+              {lastName ? (
+                <>
+                  <br />
+                  {lastName}
+                </>
+              ) : null}
             </h1>
             <div className="font-mono text-[11px] tracking-[0.1em] text-[var(--color-dust)] uppercase mb-12">
-              Cebu, Philippines · b. 1986
+              Studio 201 Artist
             </div>
 
             <p className="font-sub italic text-xl font-light text-[var(--color-warm-slate)] leading-[1.6] mb-8">
-              Santos works at the intersection of memory, myth, and the
-              landscapes of Southern Philippines — translating displacement into
-              large-format oil paintings that feel both intimate and immense.
+              {artist.bio || "Artist bio will appear here once provided."}
             </p>
 
             <p className="text-base leading-[1.75] text-[var(--color-warm-slate)] max-w-[540px] mb-6">
-              Her practice has expanded over the past decade to include found
-              materials: scorched cloth, earth from specific sites, abaca fiber
-              woven into paint surfaces. Each work is both document and dream,
-              rooted in the geography of the Visayas while reaching toward
-              something universal and wordless.
+              Artist profile details will appear here once provided. This space is reserved for practice notes, materials, and context for the body of work.
             </p>
 
             <p className="text-base leading-[1.75] text-[var(--color-warm-slate)] max-w-[540px]">
-              Santos has exhibited across the Philippines and Southeast Asia.
-              She maintains a studio in Carcar, Cebu.
+              Upcoming exhibitions and public programs will be listed below as they are scheduled.
             </p>
 
             <div className="mt-12 flex gap-8 items-center">

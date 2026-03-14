@@ -36,7 +36,7 @@ export default function ExhibitionsPage() {
     title: ex.title,
     artist: "Group Exhibition", // Placeholder unless backend provides artist association for solo shows
     date: formatDate(ex.startDate),
-    image: "https://images.unsplash.com/photo-1541367777708-7905fe3296c0?w=1800&q=80" // Placeholder until coverMediaId is joined with Media asset
+    image: ex.coverImageUrl || "https://images.unsplash.com/photo-1541367777708-7905fe3296c0?w=1800&q=80"
   })) : [
     {
       slug: "mga-paa-sa-alapaap",

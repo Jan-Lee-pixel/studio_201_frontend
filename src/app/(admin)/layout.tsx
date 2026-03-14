@@ -4,7 +4,8 @@ export const dynamic = 'force-dynamic';
 
 import { useAuth } from "@/providers/AuthProvider";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import "../../styles/dashboard.css";
 
 export default function AdminLayout({
@@ -14,6 +15,20 @@ export default function AdminLayout({
 }) {
   const { profile, loading } = useAuth();
   const pathname = usePathname();
+  const router = useRouter();
+  const normalizedRole = profile?.role?.toLowerCase();
+  const normalizedStatus = profile?.accountStatus?.toLowerCase();
+
+  useEffect(() => {
+    if (!loading && profile) {
+      if (normalizedStatus === "approved" && normalizedRole === "artist") {
+        router.replace("/artist/dashboard");
+      }
+      if (normalizedStatus === "pending" || normalizedStatus === "rejected") {
+        router.replace("/pending");
+      }
+    }
+  }, [loading, profile, normalizedRole, normalizedStatus, router]);
 
   if (loading) {
     return <div className="p-8 text-gray-500 font-dm-mono text-sm">Loading workspace...</div>;
@@ -23,6 +38,30 @@ export default function AdminLayout({
     return (
       <div className="flex h-screen w-full items-center justify-center p-8 text-red-500 font-serif">
         <p>Unauthorized. Please log in to view this page.</p>
+      </div>
+    );
+  }
+
+  if (normalizedStatus === "pending") {
+    return (
+      <div className="flex h-screen w-full items-center justify-center p-8 text-gray-500 font-serif">
+        <p>Your artist application is pending approval.</p>
+      </div>
+    );
+  }
+
+  if (normalizedStatus === "rejected") {
+    return (
+      <div className="flex h-screen w-full items-center justify-center p-8 text-red-500 font-serif">
+        <p>Your application was not approved. Please contact Studio 201.</p>
+      </div>
+    );
+  }
+
+  if (normalizedStatus !== "approved" || normalizedRole !== "admin") {
+    return (
+      <div className="flex h-screen w-full items-center justify-center p-8 text-red-500 font-serif">
+        <p>Unauthorized. This area is for administrators only.</p>
       </div>
     );
   }
@@ -100,7 +139,7 @@ export default function AdminLayout({
           <span className="sidebar-section-label">Community</span>
           <ul className="sidebar-nav">
             <li>
-              <Link href="#">
+              <Link href="/admin/artists" className={pathname === "/admin/artists" ? "active" : ""}>
                 <svg className="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <circle cx="6" cy="5" r="3" />
                   <circle cx="11" cy="6" r="2.5" />
@@ -111,7 +150,7 @@ export default function AdminLayout({
               </Link>
             </li>
             <li>
-              <Link href="#">
+              <Link href="/admin/events" className={pathname === "/admin/events" ? "active" : ""}>
                 <svg className="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <rect x="1" y="4" width="14" height="10" rx="1" />
                   <path d="M5 4V2h6v2M1 8h14" />
@@ -150,7 +189,7 @@ export default function AdminLayout({
               </div>
               <div className="sidebar-user-info">
                 <div className="sidebar-user-name">{profile.fullName}</div>
-                <div className="sidebar-user-role" style={{ textTransform: 'capitalize' }}>{profile.role}</div>
+                <div className="sidebar-user-role" style={{ textTransform: 'capitalize' }}>{profile.role ?? profile.accountStatus}</div>
               </div>
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5">
                 <path d="M3 5l3 3 3-3" />

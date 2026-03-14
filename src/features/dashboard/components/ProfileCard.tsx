@@ -25,7 +25,7 @@ export function ProfileCard({ profile, submissions, loading }: ProfileCardProps)
           </div>
         </div>
         <p className="profile-name">{profile.fullName}</p>
-        <p className="profile-handle">@{profile.fullName.toLowerCase().replace(/\s/g, "")} · {profile.role}</p>
+        <p className="profile-handle">@{profile.fullName.toLowerCase().replace(/\s/g, "")} · {profile.role ?? profile.accountStatus}</p>
         <div className="profile-stats">
           <div className="profile-stat">
             <span className="profile-stat-value">{loading ? "—" : totalWorks}</span>
@@ -57,7 +57,7 @@ export function ProfileCard({ profile, submissions, loading }: ProfileCardProps)
         </div>
         <div className="info-item">
           <span className="info-label">Role</span>
-          <span className="info-value" style={{ textTransform: "capitalize" }}>{profile.role}</span>
+          <span className="info-value" style={{ textTransform: "capitalize" }}>{profile.role ?? profile.accountStatus}</span>
         </div>
       </div>
       

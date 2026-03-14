@@ -32,9 +32,13 @@ export default function ArtistsPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-x-10 gap-y-16">
         {
           loading ? (
-            <div className="col-span-2 md:col-span-4 text-center py-20 text-gray-500 font-dm-mono text-sm tracking-widest uppercase">
-              Loading Artists...
-            </div>
+            Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="aspect-[3/4] bg-white/70 border border-[var(--color-rule)]" />
+                <div className="h-4 bg-white/60 mt-4" />
+                <div className="h-3 bg-white/50 mt-2 w-2/3" />
+              </div>
+            ))
           ) : artists.length === 0 ? (
             <div className="col-span-2 md:col-span-4 text-center py-20 text-gray-500 font-dm-mono text-sm tracking-widest uppercase">
               No Artists Found
@@ -43,8 +47,8 @@ export default function ArtistsPage() {
             artists.map((artist, i) => (
               <ArtistCard
                 key={artist.id}
-                slug={artist.fullName.toLowerCase().replace(/ /g, "-")}
-                image="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&q=80" // Placeholder until media URLs are added
+                slug={artist.slug}
+                image={artist.profileImageUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&q=80"}
                 name={artist.fullName}
                 medium="Mixed Media"
                 delay={((i % 4) + 1) as 1 | 2 | 3 | 4}

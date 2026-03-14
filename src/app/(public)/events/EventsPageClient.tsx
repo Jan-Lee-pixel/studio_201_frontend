@@ -1,15 +1,48 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import clsx from "clsx";
 import { Reveal } from "@/components/animation/Reveal";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { EventRow } from "@/features/events/components/EventRow";
+import { eventService, EventDto } from "@/features/events/services/eventService";
 
 type FilterType = "all" | "studio" | "external" | "archive";
 
+type EventRowData = {
+  slug?: string;
+  hasDocumentation?: boolean;
+  date: string;
+  day: string;
+  type: string;
+  title: string;
+  subtitle: string;
+  venue: string;
+  time: string;
+  isExternal?: boolean;
+  isPast?: boolean;
+  monthLabel?: string;
+};
+
+const formatDate = (dateStr?: string) => {
+  if (!dateStr) return "TBA";
+  return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+};
+
+const formatDay = (dateStr?: string) => {
+  if (!dateStr) return "";
+  return new Date(dateStr).toLocaleDateString("en-US", { weekday: "long" });
+};
+
+const getMonthLabel = (dateStr?: string) => {
+  if (!dateStr) return "TBA";
+  return new Date(dateStr).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+};
+
 export default function EventsPage() {
   const [filter, setFilter] = useState<FilterType>("all");
+  const [events, setEvents] = useState<EventDto[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const filters: { id: FilterType; label: string }[] = [
     { id: "all", label: "All" },
@@ -18,120 +51,61 @@ export default function EventsPage() {
     { id: "archive", label: "Archive" },
   ];
 
-  const events = [
-    {
-      month: "November 2025",
-      items: [
-        {
-          date: "Nov 5",
-          day: "Wednesday",
-          type: "Artist Talk",
-          title: "Painting as Memory",
-          subtitle: "A Conversation with Maria Santos",
-          venue: "Studio 201",
-          time: "7:00 PM",
-          isExternal: false,
-        },
-        {
-          slug: "mga-paa-sa-alapaap-opening",
-          hasDocumentation: true,
-          date: "Nov 12",
-          day: "Wednesday",
-          type: "Opening Night",
-          title: "Mga Paa sa Alapaap",
-          subtitle: "Maria Santos",
-          venue: "Studio 201",
-          time: "6:00 PM",
-          isExternal: false,
-        },
-        {
-          date: "Nov 22",
-          day: "Saturday",
-          type: "Workshop",
-          title: "Oil Painting Fundamentals",
-          subtitle: "Masterclass · Limited seats",
-          venue: "Studio 201",
-          time: "9:00 AM",
-          isExternal: false,
-        },
-      ],
-    },
-    {
-      month: "December 2025",
-      items: [
-        {
-          date: "Dec 2",
-          day: "Tuesday",
-          type: "Workshop [External]",
-          title: "Relief Printmaking",
-          subtitle: "with Jun Manlangit",
-          venue: "Sugbo Mercado",
-          time: "2:00 PM",
-          isExternal: true,
-        },
-        {
-          date: "Dec 15",
-          day: "Monday",
-          type: "Symposium",
-          title: "Contemporary Art in the Visayas",
-          subtitle: "Panel Discussion",
-          venue: "Studio 201",
-          time: "10:00 AM",
-          isExternal: false,
-        },
-        {
-          date: "Dec 30",
-          day: "Tuesday",
-          type: "Exhibition Closing",
-          title: "Mga Paa sa Alapaap — Closing",
-          subtitle: "Maria Santos",
-          venue: "Studio 201",
-          time: "5:00 PM",
-          isExternal: false,
-        },
-      ],
-    },
-    {
-      month: "January 2026",
-      items: [
-        {
-          slug: "visayan-contemporary",
-          hasDocumentation: true,
-          date: "Jan 10",
-          day: "Saturday",
-          type: "Group Show [External]",
-          title: "Visayan Contemporary",
-          subtitle: "Maria Santos — group exhibition",
-          venue: "Ayala Museum, Manila",
-          time: "Opening 6:00 PM",
-          isExternal: true,
-        },
-        {
-          date: "Jan 15",
-          day: "Thursday",
-          type: "Opening Night",
-          title: "Ulan sa Disyembre",
-          subtitle: "Elena Yap",
-          venue: "Studio 201",
-          time: "6:00 PM",
-          isExternal: false,
-        },
-      ],
-    },
-  ];
+  useEffect(() => {
+    eventService
+      .getEvents()
+      .then(setEvents)
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
 
-  // Simple filtering logic
-  const filteredEvents = events
-    .map((group) => ({
-      ...group,
-      items: group.items.filter((item) => {
-        if (filter === "all") return true;
-        if (filter === "studio") return !item.isExternal;
-        if (filter === "external") return item.isExternal;
-        return true; // No archive data in mock yet
-      }),
-    }))
-    .filter((group) => group.items.length > 0);
+  const groupedEvents = useMemo(() => {
+    if (events.length === 0) return [] as { month: string; items: EventRowData[] }[];
+
+    const now = new Date();
+    const normalized: EventRowData[] = events.map((event) => {
+      const start = event.startDate ? new Date(event.startDate) : null;
+      const end = event.endDate ? new Date(event.endDate) : null;
+      const effectiveDate = end || start;
+      const isPast = effectiveDate ? effectiveDate < now : false;
+      const monthLabel = getMonthLabel(event.startDate);
+
+      return {
+        slug: event.slug,
+        hasDocumentation: event.hasDocumentation,
+        date: formatDate(event.startDate),
+        day: formatDay(event.startDate),
+        type: event.type || "Event",
+        title: event.title,
+        subtitle: event.subtitle || "",
+        venue: event.venue || "Studio 201",
+        time: event.timeLabel || "",
+        isExternal: event.isExternal,
+        isPast,
+        monthLabel,
+      };
+    });
+
+    const filteredItems = normalized.filter((item) => {
+      if (filter === "all") return true;
+      if (filter === "studio") return !item.isExternal && !item.isPast;
+      if (filter === "external") return !!item.isExternal && !item.isPast;
+      if (filter === "archive") return !!item.isPast;
+      return true;
+    });
+
+    const grouped = filteredItems.reduce<Record<string, EventRowData[]>>((acc, item) => {
+      const monthKey = item.monthLabel || "TBA";
+      if (!acc[monthKey]) acc[monthKey] = [];
+      acc[monthKey].push(item);
+      return acc;
+    }, {});
+
+    return Object.entries(grouped).map(([month, items]) => ({
+      month,
+      items,
+    }));
+  }, [events, filter]);
 
   return (
     <div className="pt-32 min-h-screen bg-[var(--color-parchment)]">
@@ -165,26 +139,38 @@ export default function EventsPage() {
       </div>
 
       <div className="px-6 md:px-12">
-        {filteredEvents.map((group, groupIndex) => (
-          <div
-            key={group.month}
-            className={clsx(
-              "py-16",
-              groupIndex === filteredEvents.length - 1 && "pb-20",
-            )}
-          >
-            <div className="font-mono text-[10px] tracking-[0.14em] uppercase text-[var(--color-dust)] mb-0 pb-6 border-b border-[var(--color-rule)]">
-              {group.month}
-            </div>
-            {group.items.map((event, i) => (
-              <EventRow
-                key={`${group.month}-${i}`}
-                {...event}
-                delay={((i % 5) + 1) as 0 | 1 | 2 | 3 | 4 | 5}
-              />
+        {loading ? (
+          <div className="py-12 space-y-4 animate-pulse">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-10 bg-white/70 border border-[var(--color-rule)]" />
             ))}
           </div>
-        ))}
+        ) : groupedEvents.length === 0 ? (
+          <div className="py-20 text-center text-gray-500 font-dm-mono text-sm tracking-widest uppercase">
+            No Events Found
+          </div>
+        ) : (
+          groupedEvents.map((group, groupIndex) => (
+            <div
+              key={group.month}
+              className={clsx(
+                "py-16",
+                groupIndex === groupedEvents.length - 1 && "pb-20",
+              )}
+            >
+              <div className="font-mono text-[10px] tracking-[0.14em] uppercase text-[var(--color-dust)] mb-0 pb-6 border-b border-[var(--color-rule)]">
+                {group.month}
+              </div>
+              {group.items.map((event, i) => (
+                <EventRow
+                  key={`${group.month}-${i}`}
+                  {...event}
+                  delay={((i % 5) + 1) as 0 | 1 | 2 | 3 | 4 | 5}
+                />
+              ))}
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

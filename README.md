@@ -58,14 +58,29 @@ This application serves as both the public face of the gallery and the internal 
    Open `.env` and populate the required Supabase keys:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `NEXT_PUBLIC_API_URL` (should be `http://localhost:8000/api` for Django)
 
-4. **Run the Development Server**
+4. **Backend Environment (Django)**
+   In `studio_201_backend_django/.env`, ensure:
+   - `SUPABASE_URL`
+   - `SUPABASE_DB_URL` (or `DATABASE_URL`)
+   - `SUPABASE_JWT_SECRET` (required if your tokens use HS256/ES256 and JWKS validation fails)
+
+5. **Run the Development Server**
 
    ```bash
    npm run dev
    ```
 
    Open [http://localhost:3000](http://localhost:3000) to view the application.
+
+### One Command Dev
+
+From the repo root:
+
+```bash
+./dev.sh
+```
 
 ## Project Structure
 

@@ -78,7 +78,6 @@ export default function ArtistDashboardPage() {
           <ArtworkList submissions={submissions} loading={subsLoading} />
           
           <SubmissionForm 
-            artistId={profile.id} 
             token={session.access_token} 
             onSuccess={fetchSubmissions} // Refresh list on success
           />
