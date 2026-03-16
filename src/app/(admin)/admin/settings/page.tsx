@@ -6,17 +6,38 @@ import { authService } from '@/features/auth/services/authService';
 
 export default function AdminSettingsPage() {
   const { session, profile, loading } = useAuth();
+  const [displayName, setDisplayName] = useState('');
   const [bio, setBio] = useState('');
   const [profileImageUrl, setProfileImageUrl] = useState('');
   const [slug, setSlug] = useState('');
+  const [slugTouched, setSlugTouched] = useState(false);
+  const [slugEditable, setSlugEditable] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
+  const slugify = (value: string) =>
+    value
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)+/g, '');
+
   useEffect(() => {
+    const initialName = profile?.fullName || '';
+    const initialSlug = profile?.slug || '';
+    setDisplayName(initialName);
     setBio(profile?.bio || '');
     setProfileImageUrl(profile?.profileImageUrl || '');
-    setSlug(profile?.slug || '');
+    setSlug(initialSlug);
+    setSlugTouched(false);
+    setSlugEditable(false);
   }, [profile]);
+
+  useEffect(() => {
+    if (!slugTouched && displayName) {
+      setSlug(slugify(displayName));
+    }
+  }, [displayName, slugTouched]);
 
   const handleSave = async () => {
     if (!session?.access_token) return;
@@ -25,13 +46,15 @@ export default function AdminSettingsPage() {
     try {
       const updated = await authService.updateProfile(
         {
+          fullName: displayName.trim() || undefined,
           bio: bio.trim() || undefined,
           profileImageUrl: profileImageUrl.trim() || undefined,
-          slug: slug.trim() || undefined,
+          ...(slugTouched ? { slug: slug.trim() || undefined } : {}),
         },
         session.access_token
       );
       setMessage('Settings saved.');
+      setDisplayName(updated.fullName || '');
       setBio(updated.bio || '');
       setProfileImageUrl(updated.profileImageUrl || '');
       setSlug(updated.slug || '');
@@ -78,14 +101,42 @@ export default function AdminSettingsPage() {
         </div>
 
         <div>
-          <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Slug</label>
+          <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Display Name</label>
           <input
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
             className="w-full border border-[var(--color-rule)] bg-white px-4 py-2 font-body text-sm"
-            placeholder="admin-name"
+            placeholder="Your name"
           />
-          <p className="text-xs text-gray-400 mt-2">Used in your public URL: /artists/&lt;slug&gt;</p>
+        </div>
+
+        <div>
+          <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Public Link</label>
+          <div className="flex items-center gap-3">
+            <input
+              value={slug}
+              onChange={(e) => {
+                setSlugTouched(true);
+                setSlug(e.target.value);
+              }}
+              className="w-full border border-[var(--color-rule)] bg-white px-4 py-2 font-body text-sm disabled:bg-gray-50 disabled:text-gray-400"
+              placeholder="admin-name"
+              disabled={!slugEditable}
+            />
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              onClick={() => {
+                setSlugEditable((prev) => !prev);
+                setSlugTouched(true);
+              }}
+            >
+              {slugEditable ? "Done" : "Customize (optional)"}
+            </button>
+          </div>
+          <p className="text-xs text-gray-400 mt-2">
+            This link is auto-generated from your display name. You can ignore this unless you want a custom link.
+          </p>
         </div>
 
         <div>

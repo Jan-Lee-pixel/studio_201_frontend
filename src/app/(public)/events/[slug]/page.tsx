@@ -26,7 +26,7 @@ const formatDateRange = (start?: string, end?: string) => {
   return `${startStr} – ${endStr}`.trim();
 };
 
-export default async function EventPage({ params }: { params: { slug: string } }) {
+export default async function EventPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const event = await getEvent(slug);
 

@@ -18,6 +18,8 @@ export default function AdminLayout({
   const router = useRouter();
   const normalizedRole = profile?.role?.toLowerCase();
   const normalizedStatus = profile?.accountStatus?.toLowerCase();
+  const isExhibitionsNew = pathname === "/admin/exhibitions/new";
+  const isExhibitionsRoute = pathname.startsWith("/admin/exhibitions");
   const isExhibitionsIndex = pathname === "/admin/exhibitions";
 
   useEffect(() => {
@@ -84,7 +86,9 @@ export default function AdminLayout({
     "/admin/editions": "Editions",
     "/admin/settings": "Settings",
   };
-  const breadcrumbCurrent = breadcrumbMap[pathname] ?? "Admin Dashboard";
+  const breadcrumbCurrent =
+    breadcrumbMap[pathname] ??
+    (isExhibitionsRoute ? "Edit Exhibition" : "Admin Dashboard");
 
   return (
     <div className="page-view active dashboard-root" id="view-admin">
@@ -132,7 +136,7 @@ export default function AdminLayout({
               </Link>
             </li>
             <li>
-              <Link href="/admin/exhibitions" className={isExhibitionsIndex ? "active" : ""}>
+              <Link href="/admin/exhibitions" className={isExhibitionsRoute && !isExhibitionsNew ? "active" : ""}>
                 <svg className="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M3 3h10v2L8 11 3 5V3z" />
                 </svg>
@@ -140,7 +144,7 @@ export default function AdminLayout({
               </Link>
             </li>
             <li>
-              <Link href="/admin/exhibitions/new" className={pathname === "/admin/exhibitions/new" ? "active" : ""}>
+              <Link href="/admin/exhibitions/new" className={isExhibitionsNew ? "active" : ""}>
                 <svg className="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M8 1v14M1 8h14" />
                 </svg>

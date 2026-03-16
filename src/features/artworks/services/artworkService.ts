@@ -8,6 +8,7 @@ export interface PublicArtworkDto {
   description: string;
   status: string;
   mediaAssetId: string | null;
+  mediaAssetUrl?: string | null;
   createdAt: string;
 }
 

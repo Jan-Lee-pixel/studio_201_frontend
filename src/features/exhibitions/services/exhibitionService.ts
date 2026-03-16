@@ -9,6 +9,7 @@ export interface Exhibition {
   startDate?: string;
   endDate?: string;
   isFeatured: boolean;
+  coverMediaId?: string | null;
   coverImageUrl?: string;
   createdBy?: string;
 }
@@ -20,6 +21,16 @@ export interface CreateExhibitionPayload {
   startDate?: string;
   endDate?: string;
   coverMediaId?: string;
+}
+
+export interface UpdateExhibitionPayload {
+  title?: string;
+  slug?: string;
+  description?: string;
+  startDate?: string | null;
+  endDate?: string | null;
+  coverMediaId?: string | null;
+  isFeatured?: boolean;
 }
 
 export const exhibitionService = {
@@ -81,6 +92,16 @@ export const exhibitionService = {
   async createExhibition(payload: CreateExhibitionPayload): Promise<Exhibition> {
     return apiClient<Exhibition>('/Exhibitions', {
       method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  /**
+   * Admin Only: Updates an exhibition
+   */
+  async updateExhibition(id: string, payload: UpdateExhibitionPayload): Promise<Exhibition> {
+    return apiClient<Exhibition>(`/Exhibitions/${id}`, {
+      method: 'PATCH',
       body: JSON.stringify(payload),
     });
   },

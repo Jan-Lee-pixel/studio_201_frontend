@@ -79,6 +79,7 @@ export default function ArtistDashboardPage() {
           
           <SubmissionForm 
             token={session.access_token} 
+            artistId={profile.id}
             onSuccess={fetchSubmissions} // Refresh list on success
           />
         </div>

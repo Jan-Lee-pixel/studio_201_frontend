@@ -99,7 +99,7 @@ export default function AdminExhibitionsPage() {
                   <th className="pb-3 pt-4 px-6 font-normal">Title</th>
                   <th className="pb-3 pt-4 px-6 font-normal">Dates</th>
                   <th className="pb-3 pt-4 px-6 font-normal">Status</th>
-                  <th className="pb-3 pt-4 px-6 font-normal">Public</th>
+                  <th className="pb-3 pt-4 px-6 font-normal">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -127,12 +127,20 @@ export default function AdminExhibitionsPage() {
                           </span>
                         </td>
                         <td className="py-4 px-6">
-                          <Link
-                            href={`/exhibitions/${exhibition.slug}`}
-                            className="text-xs font-mono uppercase tracking-widest text-gray-500 hover:text-[var(--color-sienna)]"
-                          >
-                            View
-                          </Link>
+                          <div className="flex items-center gap-4">
+                            <Link
+                              href={`/admin/exhibitions/${exhibition.id}`}
+                              className="text-xs font-mono uppercase tracking-widest text-gray-500 hover:text-[var(--color-sienna)]"
+                            >
+                              Edit
+                            </Link>
+                            <Link
+                              href={`/exhibitions/${exhibition.slug}`}
+                              className="text-xs font-mono uppercase tracking-widest text-gray-500 hover:text-[var(--color-sienna)]"
+                            >
+                              View
+                            </Link>
+                          </div>
                         </td>
                       </tr>
                     );

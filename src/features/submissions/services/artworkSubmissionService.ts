@@ -8,6 +8,7 @@ export interface ArtworkSubmission {
   description?: string;
   status: 'Pending' | 'Approved' | 'Rejected';
   mediaAssetId?: string;
+  mediaAssetUrl?: string | null;
   approvedBy?: string | null;
   approvedAt?: string | null;
   createdAt: string;

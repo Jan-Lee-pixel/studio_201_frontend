@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { exhibitionService, Exhibition } from "@/features/exhibitions/services/exhibitionService";
 import { artworkService, PublicArtworkDto } from "@/features/artworks/services/artworkService";
+import { artistService, PublicUserProfile } from "@/features/artists/services/artistService";
 
 export default function ExhibitionResultPage() {
   const params = useParams();
@@ -16,25 +17,47 @@ export default function ExhibitionResultPage() {
 
   const [exhibition, setExhibition] = useState<Exhibition | null>(null);
   const [artworks, setArtworks] = useState<PublicArtworkDto[]>([]);
+  const [artists, setArtists] = useState<PublicUserProfile[]>([]);
+  const [artistLookup, setArtistLookup] = useState<Record<string, PublicUserProfile>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!slug) return;
 
-    exhibitionService.getExhibitionBySlug(slug)
-      .then(async (data) => {
+    const load = async () => {
+      setLoading(true);
+      setArtworks([]);
+      setArtists([]);
+      setArtistLookup({});
+      try {
+        const data = await exhibitionService.getExhibitionBySlug(slug);
         setExhibition(data);
         if (data && data.id) {
-          try {
-            const fetchedArtworks = await artworkService.getApprovedArtworksByExhibition(data.id);
-            setArtworks(fetchedArtworks);
-          } catch (e) {
-            console.error("Failed to load artworks:", e);
+          const fetchedArtworks = await artworkService.getApprovedArtworksByExhibition(data.id);
+          setArtworks(fetchedArtworks);
+
+          if (fetchedArtworks.length > 0) {
+            const allArtists = await artistService.getArtists().catch(() => []);
+            const lookup = Object.fromEntries(allArtists.map((artist) => [artist.id, artist]));
+            const uniqueArtistIds = Array.from(new Set(fetchedArtworks.map((artwork) => artwork.artistId)));
+            const exhibitionArtists = uniqueArtistIds
+              .map((artistId) => lookup[artistId])
+              .filter((artist): artist is PublicUserProfile => Boolean(artist));
+            setArtistLookup(lookup);
+            setArtists(exhibitionArtists);
+          } else {
+            setArtists([]);
+            setArtistLookup({});
           }
         }
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+      } catch (e) {
+        console.error("Failed to load exhibition:", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
   }, [slug]);
 
   if (loading) {
@@ -52,6 +75,12 @@ export default function ExhibitionResultPage() {
     const endDate = end ? new Date(end).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Ongoing";
     return `${startDate} – ${endDate}`;
   };
+
+  const artistNames = artists.map((artist) => artist.fullName);
+  const heroArtistLabel =
+    artistNames.length > 0
+      ? `${artistNames.slice(0, 3).join(" · ")}${artistNames.length > 3 ? ` +${artistNames.length - 3}` : ""}`
+      : "Artists Group // Studio 201 Collection";
 
   return (
     <div>
@@ -76,7 +105,7 @@ export default function ExhibitionResultPage() {
             {exhibition.title}
           </h1>
           <div className="font-sub italic text-xl text-[var(--color-dust)]">
-            Artists Group // Studio 201 Collection
+            {heroArtistLabel}
           </div>
         </div>
       </section>
@@ -155,9 +184,13 @@ export default function ExhibitionResultPage() {
             {artworks.length > 0 ? artworks.map((artwork, i) => (
               <ArtworkCard
                 key={artwork.id}
-                image={"https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=800&q=80"} // Use actual artwork URL if provided later
+                image={artwork.mediaAssetUrl || "https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=800&q=80"}
                 title={artwork.title}
-                meta={artwork.description || "Digital submission"}
+                meta={
+                  artistLookup[artwork.artistId]?.fullName
+                    ? `${artistLookup[artwork.artistId].fullName} · ${artwork.description || "Digital submission"}`
+                    : artwork.description || "Digital submission"
+                }
                 delay={((i % 4) + 1) as 1 | 2 | 3 | 4}
               />
             )) : (
@@ -171,20 +204,30 @@ export default function ExhibitionResultPage() {
         {/* RELATED ARTISTS */}
         <Reveal className="py-20 border-t border-[var(--color-rule)]">
           <SectionLabel>Artists in this Exhibition</SectionLabel>
-          <div className="mt-8">
-            <div className="font-display text-[22px] font-normal mb-1.5">
-              Maria Santos
+          {artists.length === 0 ? (
+            <div className="mt-8 text-gray-400 font-mono text-xs uppercase tracking-widest">
+              No artists have been published for this exhibition yet.
             </div>
-            <div className="font-mono text-[10px] text-[var(--color-dust)] tracking-[0.08em] mb-4">
-              CEBU, PHILIPPINES
+          ) : (
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-10">
+              {artists.map((artist) => (
+                <div key={artist.id}>
+                  <div className="font-display text-[22px] font-normal mb-1.5">
+                    {artist.fullName}
+                  </div>
+                  <div className="font-mono text-[10px] text-[var(--color-dust)] tracking-[0.08em] mb-4">
+                    ARTIST
+                  </div>
+                  <Link
+                    href={`/artists/${artist.slug}`}
+                    className="relative inline-block font-body font-medium text-sm tracking-[0.02em] text-[var(--color-near-black)] after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-[1px] after:bg-current after:scale-x-0 after:origin-left after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.16,1,0.3,1)] hover:after:scale-x-100"
+                  >
+                    View full profile →
+                  </Link>
+                </div>
+              ))}
             </div>
-            <Link
-              href="/artists/maria-santos"
-              className="relative inline-block font-body font-medium text-sm tracking-[0.02em] text-[var(--color-near-black)] after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-[1px] after:bg-current after:scale-x-0 after:origin-left after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.16,1,0.3,1)] hover:after:scale-x-100"
-            >
-              View full profile →
-            </Link>
-          </div>
+          )}
         </Reveal>
       </div>
     </div>

@@ -6,6 +6,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { artworkSubmissionService } from "@/features/submissions/services/artworkSubmissionService";
 import { exhibitionService, Exhibition } from "@/features/exhibitions/services/exhibitionService";
+import { createClient } from "@/lib/supabase/client";
+import { mediaAssetService } from "@/features/mediaAssets/services/mediaAssetService";
+
+const ARTWORK_BUCKET = "studio201-public";
+const MAX_FILE_SIZE_MB = 20;
 
 const submissionSchema = z.object({
   exhibitionId: z.string().min(1, "Select an exhibition"),
@@ -21,9 +26,10 @@ type SubmissionFormData = z.infer<typeof submissionSchema>;
 interface SubmissionFormProps {
   token: string;
   onSuccess: () => void;
+  artistId: string;
 }
 
-export function SubmissionForm({ token, onSuccess }: SubmissionFormProps) {
+export function SubmissionForm({ token, onSuccess, artistId }: SubmissionFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -31,6 +37,7 @@ export function SubmissionForm({ token, onSuccess }: SubmissionFormProps) {
   const [loadingExhibitions, setLoadingExhibitions] = useState(true);
   const [exhibitionError, setExhibitionError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const supabase = createClient();
 
   const {
     register,
@@ -83,11 +90,69 @@ export function SubmissionForm({ token, onSuccess }: SubmissionFormProps) {
       .join("\n");
 
     try {
+      let mediaAssetId: string | undefined;
+      let uploadedFilePath: string | null = null;
+
+      if (selectedFile) {
+        const fileSizeMb = selectedFile.size / (1024 * 1024);
+        if (fileSizeMb > MAX_FILE_SIZE_MB) {
+          setErrorMsg(`File too large. Max size is ${MAX_FILE_SIZE_MB}MB.`);
+          setIsSubmitting(false);
+          return;
+        }
+
+        const extensionFromName = selectedFile.name.split(".").pop();
+        const extensionFromType = selectedFile.type?.split("/").pop();
+        const extension = extensionFromName || extensionFromType || "jpg";
+        const uuid =
+          typeof crypto !== "undefined" && "randomUUID" in crypto
+            ? crypto.randomUUID()
+            : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+        const filePath = `artworks/${artistId}/${uuid}.${extension}`;
+        const uploadResult = await supabase.storage
+          .from(ARTWORK_BUCKET)
+          .upload(filePath, selectedFile, {
+            contentType: selectedFile.type || "image/jpeg",
+            upsert: false,
+          });
+
+        if (uploadResult.error) {
+          console.error("Upload failed:", uploadResult.error);
+          setErrorMsg("Failed to upload artwork image. Please try again.");
+          setIsSubmitting(false);
+          return;
+        }
+
+        uploadedFilePath = filePath;
+        const { data: publicData } = supabase.storage.from(ARTWORK_BUCKET).getPublicUrl(filePath);
+        const mediaAsset = await mediaAssetService
+          .createAsset(
+            {
+              fileName: selectedFile.name,
+              filePath,
+              publicUrl: publicData.publicUrl,
+              mediaType: selectedFile.type || "image/jpeg",
+              altText: data.title,
+            },
+            token
+          )
+          .catch(async (error) => {
+            if (uploadedFilePath) {
+              await supabase.storage.from(ARTWORK_BUCKET).remove([uploadedFilePath]);
+            }
+            throw error;
+          });
+
+        mediaAssetId = mediaAsset.id;
+      }
+
       await artworkSubmissionService.submitArtwork(
         {
           exhibitionId: data.exhibitionId,
           title: data.title,
           description: fullDescription,
+          mediaAssetId,
         },
         token
       );

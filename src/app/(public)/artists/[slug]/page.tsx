@@ -31,9 +31,10 @@ async function getArtist(slug: string): Promise<PublicArtist | null> {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const artist = await getArtist(params.slug);
+  const { slug } = await params;
+  const artist = await getArtist(slug);
   if (!artist) {
     return { title: "Artist - Studio 201" };
   }
@@ -43,8 +44,9 @@ export async function generateMetadata({
   };
 }
 
-export default async function ArtistProfilePage({ params }: { params: { slug: string } }) {
-  const artist = await getArtist(params.slug);
+export default async function ArtistProfilePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const artist = await getArtist(slug);
   if (!artist) {
     return (
       <div className="min-h-screen flex items-center justify-center font-dm-mono text-gray-500 uppercase tracking-widest text-sm bg-[var(--color-charcoal)]">

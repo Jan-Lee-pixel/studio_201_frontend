@@ -31,7 +31,7 @@ export const authService = {
   /**
    * Updates the current user's profile fields.
    */
-  async updateProfile(payload: { bio?: string; profileImageUrl?: string; slug?: string }, token?: string): Promise<UserProfile> {
+  async updateProfile(payload: { bio?: string; profileImageUrl?: string; slug?: string; fullName?: string }, token?: string): Promise<UserProfile> {
     return apiClient<UserProfile>('/profile/me', {
       method: 'PATCH',
       body: JSON.stringify(payload),
