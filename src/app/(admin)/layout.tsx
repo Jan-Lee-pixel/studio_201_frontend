@@ -4,7 +4,8 @@ export const dynamic = 'force-dynamic';
 
 import { useAuth } from "@/providers/AuthProvider";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import "../../styles/dashboard.css";
 
 export default function AdminLayout({
@@ -14,6 +15,23 @@ export default function AdminLayout({
 }) {
   const { profile, loading } = useAuth();
   const pathname = usePathname();
+  const router = useRouter();
+  const normalizedRole = profile?.role?.toLowerCase();
+  const normalizedStatus = profile?.accountStatus?.toLowerCase();
+  const isExhibitionsNew = pathname === "/admin/exhibitions/new";
+  const isExhibitionsRoute = pathname.startsWith("/admin/exhibitions");
+  const isExhibitionsIndex = pathname === "/admin/exhibitions";
+
+  useEffect(() => {
+    if (!loading && profile) {
+      if (normalizedStatus === "approved" && normalizedRole === "artist") {
+        router.replace("/artist/dashboard");
+      }
+      if (normalizedStatus === "pending" || normalizedStatus === "rejected") {
+        router.replace("/pending");
+      }
+    }
+  }, [loading, profile, normalizedRole, normalizedStatus, router]);
 
   if (loading) {
     return <div className="p-8 text-gray-500 font-dm-mono text-sm">Loading workspace...</div>;
@@ -27,12 +45,50 @@ export default function AdminLayout({
     );
   }
 
+  if (normalizedStatus === "pending") {
+    return (
+      <div className="flex h-screen w-full items-center justify-center p-8 text-gray-500 font-serif">
+        <p>Your artist application is pending approval.</p>
+      </div>
+    );
+  }
+
+  if (normalizedStatus === "rejected") {
+    return (
+      <div className="flex h-screen w-full items-center justify-center p-8 text-red-500 font-serif">
+        <p>Your application was not approved. Please contact Studio 201.</p>
+      </div>
+    );
+  }
+
+  if (normalizedStatus !== "approved" || normalizedRole !== "admin") {
+    return (
+      <div className="flex h-screen w-full items-center justify-center p-8 text-red-500 font-serif">
+        <p>Unauthorized. This area is for administrators only.</p>
+      </div>
+    );
+  }
+
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     day: 'numeric',
     month: 'short',
     year: 'numeric'
   });
+  const breadcrumbMap: Record<string, string> = {
+    "/admin": "Admin Dashboard",
+    "/admin/analytics": "Analytics",
+    "/admin/exhibitions": "Exhibitions",
+    "/admin/exhibitions/new": "New Exhibition",
+    "/admin/submissions": "Submissions",
+    "/admin/artists": "Artists",
+    "/admin/events": "Events",
+    "/admin/editions": "Editions",
+    "/admin/settings": "Settings",
+  };
+  const breadcrumbCurrent =
+    breadcrumbMap[pathname] ??
+    (isExhibitionsRoute ? "Edit Exhibition" : "Admin Dashboard");
 
   return (
     <div className="page-view active dashboard-root" id="view-admin">
@@ -58,7 +114,7 @@ export default function AdminLayout({
               </Link>
             </li>
             <li>
-              <Link href="#">
+              <Link href="/admin/analytics" className={pathname === "/admin/analytics" ? "active" : ""}>
                 <svg className="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M8 1a6 6 0 100 12A6 6 0 008 1z" />
                   <path d="M8 5v4M8 11v.5" />
@@ -71,7 +127,7 @@ export default function AdminLayout({
           <span className="sidebar-section-label">Curation</span>
           <ul className="sidebar-nav">
             <li>
-              <Link href="#">
+              <Link href="/admin/submissions" className={pathname === "/admin/submissions" ? "active" : ""}>
                 <svg className="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M2 11L5.5 7 8 9.5 10.5 6 14 11H2z" />
                   <rect x="1" y="1" width="14" height="14" rx="1" />
@@ -80,7 +136,7 @@ export default function AdminLayout({
               </Link>
             </li>
             <li>
-              <Link href="#">
+              <Link href="/admin/exhibitions" className={isExhibitionsRoute && !isExhibitionsNew ? "active" : ""}>
                 <svg className="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M3 3h10v2L8 11 3 5V3z" />
                 </svg>
@@ -88,7 +144,7 @@ export default function AdminLayout({
               </Link>
             </li>
             <li>
-              <Link href="#">
+              <Link href="/admin/exhibitions/new" className={isExhibitionsNew ? "active" : ""}>
                 <svg className="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M8 1v14M1 8h14" />
                 </svg>
@@ -100,7 +156,7 @@ export default function AdminLayout({
           <span className="sidebar-section-label">Community</span>
           <ul className="sidebar-nav">
             <li>
-              <Link href="#">
+              <Link href="/admin/artists" className={pathname === "/admin/artists" ? "active" : ""}>
                 <svg className="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <circle cx="6" cy="5" r="3" />
                   <circle cx="11" cy="6" r="2.5" />
@@ -111,7 +167,7 @@ export default function AdminLayout({
               </Link>
             </li>
             <li>
-              <Link href="#">
+              <Link href="/admin/events" className={pathname === "/admin/events" ? "active" : ""}>
                 <svg className="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <rect x="1" y="4" width="14" height="10" rx="1" />
                   <path d="M5 4V2h6v2M1 8h14" />
@@ -120,7 +176,7 @@ export default function AdminLayout({
               </Link>
             </li>
             <li>
-              <Link href="#">
+              <Link href="/admin/editions" className={pathname === "/admin/editions" ? "active" : ""}>
                 <svg className="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <rect x="2" y="3" width="12" height="10" rx="1" />
                   <path d="M5 3V1M11 3V1M2 7h12" />
@@ -133,7 +189,7 @@ export default function AdminLayout({
           <span className="sidebar-section-label">Settings</span>
           <ul className="sidebar-nav">
             <li>
-              <Link href="#">
+              <Link href="/admin/settings" className={pathname === "/admin/settings" ? "active" : ""}>
                 <svg className="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <circle cx="8" cy="8" r="2" />
                   <path d="M8 2v1M8 13v1M2 8H1M15 8h-1M3.5 3.5l.7.7M11.8 11.8l.7.7M3.5 12.5l.7-.7M11.8 4.2l.7-.7" />
@@ -150,7 +206,7 @@ export default function AdminLayout({
               </div>
               <div className="sidebar-user-info">
                 <div className="sidebar-user-name">{profile.fullName}</div>
-                <div className="sidebar-user-role" style={{ textTransform: 'capitalize' }}>{profile.role}</div>
+                <div className="sidebar-user-role" style={{ textTransform: 'capitalize' }}>{profile.role ?? profile.accountStatus}</div>
               </div>
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5">
                 <path d="M3 5l3 3 3-3" />
@@ -165,7 +221,7 @@ export default function AdminLayout({
             <div className="topbar-left">
               <span className="breadcrumb">
                 Studio 201 <span className="breadcrumb-sep">/</span>
-                <span className="breadcrumb-current">Admin Dashboard</span>
+                <span className="breadcrumb-current">{breadcrumbCurrent}</span>
               </span>
             </div>
             <div className="topbar-right">
@@ -177,7 +233,7 @@ export default function AdminLayout({
                 </svg>
                 <span className="notif-dot" style={{ background: 'var(--ochre)' }}></span>
               </button>
-              <button className="btn btn-terracotta btn-sm">+ New Exhibition</button>
+              <Link href="/admin/exhibitions/new" className="btn btn-terracotta btn-sm">+ New Exhibition</Link>
             </div>
           </div>
 

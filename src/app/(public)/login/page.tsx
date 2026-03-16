@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { apiClient } from '@/lib/apiClient';
+import type { UserProfile } from '@/features/auth/services/authService';
 
 export default function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -11,71 +12,92 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const authInFlight = useRef(false);
   const router = useRouter();
   const supabase = createClient();
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (authInFlight.current) return;
+    authInFlight.current = true;
     setLoading(true);
     setError(null);
 
     let authError;
     let authData;
 
-    if (isSignUp) {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-      authError = error;
-      authData = data;
-    } else {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      authError = error;
-      authData = data;
-    }
-
-    if (authError) {
-      setError(authError.message);
-      setLoading(false);
-      return;
-    }
-
-    if (!authData?.session) {
-      if (isSignUp) {
-        setError('Please check your email to verify your account, or sign in if you already have an account.');
-      } else {
-        setError('Login failed: No session returned.');
-      }
-      setLoading(false);
-      return;
-    }
-
     try {
-      // Ensure the user exists in the .NET backend and get their role
-      const profileInfo = await apiClient<{ role: string }>('/profile/ensure', {
+      if (isSignUp) {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+        authError = error;
+        authData = data;
+      } else {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        authError = error;
+        authData = data;
+      }
+
+      if (authError) {
+        setError(authError.message);
+        setLoading(false);
+        return;
+      }
+
+      if (!authData?.session) {
+        if (isSignUp) {
+          setError('Please check your email to verify your account, or sign in if you already have an account.');
+        } else {
+          setError('Login failed: No session returned.');
+        }
+        setLoading(false);
+        return;
+      }
+
+      // Ensure the user exists in the Django backend and get their access status
+      const accessToken = authData?.session?.access_token;
+      const profileInfo = await apiClient<UserProfile>('/profile/ensure', {
         method: 'POST',
         body: JSON.stringify({
           email: email,
           fullName: isSignUp ? email.split('@')[0] : '' // Default name for new sign ups
         })
-      });
+      }, accessToken);
 
       // Refresh layout
       router.refresh();
 
-      // Route based on role
-      if (profileInfo.role === 'Admin') {
+      // Route based on approval status and role
+      const accountStatus = profileInfo.accountStatus?.toLowerCase();
+      const role = profileInfo.role?.toLowerCase();
+      if (accountStatus === 'rejected') {
+        await supabase.auth.signOut();
+        setError('Your application was not approved. Please contact Studio 201 for assistance.');
+        setLoading(false);
+        return;
+      }
+      if (accountStatus === 'pending') {
+        router.push('/pending');
+        return;
+      }
+      if (role === 'admin') {
         router.push('/admin');
+      } else if (role === 'artist') {
+        router.push('/artist/dashboard');
       } else {
-        router.push('/dashboard'); // Target artist route
+        setError('Your account is awaiting approval. Please check back later.');
+        setLoading(false);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to sync profile with server');
       setLoading(false);
+    } finally {
+      authInFlight.current = false;
     }
   };
 
@@ -87,7 +109,7 @@ export default function LoginPage() {
             {isSignUp ? 'Apply to Studio 201' : 'Sign in to Studio 201'}
           </h2>
           <p className="mt-4 text-center text-sm text-gray-600">
-            For Artists and Administrators
+            For Artists
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleAuth}>

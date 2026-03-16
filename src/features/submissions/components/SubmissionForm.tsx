@@ -1,12 +1,19 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { artworkSubmissionService } from "@/features/submissions/services/artworkSubmissionService";
+import { exhibitionService, Exhibition } from "@/features/exhibitions/services/exhibitionService";
+import { createClient } from "@/lib/supabase/client";
+import { mediaAssetService } from "@/features/mediaAssets/services/mediaAssetService";
+
+const ARTWORK_BUCKET = "studio201-public";
+const MAX_FILE_SIZE_MB = 20;
 
 const submissionSchema = z.object({
+  exhibitionId: z.string().min(1, "Select an exhibition"),
   title: z.string().min(1, "Title is required").max(255),
   description: z.string().optional(),
   year: z.string().optional(),
@@ -17,16 +24,20 @@ const submissionSchema = z.object({
 type SubmissionFormData = z.infer<typeof submissionSchema>;
 
 interface SubmissionFormProps {
-  artistId: string;
   token: string;
   onSuccess: () => void;
+  artistId: string;
 }
 
-export function SubmissionForm({ artistId, token, onSuccess }: SubmissionFormProps) {
+export function SubmissionForm({ token, onSuccess, artistId }: SubmissionFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [exhibitions, setExhibitions] = useState<Exhibition[]>([]);
+  const [loadingExhibitions, setLoadingExhibitions] = useState(true);
+  const [exhibitionError, setExhibitionError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const supabase = createClient();
 
   const {
     register,
@@ -35,7 +46,33 @@ export function SubmissionForm({ artistId, token, onSuccess }: SubmissionFormPro
     formState: { errors },
   } = useForm<SubmissionFormData>({
     resolver: zodResolver(submissionSchema),
+    defaultValues: {
+      exhibitionId: "",
+    },
   });
+
+  useEffect(() => {
+    let mounted = true;
+    setLoadingExhibitions(true);
+    setExhibitionError(null);
+    exhibitionService
+      .getOpenExhibitions()
+      .then((data) => {
+        if (!mounted) return;
+        setExhibitions(data);
+      })
+      .catch((error) => {
+        console.error("Failed to load exhibitions:", error);
+        if (mounted) setExhibitionError("Failed to load exhibitions. Please try again.");
+      })
+      .finally(() => {
+        if (mounted) setLoadingExhibitions(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const onSubmit = async (data: SubmissionFormData) => {
     setIsSubmitting(true);
@@ -53,11 +90,69 @@ export function SubmissionForm({ artistId, token, onSuccess }: SubmissionFormPro
       .join("\n");
 
     try {
+      let mediaAssetId: string | undefined;
+      let uploadedFilePath: string | null = null;
+
+      if (selectedFile) {
+        const fileSizeMb = selectedFile.size / (1024 * 1024);
+        if (fileSizeMb > MAX_FILE_SIZE_MB) {
+          setErrorMsg(`File too large. Max size is ${MAX_FILE_SIZE_MB}MB.`);
+          setIsSubmitting(false);
+          return;
+        }
+
+        const extensionFromName = selectedFile.name.split(".").pop();
+        const extensionFromType = selectedFile.type?.split("/").pop();
+        const extension = extensionFromName || extensionFromType || "jpg";
+        const uuid =
+          typeof crypto !== "undefined" && "randomUUID" in crypto
+            ? crypto.randomUUID()
+            : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+        const filePath = `artworks/${artistId}/${uuid}.${extension}`;
+        const uploadResult = await supabase.storage
+          .from(ARTWORK_BUCKET)
+          .upload(filePath, selectedFile, {
+            contentType: selectedFile.type || "image/jpeg",
+            upsert: false,
+          });
+
+        if (uploadResult.error) {
+          console.error("Upload failed:", uploadResult.error);
+          setErrorMsg("Failed to upload artwork image. Please try again.");
+          setIsSubmitting(false);
+          return;
+        }
+
+        uploadedFilePath = filePath;
+        const { data: publicData } = supabase.storage.from(ARTWORK_BUCKET).getPublicUrl(filePath);
+        const mediaAsset = await mediaAssetService
+          .createAsset(
+            {
+              fileName: selectedFile.name,
+              filePath,
+              publicUrl: publicData.publicUrl,
+              mediaType: selectedFile.type || "image/jpeg",
+              altText: data.title,
+            },
+            token
+          )
+          .catch(async (error) => {
+            if (uploadedFilePath) {
+              await supabase.storage.from(ARTWORK_BUCKET).remove([uploadedFilePath]);
+            }
+            throw error;
+          });
+
+        mediaAssetId = mediaAsset.id;
+      }
+
       await artworkSubmissionService.submitArtwork(
         {
-          exhibitionId: "00000000-0000-0000-0000-000000000000", // A dummy exhibition ID for unassigned works, or we will need to handle this
+          exhibitionId: data.exhibitionId,
           title: data.title,
           description: fullDescription,
+          mediaAssetId,
         },
         token
       );
@@ -74,7 +169,7 @@ export function SubmissionForm({ artistId, token, onSuccess }: SubmissionFormPro
   };
 
   return (
-    <div className="card">
+    <div className="card" id="new-submission">
       <div className="card-header">
         <h2 className="card-title">Submit New Artwork</h2>
         <span className="artwork-status status-review" style={{ fontSize: "8px" }}>
@@ -88,6 +183,49 @@ export function SubmissionForm({ artistId, token, onSuccess }: SubmissionFormPro
             {errorMsg}
           </div>
         )}
+        {exhibitionError && (
+          <div className="p-3 mb-4 text-sm text-red-600 bg-red-50 rounded font-dm-mono">
+            {exhibitionError}
+          </div>
+        )}
+
+        {/* Exhibition Selector */}
+        <div className="form-group">
+          <label className="form-label">
+            Exhibition <span className="text-red-500">*</span>
+          </label>
+          {loadingExhibitions ? (
+            <div className="text-xs font-dm-mono text-gray-400 uppercase tracking-widest">
+              Loading exhibitions...
+            </div>
+          ) : exhibitions.length === 0 ? (
+            <div className="text-xs font-dm-mono text-gray-400 uppercase tracking-widest">
+              No open exhibitions yet.
+            </div>
+          ) : (
+            <>
+              <select
+                {...register("exhibitionId")}
+                className={`form-select ${errors.exhibitionId ? "border-red-500" : ""}`}
+                defaultValue=""
+              >
+                <option value="" disabled>
+                  Select an exhibition
+                </option>
+                {exhibitions.map((exhibition) => (
+                  <option key={exhibition.id} value={exhibition.id}>
+                    {exhibition.title}
+                  </option>
+                ))}
+              </select>
+              {errors.exhibitionId && (
+                <p className="text-red-500 text-xs mt-1 font-dm-mono">
+                  {errors.exhibitionId.message}
+                </p>
+              )}
+            </>
+          )}
+        </div>
 
         {/* File Upload Zone */}
         <div className="form-group">
@@ -190,7 +328,11 @@ export function SubmissionForm({ artistId, token, onSuccess }: SubmissionFormPro
           <button type="button" className="btn btn-secondary btn-sm" onClick={() => { reset(); setSelectedFile(null); }} disabled={isSubmitting}>
             Clear
           </button>
-          <button type="submit" className="btn btn-primary btn-sm" disabled={isSubmitting}>
+          <button
+            type="submit"
+            className="btn btn-primary btn-sm"
+            disabled={isSubmitting || loadingExhibitions || exhibitions.length === 0}
+          >
             {isSubmitting ? "Submitting..." : "Submit for Review"}
           </button>
         </div>

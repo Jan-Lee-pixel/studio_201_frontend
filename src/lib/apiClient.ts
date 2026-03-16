@@ -38,7 +38,11 @@ export async function apiClient<T>(
     headers.set('Authorization', `Bearer ${token}`);
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const fullUrl = `${API_BASE_URL}${endpoint}`;
+  console.log(`[apiClient] Requesting: ${fullUrl}`);
+  console.log(`[apiClient] Using token: ${token ? token.substring(0, 15) + '...' : 'NONE'}`);
+
+  const response = await fetch(fullUrl, {
     ...options,
     headers,
   });

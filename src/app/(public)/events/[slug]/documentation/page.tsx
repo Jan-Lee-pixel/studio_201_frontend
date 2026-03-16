@@ -20,7 +20,7 @@ const getEventImages = (slug: string) => {
   return mockImages;
 };
 
-export default async function EventDocumentationPage({ params }: { params: { slug: string } }) {
+export default async function EventDocumentationPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
   // Extract a readable title from the slug (mock behavior)
