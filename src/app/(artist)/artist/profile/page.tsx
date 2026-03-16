@@ -100,9 +100,7 @@ export default function ArtistProfilePage() {
     setMessage(null);
     try {
       const supabase = createClient();
-      const fileExt = file.name.split('.').pop() || 'pdf';
-      const safeExt = fileExt.toLowerCase();
-      const filePath = `artists/cv/${session.user.id}/${crypto.randomUUID()}.${safeExt}`;
+      const filePath = `artists/cv/${session.user.id}/cv.pdf`;
       const { error } = await supabase.storage.from('studio201-public').upload(filePath, file, {
         upsert: true,
         contentType: file.type,
@@ -122,7 +120,7 @@ export default function ArtistProfilePage() {
       );
 
       setCvMediaId(asset.id);
-      setCvUrl(asset.publicUrl);
+      setCvUrl(`${asset.publicUrl}?v=${Date.now()}`);
       setMessage('CV uploaded. Click "Save Changes" to publish it.');
     } catch (e) {
       console.error('Failed to upload CV', e);
@@ -143,9 +141,7 @@ export default function ArtistProfilePage() {
     setMessage(null);
     try {
       const supabase = createClient();
-      const fileExt = file.name.split('.').pop() || 'jpg';
-      const safeExt = fileExt.toLowerCase();
-      const filePath = `artists/profile/${session.user.id}/${crypto.randomUUID()}.${safeExt}`;
+      const filePath = `artists/profile/${session.user.id}/avatar`;
       const { error } = await supabase.storage.from('studio201-public').upload(filePath, file, {
         upsert: true,
         contentType: file.type,
@@ -153,8 +149,8 @@ export default function ArtistProfilePage() {
       if (error) throw error;
 
       const { data } = supabase.storage.from('studio201-public').getPublicUrl(filePath);
-      setProfileImageUrl(data.publicUrl);
-      setMessage('Profile image uploaded. Click "Save Changes" to publish it.');
+      setProfileImageUrl(`${data.publicUrl}?v=${Date.now()}`);
+      setMessage('Profile image uploaded. Click "Save Changes" to update your profile.');
     } catch (e) {
       console.error('Failed to upload profile image', e);
       setMessage('Failed to upload profile image.');
