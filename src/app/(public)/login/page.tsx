@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { apiClient } from '@/lib/apiClient';
@@ -12,50 +12,53 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const authInFlight = useRef(false);
   const router = useRouter();
   const supabase = createClient();
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (authInFlight.current) return;
+    authInFlight.current = true;
     setLoading(true);
     setError(null);
 
     let authError;
     let authData;
 
-    if (isSignUp) {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-      authError = error;
-      authData = data;
-    } else {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      authError = error;
-      authData = data;
-    }
-
-    if (authError) {
-      setError(authError.message);
-      setLoading(false);
-      return;
-    }
-
-    if (!authData?.session) {
-      if (isSignUp) {
-        setError('Please check your email to verify your account, or sign in if you already have an account.');
-      } else {
-        setError('Login failed: No session returned.');
-      }
-      setLoading(false);
-      return;
-    }
-
     try {
+      if (isSignUp) {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+        authError = error;
+        authData = data;
+      } else {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        authError = error;
+        authData = data;
+      }
+
+      if (authError) {
+        setError(authError.message);
+        setLoading(false);
+        return;
+      }
+
+      if (!authData?.session) {
+        if (isSignUp) {
+          setError('Please check your email to verify your account, or sign in if you already have an account.');
+        } else {
+          setError('Login failed: No session returned.');
+        }
+        setLoading(false);
+        return;
+      }
+
       // Ensure the user exists in the Django backend and get their access status
       const accessToken = authData?.session?.access_token;
       const profileInfo = await apiClient<UserProfile>('/profile/ensure', {
@@ -93,6 +96,8 @@ export default function LoginPage() {
     } catch (err: any) {
       setError(err.message || 'Failed to sync profile with server');
       setLoading(false);
+    } finally {
+      authInFlight.current = false;
     }
   };
 
