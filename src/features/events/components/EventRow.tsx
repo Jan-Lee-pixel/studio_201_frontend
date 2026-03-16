@@ -7,6 +7,8 @@ import { Reveal } from "@/components/animation/Reveal";
 
 interface EventRowProps {
   slug?: string;
+  hrefPrefix?: string;
+  href?: string;
   date: string;
   day: string;
   type: string;
@@ -20,11 +22,16 @@ interface EventRowProps {
 }
 
 
-export function EventRow({ slug, date, day, type, title, subtitle, venue, time, isExternal, hasDocumentation, delay = 0 }: EventRowProps) {
+export function EventRow({ slug, hrefPrefix, href, date, day, type, title, subtitle, venue, time, isExternal, hasDocumentation, delay = 0 }: EventRowProps) {
   const router = useRouter();
 
   const handleRowClick = () => {
-    router.push(slug ? `/events/${slug}` : "/events");
+    if (href) {
+      router.push(href);
+      return;
+    }
+    const prefix = hrefPrefix ?? "/events";
+    router.push(slug ? `${prefix}/${slug}` : prefix);
   };
 
   return (

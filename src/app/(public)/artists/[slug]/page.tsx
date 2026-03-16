@@ -1,5 +1,3 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/Button";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Reveal } from "@/components/animation/Reveal";
 import { ArtworkCard } from "@/features/artworks/components/ArtworkCard";
@@ -13,6 +11,40 @@ type PublicArtist = {
   slug: string;
   bio?: string;
   profileImageUrl?: string;
+  cvUrl?: string | null;
+  instagramUrl?: string | null;
+  facebookUrl?: string | null;
+  youtubeUrl?: string | null;
+};
+
+type PublicArtwork = {
+  id: string;
+  exhibitionId: string;
+  artistId: string;
+  title: string;
+  description?: string | null;
+  mediaAssetUrl?: string | null;
+  createdAt: string;
+};
+
+type PortfolioItem = {
+  id: string;
+  artistId: string;
+  title: string;
+  description?: string | null;
+  year?: string | null;
+  medium?: string | null;
+  dimensions?: string | null;
+  mediaAssetUrl?: string | null;
+  createdAt: string;
+};
+
+type PublicExhibition = {
+  id: string;
+  title: string;
+  slug: string;
+  startDate?: string | null;
+  endDate?: string | null;
 };
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5203/api";
@@ -26,6 +58,48 @@ async function getArtist(slug: string): Promise<PublicArtist | null> {
     return null;
   }
 }
+
+async function getArtistArtworks(artistId: string): Promise<PublicArtwork[]> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/ArtworkSubmissions/public/artist/${artistId}`, { cache: "no-store" });
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
+  }
+}
+
+async function getArtistPortfolioItems(artistId: string): Promise<PortfolioItem[]> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/Portfolio/artist/${artistId}`, { cache: "no-store" });
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
+  }
+}
+
+async function getArtistExhibitions(artistId: string): Promise<PublicExhibition[]> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/Exhibitions/artist/${artistId}`, { cache: "no-store" });
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
+  }
+}
+
+const formatExhibitionDate = (startDate?: string | null) => {
+  if (!startDate) return { date: "Date TBA", day: "" };
+  const dateObj = new Date(startDate);
+  return {
+    date: dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+    day: dateObj.toLocaleDateString("en-US", { weekday: "short" }),
+  };
+};
+
+const buttonClasses =
+  "inline-block font-body text-xs font-normal tracking-[0.08em] uppercase px-7 py-3 border bg-transparent cursor-pointer transition-colors duration-300 ease-[cubic-bezier(0.25,0,0,1)] rounded-none border-[var(--color-near-black)] text-[var(--color-near-black)] hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)]";
 
 // dynamic metadata
 export async function generateMetadata({
@@ -54,6 +128,22 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
       </div>
     );
   }
+
+  const [portfolioItems, artworks, exhibitions] = await Promise.all([
+    getArtistPortfolioItems(artist.id),
+    getArtistArtworks(artist.id),
+    getArtistExhibitions(artist.id),
+  ]);
+
+  const portfolioVisible = portfolioItems.filter((item) => Boolean(item.mediaAssetUrl)).slice(0, 6);
+  const submissionsVisible = artworks.filter((artwork) => Boolean(artwork.mediaAssetUrl)).slice(0, 6);
+  const visibleArtworks = portfolioVisible.length > 0 ? portfolioVisible : submissionsVisible;
+  const usingPortfolio = portfolioVisible.length > 0;
+  const socialLinks = [
+    { label: "Instagram", url: artist.instagramUrl },
+    { label: "Facebook", url: artist.facebookUrl },
+    { label: "YouTube", url: artist.youtubeUrl },
+  ].filter((link) => Boolean(link.url));
 
   const nameParts = artist.fullName.split(" ");
   const firstName = nameParts[0] || artist.fullName;
@@ -98,15 +188,26 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
               Upcoming exhibitions and public programs will be listed below as they are scheduled.
             </p>
 
-            <div className="mt-12 flex gap-8 items-center">
-              <Button>Download CV</Button>
-              <a
-                href="#"
-                className="relative inline-block font-body text-[13px] text-[var(--color-warm-slate)] after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-[1px] after:bg-current after:scale-x-0 after:origin-left after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.16,1,0.3,1)] hover:after:scale-x-100"
-              >
-                Instagram →
-              </a>
-            </div>
+            {(artist.cvUrl || socialLinks.length > 0) && (
+              <div className="mt-12 flex flex-wrap gap-6 items-center">
+                {artist.cvUrl && (
+                  <a href={artist.cvUrl} target="_blank" rel="noreferrer" className={buttonClasses}>
+                    Download CV
+                  </a>
+                )}
+                {socialLinks.map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.url as string}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="relative inline-block font-body text-[13px] text-[var(--color-warm-slate)] after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-[1px] after:bg-current after:scale-x-0 after:origin-left after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.16,1,0.3,1)] hover:after:scale-x-100"
+                  >
+                    {link.label} →
+                  </a>
+                ))}
+              </div>
+            )}
           </Reveal>
         </div>
       </div>
@@ -116,44 +217,34 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
         <Reveal>
           <SectionLabel>Selected Works</SectionLabel>
         </Reveal>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mt-12">
-          <ArtworkCard
-            image="https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=600&q=80"
-            title="Ang Paa na Hindi Lumupad, I"
-            meta="2025 · Oil on canvas"
-            delay={1}
-          />
-          <ArtworkCard
-            image="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=600&q=80"
-            title="Dagat na Walang Hangganan"
-            meta="2024 · Oil, earth, cloth"
-            delay={2}
-          />
-          <ArtworkCard
-            image="https://images.unsplash.com/photo-1547891654-e66ed7ebb968?w=600&q=80"
-            title="Langit ng Aking Ina"
-            meta="2025 · Oil on linen"
-            delay={3}
-          />
-          <ArtworkCard
-            image="https://images.unsplash.com/photo-1541367777708-7905fe3296c0?w=600&q=80"
-            title="Halina at Luha"
-            meta="2023 · Mixed media"
-            delay={1}
-          />
-          <ArtworkCard
-            image="https://images.unsplash.com/photo-1620510625142-b45cbb784397?w=600&q=80"
-            title="Ang Katahimikan ng Tubig"
-            meta="2022 · Oil on canvas"
-            delay={2}
-          />
-          <ArtworkCard
-            image="https://images.unsplash.com/photo-1590907047706-ee9c08cf3189?w=600&q=80"
-            title="Bundok at Dagat"
-            meta="2022 · Oil, abaca"
-            delay={3}
-          />
-        </div>
+        {visibleArtworks.length === 0 ? (
+          <div className="mt-10 font-mono text-[11px] tracking-[0.1em] uppercase text-[var(--color-dust)]">
+            No public artworks yet.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mt-12">
+            {visibleArtworks.map((artwork, index) => {
+              const meta =
+                "year" in artwork || "medium" in artwork || "dimensions" in artwork
+                  ? [artwork.year, artwork.medium, artwork.dimensions].filter(Boolean).join(" · ")
+                  : artwork.description || "Artwork";
+              return (
+                <ArtworkCard
+                  key={artwork.id}
+                  image={artwork.mediaAssetUrl as string}
+                  title={artwork.title}
+                  meta={meta || "Artwork"}
+                  delay={(index % 3) + 1 as 1 | 2 | 3}
+                />
+              );
+            })}
+          </div>
+        )}
+        {usingPortfolio ? (
+          <p className="mt-6 text-xs font-mono uppercase tracking-[0.1em] text-[var(--color-dust)]">
+            Curated portfolio
+          </p>
+        ) : null}
       </div>
 
       {/* UPCOMING SHOWS */}
@@ -161,40 +252,32 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
         <Reveal>
           <SectionLabel>Upcoming Shows</SectionLabel>
         </Reveal>
-        <div className="mt-12">
-          <EventRow
-            date="Nov 30, 2025"
-            day=""
-            type="Studio 201 Exhibition"
-            title="Mga Paa sa Alapaap"
-            subtitle=""
-            venue="Studio 201 · Cebu, Philippines"
-            time=""
-            delay={1}
-          />
-          <EventRow
-            date="Jan 10, 2026"
-            day=""
-            type="External · Group Show"
-            title="Visayan Contemporary"
-            subtitle=""
-            venue="Ayala Museum · Manila, Philippines"
-            time=""
-            isExternal
-            delay={2}
-          />
-          <EventRow
-            date="Mar 15, 2026"
-            day=""
-            type="External · Solo"
-            title="Roots and Routes"
-            subtitle=""
-            venue="Art Fair Singapore"
-            time=""
-            isExternal
-            delay={3}
-          />
-        </div>
+        {exhibitions.length === 0 ? (
+          <div className="mt-10 font-mono text-[11px] tracking-[0.1em] uppercase text-[var(--color-dust)]">
+            No upcoming shows listed yet.
+          </div>
+        ) : (
+          <div className="mt-12">
+            {exhibitions.map((exhibition, index) => {
+              const { date, day } = formatExhibitionDate(exhibition.startDate);
+              return (
+                <EventRow
+                  key={exhibition.id}
+                  slug={exhibition.slug}
+                  hrefPrefix="/exhibitions"
+                  date={date}
+                  day={day}
+                  type="Studio 201 Exhibition"
+                  title={exhibition.title}
+                  subtitle=""
+                  venue="Studio 201"
+                  time=""
+                  delay={(index % 3) as 0 | 1 | 2}
+                />
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

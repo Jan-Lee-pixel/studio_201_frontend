@@ -10,14 +10,15 @@ const STATUS_CLASS: Record<string, string> = {
 interface ArtworkListProps {
   submissions: ArtworkSubmission[];
   loading: boolean;
+  showViewLink?: boolean;
 }
 
-export function ArtworkList({ submissions, loading }: ArtworkListProps) {
+export function ArtworkList({ submissions, loading, showViewLink = false }: ArtworkListProps) {
   return (
-    <div className="card">
+    <div className="card" id="artist-artworks">
       <div className="card-header">
         <h2 className="card-title">Your Artworks</h2>
-        <Link href="#" className="btn btn-secondary btn-sm">View All →</Link>
+        <Link href="/artist/artworks#artist-artworks" className="btn btn-secondary btn-sm">View All →</Link>
       </div>
       <div className="artwork-list">
         {loading ? (
@@ -31,10 +32,14 @@ export function ArtworkList({ submissions, loading }: ArtworkListProps) {
           submissions.map((art) => (
             <div className="artwork-row" key={art.id}>
               <div className="artwork-thumb">
-                <div 
-                  className="artwork-thumb-gradient" 
-                  style={{ background: "linear-gradient(135deg, var(--warm-sand), var(--terracotta))" }}
-                ></div>
+                {art.mediaAssetUrl ? (
+                  <img src={art.mediaAssetUrl} alt={art.title} className="artwork-thumb-image" />
+                ) : (
+                  <div 
+                    className="artwork-thumb-gradient" 
+                    style={{ background: "linear-gradient(135deg, var(--warm-sand), var(--terracotta))" }}
+                  ></div>
+                )}
               </div>
               <div className="artwork-info">
                 <p className="artwork-title">{art.title}</p>
@@ -47,19 +52,22 @@ export function ArtworkList({ submissions, loading }: ArtworkListProps) {
               <span className={`artwork-status ${STATUS_CLASS[art.status] ?? "status-draft"}`}>
                 {art.status}
               </span>
-              <div className="artwork-actions">
-                <button className="action-btn" title="Edit">
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path d="M8.5 1.5l2 2L4 10H2V8L8.5 1.5z" />
-                  </svg>
-                </button>
-                <button className="action-btn" title="View">
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path d="M1 6s2-4 5-4 5 4 5 4-2 4-5 4-5-4-5-4z"/>
-                    <circle cx="6" cy="6" r="1.5"/>
-                  </svg>
-                </button>
-              </div>
+              {showViewLink && art.mediaAssetUrl ? (
+                <div className="artwork-actions">
+                  <a
+                    className="action-btn"
+                    title="View"
+                    href={art.mediaAssetUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M1 6s2-4 5-4 5 4 5 4-2 4-5 4-5-4-5-4z"/>
+                      <circle cx="6" cy="6" r="1.5"/>
+                    </svg>
+                  </a>
+                </div>
+              ) : null}
             </div>
           ))
         )}

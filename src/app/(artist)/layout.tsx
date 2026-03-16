@@ -18,6 +18,13 @@ export default function ArtistLayout({
   const router = useRouter();
   const normalizedRole = profile?.role?.toLowerCase();
   const normalizedStatus = profile?.accountStatus?.toLowerCase();
+  const isArtworksPage = pathname === "/artist/artworks" || pathname === "/artworks";
+  const breadcrumbLabel = (() => {
+    if (pathname === "/artist/profile") return "Profile";
+    if (isArtworksPage) return "Artworks";
+    if (pathname === "/artist/messages") return "Messages";
+    return "Dashboard";
+  })();
 
   useEffect(() => {
     if (!loading && profile) {
@@ -113,7 +120,7 @@ export default function ArtistLayout({
           <span className="sidebar-section-label">Artworks</span>
           <ul className="sidebar-nav">
             <li>
-              <Link href="#">
+              <Link href="/artist/artworks#portfolio-items" className={isArtworksPage ? "active" : ""}>
                 <svg className="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M2 12L6 7l3 3 2-2.5L14 12" />
                   <circle cx="5" cy="5" r="1.5" />
@@ -123,7 +130,7 @@ export default function ArtistLayout({
               </Link>
             </li>
             <li>
-              <Link href="#">
+              <Link href="/artist/artworks#artist-artworks">
                 <svg className="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <circle cx="8" cy="8" r="6" />
                   <path d="M8 5v3l2 2" />
@@ -132,7 +139,7 @@ export default function ArtistLayout({
               </Link>
             </li>
             <li>
-              <Link href="#">
+              <Link href="/artist/artworks#new-submission">
                 <svg className="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M8 1v14M1 8h14" />
                 </svg>
@@ -144,7 +151,7 @@ export default function ArtistLayout({
           <span className="sidebar-section-label">Gallery</span>
           <ul className="sidebar-nav">
             <li>
-              <Link href="#">
+              <Link href="/exhibitions">
                 <svg className="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M1 14L8 2l7 12H1z" />
                 </svg>
@@ -152,7 +159,7 @@ export default function ArtistLayout({
               </Link>
             </li>
             <li>
-              <Link href="#">
+              <Link href="/artist/messages">
                 <svg className="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <rect x="1" y="3" width="14" height="10" rx="1" />
                   <path d="M5 7h6M5 10h4" />
@@ -165,7 +172,11 @@ export default function ArtistLayout({
           <div className="sidebar-bottom">
             <div className="sidebar-user">
               <div className="sidebar-avatar">
-                {profile.fullName.charAt(0).toUpperCase()}
+                {profile.profileImageUrl ? (
+                  <img src={profile.profileImageUrl} alt={profile.fullName} />
+                ) : (
+                  profile.fullName.charAt(0).toUpperCase()
+                )}
               </div>
               <div className="sidebar-user-info">
                 <div className="sidebar-user-name">{profile.fullName}</div>
@@ -185,7 +196,7 @@ export default function ArtistLayout({
             <div className="topbar-left">
               <span className="breadcrumb">
                 Studio 201 <span className="breadcrumb-sep">/</span>
-                <span className="breadcrumb-current">Dashboard</span>
+                <span className="breadcrumb-current">{breadcrumbLabel}</span>
               </span>
             </div>
             <div className="topbar-right">

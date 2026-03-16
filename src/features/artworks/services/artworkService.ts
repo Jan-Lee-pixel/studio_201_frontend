@@ -15,5 +15,8 @@ export interface PublicArtworkDto {
 export const artworkService = {
   getApprovedArtworksByExhibition: async (exhibitionId: string): Promise<PublicArtworkDto[]> => {
     return apiClient<PublicArtworkDto[]>(`/ArtworkSubmissions/public/exhibition/${exhibitionId}`);
-  }
+  },
+  getApprovedArtworksByArtist: async (artistId: string): Promise<PublicArtworkDto[]> => {
+    return apiClient<PublicArtworkDto[]>(`/ArtworkSubmissions/public/artist/${artistId}`);
+  },
 };

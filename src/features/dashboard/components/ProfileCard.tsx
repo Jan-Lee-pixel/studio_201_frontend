@@ -12,12 +12,19 @@ export function ProfileCard({ profile, submissions, loading }: ProfileCardProps)
   const totalWorks = submissions.length;
   const pendingWorks = submissions.filter((s) => s.status === "Pending").length;
   const approvedWorks = submissions.filter((s) => s.status === "Approved").length;
+  const slug =
+    profile.slug?.trim() ||
+    profile.fullName.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
 
   return (
     <div className="card">
       <div className="profile-block">
         <div className="profile-avatar-lg">
-          {profile.fullName.charAt(0).toUpperCase()}
+          {profile.profileImageUrl ? (
+            <img src={profile.profileImageUrl} alt={profile.fullName} className="profile-avatar-image" />
+          ) : (
+            profile.fullName.charAt(0).toUpperCase()
+          )}
           <div className="profile-avatar-edit">
             <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M7 1l2 2L3 9H1V7L7 1z" />
@@ -25,7 +32,7 @@ export function ProfileCard({ profile, submissions, loading }: ProfileCardProps)
           </div>
         </div>
         <p className="profile-name">{profile.fullName}</p>
-        <p className="profile-handle">@{profile.fullName.toLowerCase().replace(/\s/g, "")} · {profile.role ?? profile.accountStatus}</p>
+        <p className="profile-handle">@{slug || "artist"} · {profile.role ?? profile.accountStatus}</p>
         <div className="profile-stats">
           <div className="profile-stat">
             <span className="profile-stat-value">{loading ? "—" : totalWorks}</span>
@@ -62,8 +69,8 @@ export function ProfileCard({ profile, submissions, loading }: ProfileCardProps)
       </div>
       
       <div className="card-footer" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <Link href="#" className="btn btn-secondary btn-sm">Edit Profile</Link>
-        <Link href="#" className="btn btn-secondary btn-sm">Public Page →</Link>
+        <Link href="/artist/profile" className="btn btn-secondary btn-sm">Edit Profile</Link>
+        <Link href={slug ? `/artists/${slug}` : "/artists"} className="btn btn-secondary btn-sm">Public Page →</Link>
       </div>
     </div>
   );

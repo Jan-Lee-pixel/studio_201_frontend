@@ -3,12 +3,21 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/providers/AuthProvider';
 import { authService } from '@/features/auth/services/authService';
+import { createClient } from '@/lib/supabase/client';
+import { mediaAssetService } from '@/features/mediaAssets/services/mediaAssetService';
 
 export default function ArtistProfilePage() {
   const { session, profile, loading } = useAuth();
   const [displayName, setDisplayName] = useState('');
   const [bio, setBio] = useState('');
   const [profileImageUrl, setProfileImageUrl] = useState('');
+  const [uploadingProfileImage, setUploadingProfileImage] = useState(false);
+  const [cvMediaId, setCvMediaId] = useState<string | null>(null);
+  const [cvUrl, setCvUrl] = useState('');
+  const [instagramUrl, setInstagramUrl] = useState('');
+  const [facebookUrl, setFacebookUrl] = useState('');
+  const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [uploadingCv, setUploadingCv] = useState(false);
   const [slug, setSlug] = useState('');
   const [slugTouched, setSlugTouched] = useState(false);
   const [slugEditable, setSlugEditable] = useState(false);
@@ -28,6 +37,11 @@ export default function ArtistProfilePage() {
     setDisplayName(initialName);
     setBio(profile?.bio || '');
     setProfileImageUrl(profile?.profileImageUrl || '');
+    setCvMediaId(profile?.cvMediaId ?? null);
+    setCvUrl(profile?.cvUrl || '');
+    setInstagramUrl(profile?.instagramUrl || '');
+    setFacebookUrl(profile?.facebookUrl || '');
+    setYoutubeUrl(profile?.youtubeUrl || '');
     setSlug(initialSlug);
     setSlugTouched(false);
     setSlugEditable(false);
@@ -49,6 +63,10 @@ export default function ArtistProfilePage() {
           fullName: displayName.trim() || undefined,
           bio: bio.trim() || undefined,
           profileImageUrl: profileImageUrl.trim() || undefined,
+          cvMediaId: cvMediaId || null,
+          instagramUrl: instagramUrl.trim() || null,
+          facebookUrl: facebookUrl.trim() || null,
+          youtubeUrl: youtubeUrl.trim() || null,
           ...(slugTouched ? { slug: slug.trim() || undefined } : {}),
         },
         session.access_token
@@ -57,12 +75,91 @@ export default function ArtistProfilePage() {
       setDisplayName(updated.fullName || '');
       setBio(updated.bio || '');
       setProfileImageUrl(updated.profileImageUrl || '');
+      setCvMediaId(updated.cvMediaId ?? null);
+      setCvUrl(updated.cvUrl || '');
+      setInstagramUrl(updated.instagramUrl || '');
+      setFacebookUrl(updated.facebookUrl || '');
+      setYoutubeUrl(updated.youtubeUrl || '');
       setSlug(updated.slug || '');
     } catch (e) {
       console.error('Failed to update profile', e);
       setMessage('Failed to update profile.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleCvUpload = async (file: File) => {
+    if (!session?.access_token || !session?.user?.id) return;
+    if (!file) return;
+    if (file.type !== 'application/pdf') {
+      setMessage('Please upload a PDF file.');
+      return;
+    }
+    setUploadingCv(true);
+    setMessage(null);
+    try {
+      const supabase = createClient();
+      const fileExt = file.name.split('.').pop() || 'pdf';
+      const safeExt = fileExt.toLowerCase();
+      const filePath = `artists/cv/${session.user.id}/${crypto.randomUUID()}.${safeExt}`;
+      const { error } = await supabase.storage.from('studio201-public').upload(filePath, file, {
+        upsert: true,
+        contentType: file.type,
+      });
+      if (error) throw error;
+
+      const { data } = supabase.storage.from('studio201-public').getPublicUrl(filePath);
+      const asset = await mediaAssetService.createAsset(
+        {
+          fileName: file.name,
+          filePath,
+          publicUrl: data.publicUrl,
+          mediaType: file.type,
+          altText: `${displayName || 'Artist'} CV`,
+        },
+        session.access_token
+      );
+
+      setCvMediaId(asset.id);
+      setCvUrl(asset.publicUrl);
+      setMessage('CV uploaded. Click "Save Changes" to publish it.');
+    } catch (e) {
+      console.error('Failed to upload CV', e);
+      setMessage('Failed to upload CV.');
+    } finally {
+      setUploadingCv(false);
+    }
+  };
+
+  const handleProfileImageUpload = async (file: File) => {
+    if (!session?.access_token || !session?.user?.id) return;
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setMessage('Please upload an image file.');
+      return;
+    }
+    setUploadingProfileImage(true);
+    setMessage(null);
+    try {
+      const supabase = createClient();
+      const fileExt = file.name.split('.').pop() || 'jpg';
+      const safeExt = fileExt.toLowerCase();
+      const filePath = `artists/profile/${session.user.id}/${crypto.randomUUID()}.${safeExt}`;
+      const { error } = await supabase.storage.from('studio201-public').upload(filePath, file, {
+        upsert: true,
+        contentType: file.type,
+      });
+      if (error) throw error;
+
+      const { data } = supabase.storage.from('studio201-public').getPublicUrl(filePath);
+      setProfileImageUrl(data.publicUrl);
+      setMessage('Profile image uploaded. Click "Save Changes" to publish it.');
+    } catch (e) {
+      console.error('Failed to upload profile image', e);
+      setMessage('Failed to upload profile image.');
+    } finally {
+      setUploadingProfileImage(false);
     }
   };
 
@@ -140,6 +237,79 @@ export default function ArtistProfilePage() {
             className="w-full border border-[var(--color-rule)] bg-white px-4 py-2 font-body text-sm"
             placeholder="https://..."
           />
+          <div className="mt-3 grid gap-2">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleProfileImageUpload(file);
+                e.currentTarget.value = '';
+              }}
+              className="w-full border border-[var(--color-rule)] bg-white px-4 py-2 font-body text-sm"
+              disabled={uploadingProfileImage}
+            />
+            <p className="text-xs text-gray-400">
+              Upload an image to replace the URL above.
+            </p>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">CV (PDF)</label>
+          <div className="flex flex-col gap-3">
+            <input
+              type="file"
+              accept="application/pdf"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleCvUpload(file);
+                e.currentTarget.value = '';
+              }}
+              className="w-full border border-[var(--color-rule)] bg-white px-4 py-2 font-body text-sm"
+              disabled={uploadingCv}
+            />
+            {cvUrl && (
+              <a
+                href={cvUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-sm text-[var(--color-sienna)] font-mono"
+              >
+                View current CV
+              </a>
+            )}
+            <p className="text-xs text-gray-400">
+              Upload a PDF to show the “Download CV” button on your public profile.
+            </p>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Social Links</label>
+          <div className="grid gap-3">
+            <input
+              value={instagramUrl}
+              onChange={(e) => setInstagramUrl(e.target.value)}
+              className="w-full border border-[var(--color-rule)] bg-white px-4 py-2 font-body text-sm"
+              placeholder="Instagram URL"
+            />
+            <input
+              value={facebookUrl}
+              onChange={(e) => setFacebookUrl(e.target.value)}
+              className="w-full border border-[var(--color-rule)] bg-white px-4 py-2 font-body text-sm"
+              placeholder="Facebook URL"
+            />
+            <input
+              value={youtubeUrl}
+              onChange={(e) => setYoutubeUrl(e.target.value)}
+              className="w-full border border-[var(--color-rule)] bg-white px-4 py-2 font-body text-sm"
+              placeholder="YouTube URL"
+            />
+          </div>
+          <p className="text-xs text-gray-400 mt-2">
+            Only the links you fill in will appear on your public profile.
+          </p>
         </div>
 
         <div>
