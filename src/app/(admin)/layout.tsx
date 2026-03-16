@@ -18,6 +18,7 @@ export default function AdminLayout({
   const router = useRouter();
   const normalizedRole = profile?.role?.toLowerCase();
   const normalizedStatus = profile?.accountStatus?.toLowerCase();
+  const isExhibitionsIndex = pathname === "/admin/exhibitions";
 
   useEffect(() => {
     if (!loading && profile) {
@@ -72,6 +73,18 @@ export default function AdminLayout({
     month: 'short',
     year: 'numeric'
   });
+  const breadcrumbMap: Record<string, string> = {
+    "/admin": "Admin Dashboard",
+    "/admin/analytics": "Analytics",
+    "/admin/exhibitions": "Exhibitions",
+    "/admin/exhibitions/new": "New Exhibition",
+    "/admin/submissions": "Submissions",
+    "/admin/artists": "Artists",
+    "/admin/events": "Events",
+    "/admin/editions": "Editions",
+    "/admin/settings": "Settings",
+  };
+  const breadcrumbCurrent = breadcrumbMap[pathname] ?? "Admin Dashboard";
 
   return (
     <div className="page-view active dashboard-root" id="view-admin">
@@ -97,7 +110,7 @@ export default function AdminLayout({
               </Link>
             </li>
             <li>
-              <Link href="#">
+              <Link href="/admin/analytics" className={pathname === "/admin/analytics" ? "active" : ""}>
                 <svg className="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M8 1a6 6 0 100 12A6 6 0 008 1z" />
                   <path d="M8 5v4M8 11v.5" />
@@ -119,7 +132,7 @@ export default function AdminLayout({
               </Link>
             </li>
             <li>
-              <Link href="#">
+              <Link href="/admin/exhibitions" className={isExhibitionsIndex ? "active" : ""}>
                 <svg className="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M3 3h10v2L8 11 3 5V3z" />
                 </svg>
@@ -127,7 +140,7 @@ export default function AdminLayout({
               </Link>
             </li>
             <li>
-              <Link href="#">
+              <Link href="/admin/exhibitions/new" className={pathname === "/admin/exhibitions/new" ? "active" : ""}>
                 <svg className="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M8 1v14M1 8h14" />
                 </svg>
@@ -159,7 +172,7 @@ export default function AdminLayout({
               </Link>
             </li>
             <li>
-              <Link href="#">
+              <Link href="/admin/editions" className={pathname === "/admin/editions" ? "active" : ""}>
                 <svg className="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <rect x="2" y="3" width="12" height="10" rx="1" />
                   <path d="M5 3V1M11 3V1M2 7h12" />
@@ -172,7 +185,7 @@ export default function AdminLayout({
           <span className="sidebar-section-label">Settings</span>
           <ul className="sidebar-nav">
             <li>
-              <Link href="#">
+              <Link href="/admin/settings" className={pathname === "/admin/settings" ? "active" : ""}>
                 <svg className="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <circle cx="8" cy="8" r="2" />
                   <path d="M8 2v1M8 13v1M2 8H1M15 8h-1M3.5 3.5l.7.7M11.8 11.8l.7.7M3.5 12.5l.7-.7M11.8 4.2l.7-.7" />
@@ -204,7 +217,7 @@ export default function AdminLayout({
             <div className="topbar-left">
               <span className="breadcrumb">
                 Studio 201 <span className="breadcrumb-sep">/</span>
-                <span className="breadcrumb-current">Admin Dashboard</span>
+                <span className="breadcrumb-current">{breadcrumbCurrent}</span>
               </span>
             </div>
             <div className="topbar-right">
@@ -216,7 +229,7 @@ export default function AdminLayout({
                 </svg>
                 <span className="notif-dot" style={{ background: 'var(--ochre)' }}></span>
               </button>
-              <button className="btn btn-terracotta btn-sm">+ New Exhibition</button>
+              <Link href="/admin/exhibitions/new" className="btn btn-terracotta btn-sm">+ New Exhibition</Link>
             </div>
           </div>
 

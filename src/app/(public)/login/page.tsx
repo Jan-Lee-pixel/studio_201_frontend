@@ -104,7 +104,7 @@ export default function LoginPage() {
             {isSignUp ? 'Apply to Studio 201' : 'Sign in to Studio 201'}
           </h2>
           <p className="mt-4 text-center text-sm text-gray-600">
-            For Artists and Administrators
+            For Artists
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleAuth}>
