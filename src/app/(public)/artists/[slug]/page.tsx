@@ -152,12 +152,12 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
   return (
     <div className="pt-20">
       {/* HERO */}
-      <div className="grid grid-cols-1 md:grid-cols-[420px_1fr] min-h-screen">
-        <div className="relative h-[60vh] md:h-screen md:sticky md:top-0 overflow-hidden">
+      <div className="grid grid-cols-1 md:grid-cols-[340px_1fr] lg:grid-cols-[420px_1fr] min-h-screen">
+        <div className="relative h-[60vw] max-h-[480px] overflow-hidden bg-[var(--color-bone)] md:sticky md:top-0 md:h-screen md:max-h-none md:self-start">
           <img
             src={artist.profileImageUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&q=80"}
             alt={artist.fullName}
-            className="w-full h-full object-cover"
+            className="block w-full h-full object-cover"
           />
         </div>
 
