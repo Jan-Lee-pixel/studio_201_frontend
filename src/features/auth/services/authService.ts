@@ -9,8 +9,6 @@ export interface UserProfile {
   accountStatus: 'pending' | 'approved' | 'rejected';
   bio?: string;
   profileImageUrl?: string;
-  cvMediaId?: string | null;
-  cvUrl?: string | null;
   instagramUrl?: string | null;
   facebookUrl?: string | null;
   youtubeUrl?: string | null;
@@ -42,7 +40,6 @@ export const authService = {
       profileImageUrl?: string;
       slug?: string;
       fullName?: string;
-      cvMediaId?: string | null;
       instagramUrl?: string | null;
       facebookUrl?: string | null;
       youtubeUrl?: string | null;

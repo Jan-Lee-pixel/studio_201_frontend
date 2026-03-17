@@ -9,7 +9,6 @@ export interface PublicUserProfile {
   role: string;
   bio?: string;
   profileImageUrl?: string;
-  cvUrl?: string | null;
   instagramUrl?: string | null;
   facebookUrl?: string | null;
   youtubeUrl?: string | null;
