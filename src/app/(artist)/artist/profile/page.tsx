@@ -12,6 +12,9 @@ export default function ArtistProfilePage() {
   const [bio, setBio] = useState('');
   const [profileImageUrl, setProfileImageUrl] = useState('');
   const [uploadingProfileImage, setUploadingProfileImage] = useState(false);
+  const [localProfilePreview, setLocalProfilePreview] = useState<string | null>(null);
+  const [profileImageMode, setProfileImageMode] = useState<'url' | 'upload'>('url');
+  const [profileImageFileName, setProfileImageFileName] = useState('');
   const [instagramUrl, setInstagramUrl] = useState('');
   const [facebookUrl, setFacebookUrl] = useState('');
   const [youtubeUrl, setYoutubeUrl] = useState('');
@@ -34,6 +37,9 @@ export default function ArtistProfilePage() {
     setDisplayName(initialName);
     setBio(profile?.bio || '');
     setProfileImageUrl(profile?.profileImageUrl || '');
+    setLocalProfilePreview(null);
+    setProfileImageMode(profile?.profileImageUrl ? 'url' : 'upload');
+    setProfileImageFileName('');
     setInstagramUrl(profile?.instagramUrl || '');
     setFacebookUrl(profile?.facebookUrl || '');
     setYoutubeUrl(profile?.youtubeUrl || '');
@@ -47,6 +53,14 @@ export default function ArtistProfilePage() {
       setSlug(slugify(displayName));
     }
   }, [displayName, slugTouched]);
+
+  useEffect(() => {
+    return () => {
+      if (localProfilePreview) {
+        URL.revokeObjectURL(localProfilePreview);
+      }
+    };
+  }, [localProfilePreview]);
 
   const handleSave = async () => {
     if (!session?.access_token) return;
@@ -101,6 +115,7 @@ export default function ArtistProfilePage() {
 
       const { data } = supabase.storage.from('studio201-public').getPublicUrl(filePath);
       setProfileImageUrl(`${data.publicUrl}?v=${Date.now()}`);
+      setLocalProfilePreview(null);
       setMessage('Profile image uploaded. Click "Save Changes" to update your profile.');
     } catch (e) {
       console.error('Failed to upload profile image', e);
@@ -173,28 +188,106 @@ export default function ArtistProfilePage() {
         </div>
 
         <div>
-          <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Profile Image URL</label>
-          <input
-            value={profileImageUrl}
-            onChange={(e) => setProfileImageUrl(e.target.value)}
-            className="w-full border border-[var(--color-rule)] bg-white px-4 py-2 font-body text-sm"
-            placeholder="https://..."
-          />
-          <div className="mt-3 grid gap-2">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) handleProfileImageUpload(file);
-                e.currentTarget.value = '';
+          <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Profile Image</label>
+          <div className="flex flex-wrap gap-2 mb-3">
+            <button
+              type="button"
+              className={`px-3 py-1 border text-[11px] font-mono uppercase tracking-[0.12em] transition-colors ${
+                profileImageMode === 'url'
+                  ? "bg-[var(--color-near-black)] text-[var(--color-cream)] border-[var(--color-near-black)]"
+                  : "bg-white text-[var(--color-near-black)] border-[var(--color-rule)]"
+              }`}
+              onClick={() => {
+                setProfileImageMode('url');
+                if (localProfilePreview) {
+                  URL.revokeObjectURL(localProfilePreview);
+                  setLocalProfilePreview(null);
+                }
               }}
-              className="w-full border border-[var(--color-rule)] bg-white px-4 py-2 font-body text-sm"
-              disabled={uploadingProfileImage}
-            />
-            <p className="text-xs text-gray-400">
-              Upload an image to replace the URL above.
-            </p>
+            >
+              Image URL
+            </button>
+            <button
+              type="button"
+              className={`px-3 py-1 border text-[11px] font-mono uppercase tracking-[0.12em] transition-colors ${
+                profileImageMode === 'upload'
+                  ? "bg-[var(--color-near-black)] text-[var(--color-cream)] border-[var(--color-near-black)]"
+                  : "bg-white text-[var(--color-near-black)] border-[var(--color-rule)]"
+              }`}
+              onClick={() => setProfileImageMode('upload')}
+            >
+              Upload Image
+            </button>
+          </div>
+
+          {profileImageMode === 'url' ? (
+            <div className="grid gap-3">
+              <input
+                value={profileImageUrl}
+                onChange={(e) => setProfileImageUrl(e.target.value)}
+                className="w-full border border-[var(--color-rule)] bg-white px-4 py-2 font-body text-sm"
+                placeholder="https://..."
+              />
+              <p className="text-xs text-gray-400">
+                Paste a direct image URL to use on your public profile.
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-3">
+              <input
+                id="profile-image-upload"
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    if (localProfilePreview) {
+                      URL.revokeObjectURL(localProfilePreview);
+                    }
+                    const previewUrl = URL.createObjectURL(file);
+                    setLocalProfilePreview(previewUrl);
+                    setProfileImageFileName(file.name);
+                    handleProfileImageUpload(file);
+                  } else {
+                    setProfileImageFileName('');
+                  }
+                  e.currentTarget.value = '';
+                }}
+                className="sr-only"
+                disabled={uploadingProfileImage}
+              />
+              <div className="flex flex-wrap items-center gap-3">
+                <label
+                  htmlFor="profile-image-upload"
+                  className="inline-flex items-center justify-center px-4 py-2 border border-[var(--color-near-black)] bg-[var(--color-near-black)] text-[var(--color-cream)] font-mono text-[11px] uppercase tracking-[0.12em] cursor-pointer transition-colors hover:bg-[var(--color-sienna)] hover:border-[var(--color-sienna)]"
+                >
+                  Choose Image
+                </label>
+                <span className="text-xs text-gray-500 font-body">
+                  {profileImageFileName || "No file selected"}
+                </span>
+              </div>
+              <p className="text-xs text-gray-400">
+                Upload an image to replace the current profile photo.
+              </p>
+            </div>
+          )}
+
+          <div className="mt-4 w-full max-w-[240px]">
+            <div className="aspect-square w-full overflow-hidden border border-[var(--color-rule)] bg-[var(--color-bone)]">
+              <img
+                src={
+                  localProfilePreview ||
+                  profileImageUrl ||
+                  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80"
+                }
+                alt={displayName || "Artist profile"}
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <div className="mt-2 text-[11px] uppercase tracking-[0.12em] text-gray-400 font-mono">
+              {uploadingProfileImage ? "Uploading..." : "Preview"}
+            </div>
           </div>
         </div>
 
