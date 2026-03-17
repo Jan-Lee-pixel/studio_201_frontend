@@ -47,7 +47,10 @@ type PublicExhibition = {
   endDate?: string | null;
 };
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5203/api";
+const API_BASE_URL =
+  process.env.API_INTERNAL_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:5203/api";
 
 async function getArtist(slug: string): Promise<PublicArtist | null> {
   try {
