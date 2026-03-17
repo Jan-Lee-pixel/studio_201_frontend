@@ -4,7 +4,10 @@ import { Reveal } from "@/components/animation/Reveal";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import type { EventDto } from "@/features/events/services/eventService";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5203/api";
+const API_BASE_URL =
+  process.env.API_INTERNAL_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:5203/api";
 
 async function getEvent(slug: string): Promise<EventDto | null> {
   try {
