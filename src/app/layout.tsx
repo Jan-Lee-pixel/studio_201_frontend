@@ -1,38 +1,6 @@
 import type { Metadata } from "next";
-import {
-  Playfair_Display,
-  Cormorant_Garamond,
-  Karla,
-  DM_Mono,
-} from "next/font/google";
 import "../styles/globals.css";
 import { AuthProvider } from "@/providers/AuthProvider";
-
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const cormorant = Cormorant_Garamond({
-  variable: "--font-cormorant",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  display: "swap",
-});
-
-const karla = Karla({
-  variable: "--font-karla",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const dmMono = DM_Mono({
-  variable: "--font-dm-mono",
-  subsets: ["latin"],
-  weight: ["300", "400", "500"],
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "Studio 201",
@@ -47,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${playfair.variable} ${cormorant.variable} ${karla.variable} ${dmMono.variable} antialiased`}
+        className="antialiased"
       >
         <AuthProvider>
           {children}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { eventService, EventDto } from '@/features/events/services/eventService';
+import { DashboardTableSkeleton } from "@/components/ui/SkeletonPage";
 
 const emptyDraft: Partial<EventDto> = {
   title: '',
@@ -188,7 +189,7 @@ export default function AdminEventsPage() {
       </div>
 
       {loading ? (
-        <div className="text-gray-500 font-dm-mono text-sm uppercase tracking-widest">Loading events...</div>
+        <DashboardTableSkeleton rows={6} columns={5} />
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-left font-body text-sm">

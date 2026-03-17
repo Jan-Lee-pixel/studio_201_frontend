@@ -3,6 +3,7 @@
 import { ExhibitionsCarousel } from "@/features/exhibitions/components/ExhibitionCarousel";
 import { exhibitionService, Exhibition } from "@/features/exhibitions/services/exhibitionService";
 import { useEffect, useState } from "react";
+import { PublicPageSkeleton } from "@/components/ui/SkeletonPage";
 
 // For realistic date formatting
 const formatDate = (dateStr?: string) => {
@@ -23,11 +24,7 @@ export default function ExhibitionsPage() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen bg-[var(--color-charcoal)] font-dm-mono text-gray-500 uppercase tracking-widest text-sm">
-        Loading Exhibitions...
-      </div>
-    );
+    return <PublicPageSkeleton tone="dark" />;
   }
 
   // Fallback to static if no dynamic data

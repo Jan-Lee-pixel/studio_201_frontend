@@ -8,6 +8,7 @@ import { artworkSubmissionService } from "@/features/submissions/services/artwor
 import { exhibitionService, Exhibition } from "@/features/exhibitions/services/exhibitionService";
 import { createClient } from "@/lib/supabase/client";
 import { mediaAssetService } from "@/features/mediaAssets/services/mediaAssetService";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 const ARTWORK_BUCKET = "studio201-public";
 const MAX_FILE_SIZE_MB = 20;
@@ -195,8 +196,8 @@ export function SubmissionForm({ token, onSuccess, artistId }: SubmissionFormPro
             Exhibition <span className="text-red-500">*</span>
           </label>
           {loadingExhibitions ? (
-            <div className="text-xs font-dm-mono text-gray-400 uppercase tracking-widest">
-              Loading exhibitions...
+            <div className="mt-2">
+              <Skeleton className="h-9 w-full" />
             </div>
           ) : exhibitions.length === 0 ? (
             <div className="text-xs font-dm-mono text-gray-400 uppercase tracking-widest">

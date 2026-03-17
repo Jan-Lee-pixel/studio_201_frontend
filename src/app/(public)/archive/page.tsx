@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Reveal } from "@/components/animation/Reveal";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { exhibitionService, Exhibition } from "@/features/exhibitions/services/exhibitionService";
+import { PublicPageSkeleton } from "@/components/ui/SkeletonPage";
 
 const fallbackImage = "https://images.unsplash.com/photo-1578926375605-eaf7559b1458?w=800&q=80";
 
@@ -36,6 +37,10 @@ export default function ArchivePage() {
     });
   }, [archiveExhibitions]);
 
+  if (loading) {
+    return <PublicPageSkeleton />;
+  }
+
   return (
     <div className="pt-32 pb-32 min-h-screen">
       <div className="px-6 md:px-12 mb-20">
@@ -59,11 +64,7 @@ export default function ArchivePage() {
         </div>
       </div>
 
-      {loading ? (
-        <div className="px-6 md:px-12 pb-24 text-center text-gray-500 font-dm-mono text-sm tracking-widest uppercase">
-          Loading Archive...
-        </div>
-      ) : archiveItems.length === 0 ? (
+      {archiveItems.length === 0 ? (
         <div className="px-6 md:px-12 pb-24 text-center text-gray-500 font-dm-mono text-sm tracking-widest uppercase">
           No Archive Exhibitions Found
         </div>

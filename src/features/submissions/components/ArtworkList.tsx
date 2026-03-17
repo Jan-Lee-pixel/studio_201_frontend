@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArtworkSubmission } from "@/features/submissions/services/artworkSubmissionService";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 const STATUS_CLASS: Record<string, string> = {
   Approved: "status-approved",
@@ -22,7 +23,18 @@ export function ArtworkList({ submissions, loading, showViewLink = false }: Artw
       </div>
       <div className="artwork-list">
         {loading ? (
-          <p className="p-4 text-sm text-gray-400 font-dm-mono">Loading artworks…</p>
+          <div className="p-4 space-y-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="artwork-row">
+                <Skeleton className="artwork-thumb" />
+                <div className="artwork-info space-y-2">
+                  <Skeleton className="skeleton-line w-40" />
+                  <Skeleton className="skeleton-line w-56" />
+                </div>
+                <Skeleton className="skeleton-line w-16" />
+              </div>
+            ))}
+          </div>
         ) : submissions.length === 0 ? (
           <div className="p-6 text-center" style={{ color: "var(--warm-mid)", fontSize: "12px" }}>
             <p>No artworks submitted yet.</p>

@@ -15,6 +15,7 @@ import { ArtworkList } from "@/features/submissions/components/ArtworkList";
 import { SubmissionForm } from "@/features/submissions/components/SubmissionForm";
 import { PortfolioForm } from "@/features/portfolio/components/PortfolioForm";
 import { PortfolioList } from "@/features/portfolio/components/PortfolioList";
+import { DashboardContentSkeleton } from "@/components/ui/SkeletonPage";
 
 export default function ArtistDashboardPage() {
   const { profile, session, loading: authLoading } = useAuth();
@@ -94,7 +95,7 @@ export default function ArtistDashboardPage() {
   };
 
   if (authLoading) {
-    return <div className="p-8 text-gray-500 font-dm-mono text-sm">Loading profile...</div>;
+    return <DashboardContentSkeleton />;
   }
 
   if (!profile || !session?.access_token) {

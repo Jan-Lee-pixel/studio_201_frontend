@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { adminService, AdminStats } from '@/features/admin/services/adminService';
 import { exhibitionService } from '@/features/exhibitions/services/exhibitionService';
 import { eventService } from '@/features/events/services/eventService';
+import { DashboardContentSkeleton } from "@/components/ui/SkeletonPage";
 
 export default function AdminAnalyticsPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
@@ -66,7 +67,7 @@ export default function AdminAnalyticsPage() {
       )}
 
       {loading ? (
-        <div className="text-gray-500 font-dm-mono text-sm uppercase tracking-widest">Loading analytics...</div>
+        <DashboardContentSkeleton withWrapper={false} showHeader={false} />
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">

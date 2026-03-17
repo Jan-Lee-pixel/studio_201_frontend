@@ -5,6 +5,7 @@ import { useAuth } from '@/providers/AuthProvider';
 import { authService } from '@/features/auth/services/authService';
 import { createClient } from '@/lib/supabase/client';
 import { mediaAssetService } from '@/features/mediaAssets/services/mediaAssetService';
+import { DashboardContentSkeleton } from "@/components/ui/SkeletonPage";
 
 export default function ArtistProfilePage() {
   const { session, profile, loading } = useAuth();
@@ -160,11 +161,7 @@ export default function ArtistProfilePage() {
   };
 
   if (loading) {
-    return (
-      <div className="p-8 text-gray-500 font-dm-mono text-sm uppercase tracking-widest">
-        Loading Profile...
-      </div>
-    );
+    return <DashboardContentSkeleton />;
   }
 
   if (!session) {
