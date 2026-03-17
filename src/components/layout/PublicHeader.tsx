@@ -44,8 +44,6 @@ export function PublicHeader() {
     { href: "/exhibitions", label: "Exhibitions" },
     { href: "/artists", label: "Artists" },
     { href: "/events", label: "Events" },
-    { href: "/editions", label: "Editions" },
-    { href: "/spaces", label: "Spaces" },
     { href: "/archive", label: "Archive" },
   ];
 
@@ -70,37 +68,51 @@ export function PublicHeader() {
           ))}
         </ul>
 
-        {/* Mobile Toggle */}
-        <button
-          className="md:hidden flex flex-col gap-[5px] p-1 border-none bg-transparent cursor-pointer"
-          onClick={() => setMobileOpen(true)}
-          aria-label="Menu"
-        >
-          <span
+        <div className="flex items-center gap-4">
+          <Link
+            href="/"
             className={clsx(
-              "block w-6 h-[1px] transition-colors duration-300",
-              (scrolled || !isHero || mobileOpen) && !keepTransparent
-                ? "bg-[var(--color-near-black)]"
-                : "bg-[var(--color-cream)]",
+              "hidden md:inline-flex items-center justify-center px-4 py-2 border text-[11px] font-mono uppercase tracking-[0.12em] transition-colors duration-300",
+              (scrolled || !isHero) && !keepTransparent
+                ? "border-[var(--color-near-black)] text-[var(--color-near-black)] hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)]"
+                : "border-[rgba(240,237,229,0.6)] text-[var(--color-cream)] hover:bg-[var(--color-cream)] hover:text-[var(--color-near-black)]",
             )}
-          />
-          <span
-            className={clsx(
-              "block w-6 h-[1px] transition-colors duration-300",
-              (scrolled || !isHero || mobileOpen) && !keepTransparent
-                ? "bg-[var(--color-near-black)]"
-                : "bg-[var(--color-cream)]",
-            )}
-          />
-          <span
-            className={clsx(
-              "block w-6 h-[1px] transition-colors duration-300",
-              (scrolled || !isHero || mobileOpen) && !keepTransparent
-                ? "bg-[var(--color-near-black)]"
-                : "bg-[var(--color-cream)]",
-            )}
-          />
-        </button>
+          >
+            Home
+          </Link>
+
+          {/* Mobile Toggle */}
+          <button
+            className="md:hidden flex flex-col gap-[5px] p-1 border-none bg-transparent cursor-pointer"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Menu"
+          >
+            <span
+              className={clsx(
+                "block w-6 h-[1px] transition-colors duration-300",
+                (scrolled || !isHero || mobileOpen) && !keepTransparent
+                  ? "bg-[var(--color-near-black)]"
+                  : "bg-[var(--color-cream)]",
+              )}
+            />
+            <span
+              className={clsx(
+                "block w-6 h-[1px] transition-colors duration-300",
+                (scrolled || !isHero || mobileOpen) && !keepTransparent
+                  ? "bg-[var(--color-near-black)]"
+                  : "bg-[var(--color-cream)]",
+              )}
+            />
+            <span
+              className={clsx(
+                "block w-6 h-[1px] transition-colors duration-300",
+                (scrolled || !isHero || mobileOpen) && !keepTransparent
+                  ? "bg-[var(--color-near-black)]"
+                  : "bg-[var(--color-cream)]",
+              )}
+            />
+          </button>
+        </div>
       </nav>
 
       {/* Mobile Overlay */}

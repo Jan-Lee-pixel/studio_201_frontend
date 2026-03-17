@@ -6,12 +6,14 @@ import { Reveal } from "@/components/animation/Reveal";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { EventRow } from "@/features/events/components/EventRow";
 import { eventService, EventDto } from "@/features/events/services/eventService";
+import { exhibitionService, Exhibition } from "@/features/exhibitions/services/exhibitionService";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 type FilterType = "all" | "studio" | "external" | "archive";
 
 type EventRowData = {
   slug?: string;
+  hrefPrefix?: string;
   hasDocumentation?: boolean;
   date: string;
   day: string;
@@ -23,6 +25,7 @@ type EventRowData = {
   isExternal?: boolean;
   isPast?: boolean;
   monthLabel?: string;
+  sortDate?: Date | null;
 };
 
 const formatDate = (dateStr?: string) => {
@@ -40,9 +43,21 @@ const getMonthLabel = (dateStr?: string) => {
   return new Date(dateStr).toLocaleDateString("en-US", { month: "long", year: "numeric" });
 };
 
+const formatDateRange = (start?: string, end?: string) => {
+  if (!start && !end) return "";
+  if (start && !end) {
+    return new Date(start).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  }
+  const startStr = start ? new Date(start).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
+  const endStr = end ? new Date(end).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
+  return `${startStr} – ${endStr}`.trim();
+};
+
 export default function EventsPage() {
   const [filter, setFilter] = useState<FilterType>("all");
   const [events, setEvents] = useState<EventDto[]>([]);
+  const [openExhibitions, setOpenExhibitions] = useState<Exhibition[]>([]);
+  const [archiveExhibitions, setArchiveExhibitions] = useState<Exhibition[]>([]);
   const [loading, setLoading] = useState(true);
 
   const filters: { id: FilterType; label: string }[] = [
@@ -53,18 +68,27 @@ export default function EventsPage() {
   ];
 
   useEffect(() => {
-    eventService
-      .getEvents()
-      .then(setEvents)
+    Promise.all([
+      eventService.getEvents().catch(() => []),
+      exhibitionService.getOpenExhibitions().catch(() => []),
+      exhibitionService.getArchiveExhibitions().catch(() => []),
+    ])
+      .then(([eventsData, openData, archiveData]) => {
+        setEvents(eventsData);
+        setOpenExhibitions(openData);
+        setArchiveExhibitions(archiveData);
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
   const groupedEvents = useMemo(() => {
-    if (events.length === 0) return [] as { month: string; items: EventRowData[] }[];
+    if (events.length === 0 && openExhibitions.length === 0 && archiveExhibitions.length === 0) {
+      return [] as { month: string; items: EventRowData[] }[];
+    }
 
     const now = new Date();
-    const normalized: EventRowData[] = events.map((event) => {
+    const normalizedEvents: EventRowData[] = events.map((event) => {
       const start = event.startDate ? new Date(event.startDate) : null;
       const end = event.endDate ? new Date(event.endDate) : null;
       const effectiveDate = end || start;
@@ -84,10 +108,64 @@ export default function EventsPage() {
         isExternal: event.isExternal,
         isPast,
         monthLabel,
+        sortDate: effectiveDate,
       };
     });
 
-    const filteredItems = normalized.filter((item) => {
+    const normalizedOpenExhibitions: EventRowData[] = openExhibitions.map((exhibition) => {
+      const start = exhibition.startDate ? new Date(exhibition.startDate) : null;
+      const end = exhibition.endDate ? new Date(exhibition.endDate) : null;
+      const effectiveDate = end || start;
+      const isPast = effectiveDate ? effectiveDate < now : false;
+      const monthLabel = getMonthLabel(exhibition.startDate);
+
+      return {
+        slug: exhibition.slug,
+        hrefPrefix: "/exhibitions",
+        date: formatDate(exhibition.startDate),
+        day: formatDay(exhibition.startDate),
+        type: "Exhibition",
+        title: exhibition.title,
+        subtitle: exhibition.description || "Studio 201 Exhibition",
+        venue: "Studio 201",
+        time: formatDateRange(exhibition.startDate, exhibition.endDate),
+        isExternal: false,
+        isPast,
+        monthLabel,
+        sortDate: effectiveDate,
+      };
+    });
+
+    const normalizedArchiveExhibitions: EventRowData[] = archiveExhibitions.map((exhibition) => {
+      const start = exhibition.startDate ? new Date(exhibition.startDate) : null;
+      const end = exhibition.endDate ? new Date(exhibition.endDate) : null;
+      const effectiveDate = end || start;
+      const monthLabel = getMonthLabel(exhibition.startDate || exhibition.endDate);
+
+      return {
+        slug: exhibition.slug,
+        hrefPrefix: "/exhibitions",
+        date: formatDate(exhibition.startDate),
+        day: formatDay(exhibition.startDate),
+        type: "Exhibition",
+        title: exhibition.title,
+        subtitle: exhibition.description || "Studio 201 Exhibition",
+        venue: "Studio 201",
+        time: formatDateRange(exhibition.startDate, exhibition.endDate),
+        isExternal: false,
+        isPast: true,
+        monthLabel,
+        sortDate: effectiveDate,
+      };
+    });
+
+    const combined = [
+      ...normalizedEvents,
+      ...normalizedOpenExhibitions,
+      ...normalizedArchiveExhibitions,
+    ];
+
+    const filteredItems = combined.filter((item) => {
       if (filter === "all") return true;
       if (filter === "studio") return !item.isExternal && !item.isPast;
       if (filter === "external") return !!item.isExternal && !item.isPast;
@@ -95,7 +173,13 @@ export default function EventsPage() {
       return true;
     });
 
-    const grouped = filteredItems.reduce<Record<string, EventRowData[]>>((acc, item) => {
+    const sortedItems = filteredItems.sort((a, b) => {
+      const aTime = a.sortDate ? a.sortDate.getTime() : Number.MAX_SAFE_INTEGER;
+      const bTime = b.sortDate ? b.sortDate.getTime() : Number.MAX_SAFE_INTEGER;
+      return aTime - bTime;
+    });
+
+    const grouped = sortedItems.reduce<Record<string, EventRowData[]>>((acc, item) => {
       const monthKey = item.monthLabel || "TBA";
       if (!acc[monthKey]) acc[monthKey] = [];
       acc[monthKey].push(item);
