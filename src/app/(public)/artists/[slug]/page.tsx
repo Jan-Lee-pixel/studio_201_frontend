@@ -11,7 +11,6 @@ type PublicArtist = {
   slug: string;
   bio?: string;
   profileImageUrl?: string;
-  cvUrl?: string | null;
   instagramUrl?: string | null;
   facebookUrl?: string | null;
   youtubeUrl?: string | null;
@@ -101,9 +100,6 @@ const formatExhibitionDate = (startDate?: string | null) => {
   };
 };
 
-const buttonClasses =
-  "inline-block font-body text-xs font-normal tracking-[0.08em] uppercase px-7 py-3 border bg-transparent cursor-pointer transition-colors duration-300 ease-[cubic-bezier(0.25,0,0,1)] rounded-none border-[var(--color-near-black)] text-[var(--color-near-black)] hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)]";
-
 // dynamic metadata
 export async function generateMetadata({
   params,
@@ -191,13 +187,8 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
               Upcoming exhibitions and public programs will be listed below as they are scheduled.
             </p>
 
-            {(artist.cvUrl || socialLinks.length > 0) && (
+            {socialLinks.length > 0 && (
               <div className="mt-12 flex flex-wrap gap-6 items-center">
-                {artist.cvUrl && (
-                  <a href={artist.cvUrl} target="_blank" rel="noreferrer" className={buttonClasses}>
-                    Download CV
-                  </a>
-                )}
                 {socialLinks.map((link) => (
                   <a
                     key={link.label}
