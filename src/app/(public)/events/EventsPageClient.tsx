@@ -6,6 +6,7 @@ import { Reveal } from "@/components/animation/Reveal";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { EventRow } from "@/features/events/components/EventRow";
 import { eventService, EventDto } from "@/features/events/services/eventService";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 type FilterType = "all" | "studio" | "external" | "archive";
 
@@ -140,9 +141,9 @@ export default function EventsPage() {
 
       <div className="px-6 md:px-12">
         {loading ? (
-          <div className="py-12 space-y-4 animate-pulse">
+          <div className="py-12 space-y-4">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-10 bg-white/70 border border-[var(--color-rule)]" />
+              <Skeleton key={i} className="h-10 w-full" />
             ))}
           </div>
         ) : groupedEvents.length === 0 ? (

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/providers/AuthProvider';
 import { authService } from '@/features/auth/services/authService';
+import { DashboardContentSkeleton } from "@/components/ui/SkeletonPage";
 
 export default function AdminSettingsPage() {
   const { session, profile, loading } = useAuth();
@@ -67,11 +68,7 @@ export default function AdminSettingsPage() {
   };
 
   if (loading) {
-    return (
-      <div className="p-8 text-gray-500 font-dm-mono text-sm uppercase tracking-widest">
-        Loading Settings...
-      </div>
-    );
+    return <DashboardContentSkeleton />;
   }
 
   if (!session) {

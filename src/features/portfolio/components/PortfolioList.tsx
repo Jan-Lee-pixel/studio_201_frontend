@@ -1,4 +1,5 @@
 import { PortfolioItem } from "@/features/portfolio/services/portfolioService";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface PortfolioListProps {
   items: PortfolioItem[];
@@ -15,7 +16,18 @@ export function PortfolioList({ items, loading, onTogglePublic, onDelete }: Port
       </div>
       <div className="artwork-list">
         {loading ? (
-          <p className="p-4 text-sm text-gray-400 font-dm-mono">Loading portfolio…</p>
+          <div className="p-4 space-y-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="artwork-row">
+                <Skeleton className="artwork-thumb" />
+                <div className="artwork-info space-y-2">
+                  <Skeleton className="skeleton-line w-40" />
+                  <Skeleton className="skeleton-line w-52" />
+                </div>
+                <Skeleton className="skeleton-line w-16" />
+              </div>
+            ))}
+          </div>
         ) : items.length === 0 ? (
           <div className="p-6 text-center" style={{ color: "var(--warm-mid)", fontSize: "12px" }}>
             <p>No portfolio items yet.</p>

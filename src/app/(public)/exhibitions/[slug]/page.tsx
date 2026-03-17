@@ -10,6 +10,7 @@ import { useParams } from "next/navigation";
 import { exhibitionService, Exhibition } from "@/features/exhibitions/services/exhibitionService";
 import { artworkService, PublicArtworkDto } from "@/features/artworks/services/artworkService";
 import { artistService, PublicUserProfile } from "@/features/artists/services/artistService";
+import { PublicPageSkeleton } from "@/components/ui/SkeletonPage";
 
 export default function ExhibitionResultPage() {
   const params = useParams();
@@ -61,7 +62,7 @@ export default function ExhibitionResultPage() {
   }, [slug]);
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center font-dm-mono text-gray-500 uppercase tracking-widest text-sm bg-[var(--color-charcoal)]">Loading Exhibition...</div>;
+    return <PublicPageSkeleton tone="dark" />;
   }
 
   if (!exhibition) {

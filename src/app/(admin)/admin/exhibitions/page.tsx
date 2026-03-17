@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { exhibitionService, Exhibition } from '@/features/exhibitions/services/exhibitionService';
+import { DashboardTableSkeleton } from "@/components/ui/SkeletonPage";
 
 const parseDate = (value?: string) => {
   if (!value) return null;
@@ -86,7 +87,7 @@ export default function AdminExhibitionsPage() {
       )}
 
       {loading ? (
-        <div className="text-gray-500 font-dm-mono text-sm uppercase tracking-widest">Loading exhibitions...</div>
+        <DashboardTableSkeleton rows={6} columns={4} />
       ) : (
         <div className="border border-[var(--color-rule)] bg-white">
           <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--color-rule)]">

@@ -1,4 +1,5 @@
 import { ArtworkSubmission } from "@/features/submissions/services/artworkSubmissionService";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface ActivityFeedProps {
   submissions: ArtworkSubmission[];
@@ -13,7 +14,15 @@ export function ActivityFeed({ submissions, loading }: ActivityFeedProps) {
       </div>
       <div className="activity-feed">
         {loading ? (
-          <p className="p-4 text-sm text-gray-400 font-dm-mono">Loading…</p>
+          <div className="p-4 space-y-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="activity-item">
+                <Skeleton className="skeleton-circle w-2.5 h-2.5" />
+                <Skeleton className="skeleton-line w-48" />
+                <Skeleton className="skeleton-line w-16" />
+              </div>
+            ))}
+          </div>
         ) : submissions.length === 0 ? (
           <p className="p-4 text-sm" style={{ color: "var(--warm-mid)" }}>
             No activity yet. Submit your first artwork!

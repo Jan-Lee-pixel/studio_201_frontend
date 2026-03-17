@@ -1,6 +1,12 @@
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400;1,500&family=Karla:wght@300;400;500&family=DM+Mono:ital,wght@0,400;1,400&display=swap");
 @import "tailwindcss";
 
 :root {
+  --font-playfair: "Playfair Display";
+  --font-cormorant: "Cormorant Garamond";
+  --font-karla: "Karla";
+  --font-dm-mono: "DM Mono";
+
   /* Colors from template.html */
   --parchment:    #F5F2EC;
   --linen:        #EDE9E1;
@@ -110,4 +116,41 @@ h1, h2, h3, h4, h5, h6 {
 @keyframes fabPulse {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Skeletons */
+.skeleton {
+  --skeleton-base: var(--color-bone);
+  --skeleton-border: var(--color-rule);
+  --skeleton-shimmer: rgba(255, 255, 255, 0.7);
+  background: var(--skeleton-base);
+  border: 1px solid var(--skeleton-border);
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, var(--skeleton-shimmer), transparent);
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+.skeleton-line {
+  height: 12px;
+  border-radius: 999px;
+  border: none;
+}
+.skeleton-circle {
+  border-radius: 999px;
+}
+.skeleton-dark {
+  --skeleton-base: rgba(255, 255, 255, 0.08);
+  --skeleton-border: rgba(255, 255, 255, 0.14);
+  --skeleton-shimmer: rgba(255, 255, 255, 0.18);
+}
+@keyframes skeleton-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }

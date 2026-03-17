@@ -6,6 +6,7 @@ import { apiClient } from "@/lib/apiClient";
 import { ArtworkSubmission } from "@/features/submissions/services/artworkSubmissionService";
 import { exhibitionService, Exhibition } from "@/features/exhibitions/services/exhibitionService";
 import { artistService, PublicUserProfile } from "@/features/artists/services/artistService";
+import { DashboardContentSkeleton } from "@/components/ui/SkeletonPage";
 
 export default function AdminSubmissionsPage() {
   const { session, profile, loading: authLoading } = useAuth();
@@ -74,7 +75,7 @@ export default function AdminSubmissionsPage() {
   };
 
   if (authLoading || loading) {
-    return <div className="p-8 text-gray-500 font-dm-mono text-sm uppercase tracking-widest">Loading Review Queue...</div>;
+    return <DashboardContentSkeleton />;
   }
 
   if (profile?.accountStatus?.toLowerCase() !== 'approved' || profile?.role?.toLowerCase() !== 'admin') {

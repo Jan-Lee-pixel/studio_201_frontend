@@ -5,6 +5,7 @@ import { SectionLabel } from "@/components/ui/SectionLabel";
 import { ArtistCard } from "@/features/artists/components/ArtistCard";
 import { artistService, PublicUserProfile } from "@/features/artists/services/artistService";
 import { useEffect, useState } from "react";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 export default function ArtistsPage() {
   const [artists, setArtists] = useState<PublicUserProfile[]>([]);
@@ -33,10 +34,10 @@ export default function ArtistsPage() {
         {
           loading ? (
             Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="animate-pulse">
-                <div className="aspect-[3/4] bg-white/70 border border-[var(--color-rule)]" />
-                <div className="h-4 bg-white/60 mt-4" />
-                <div className="h-3 bg-white/50 mt-2 w-2/3" />
+              <div key={i}>
+                <Skeleton className="aspect-[3/4]" />
+                <Skeleton className="skeleton-line w-[70%] mt-4" />
+                <Skeleton className="skeleton-line w-[55%] mt-2" />
               </div>
             ))
           ) : artists.length === 0 ? (

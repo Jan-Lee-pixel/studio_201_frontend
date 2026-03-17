@@ -6,6 +6,7 @@ import { useAuth } from '@/providers/AuthProvider';
 import { adminService, AdminStats } from '@/features/admin/services/adminService';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { DashboardContentSkeleton } from "@/components/ui/SkeletonPage";
 
 export default function DashboardPage() {
   const { profile, loading: authLoading } = useAuth();
@@ -24,11 +25,7 @@ export default function DashboardPage() {
   }, [profile]);
 
   if (authLoading || loadingStats) {
-    return (
-      <div className="flex justify-center items-center h-64 font-dm-mono text-gray-500 uppercase tracking-widest text-sm">
-        Loading...
-      </div>
-    );
+    return <DashboardContentSkeleton />;
   }
 
   if (!profile) {

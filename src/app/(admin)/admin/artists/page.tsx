@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { userService, UserAccessUpdate } from "@/features/admin/services/userService";
 import type { UserProfile } from "@/features/auth/services/authService";
+import { DashboardTableSkeleton } from "@/components/ui/SkeletonPage";
 
 export default function AdminArtistsPage() {
   const [users, setUsers] = useState<UserProfile[]>([]);
@@ -58,7 +59,7 @@ export default function AdminArtistsPage() {
       )}
 
       {loading ? (
-        <div className="text-gray-500 font-dm-mono text-sm uppercase tracking-widest">Loading applicants...</div>
+        <DashboardTableSkeleton rows={5} columns={4} />
       ) : (
         <>
           <section className="border border-[var(--color-rule)] bg-[var(--color-bone)] p-6 mb-10">

@@ -11,6 +11,7 @@ import { PortfolioList } from "@/features/portfolio/components/PortfolioList";
 import { PortfolioForm } from "@/features/portfolio/components/PortfolioForm";
 import { SubmissionForm } from "@/features/submissions/components/SubmissionForm";
 import { ProfileCard } from "@/features/dashboard/components/ProfileCard";
+import { DashboardContentSkeleton } from "@/components/ui/SkeletonPage";
 
 type NoticeTone = "success" | "error";
 
@@ -119,7 +120,7 @@ export default function ArtistArtworksPage() {
   };
 
   if (authLoading) {
-    return <div className="p-8 text-gray-500 font-dm-mono text-sm">Loading profile...</div>;
+    return <DashboardContentSkeleton />;
   }
 
   if (!profile || !session?.access_token) {

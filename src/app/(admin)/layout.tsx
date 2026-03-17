@@ -7,6 +7,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import "../../styles/dashboard.css";
+import { DashboardShellSkeleton } from "@/components/ui/SkeletonPage";
 
 export default function AdminLayout({
   children,
@@ -34,7 +35,7 @@ export default function AdminLayout({
   }, [loading, profile, normalizedRole, normalizedStatus, router]);
 
   if (loading) {
-    return <div className="p-8 text-gray-500 font-dm-mono text-sm">Loading workspace...</div>;
+    return <DashboardShellSkeleton />;
   }
 
   if (!profile) {

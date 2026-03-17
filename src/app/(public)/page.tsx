@@ -8,6 +8,7 @@ import { ArtistCard } from "@/features/artists/components/ArtistCard";
 import { EventRow } from "@/features/events/components/EventRow";
 import { ArchiveItem } from "@/features/exhibitions/components/ArchiveItem";
 import { Reveal } from "@/components/animation/Reveal";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { exhibitionService, Exhibition } from "@/features/exhibitions/services/exhibitionService";
 import { artistService, PublicUserProfile } from "@/features/artists/services/artistService";
 import { eventService, EventDto } from "@/features/events/services/eventService";
@@ -331,11 +332,11 @@ const hero = featuredExhibition
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[2px] mt-16">
           {loading ? (
             Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="animate-pulse border border-[var(--color-rule)] bg-white/70">
-                <div className="aspect-[4/3] bg-white/60" />
+              <div key={i} className="border border-[var(--color-rule)] bg-white/70">
+                <Skeleton className="aspect-[4/3]" />
                 <div className="p-4">
-                  <div className="h-4 bg-white/70 mb-2" />
-                  <div className="h-3 bg-white/60 w-2/3" />
+                  <Skeleton className="skeleton-line w-[70%] mb-2" />
+                  <Skeleton className="skeleton-line w-[55%]" />
                 </div>
               </div>
             ))
@@ -361,10 +362,10 @@ const hero = featuredExhibition
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mt-16">
           {loading ? (
             Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="animate-pulse">
-                <div className="aspect-[3/4] bg-white/70 border border-[var(--color-rule)]" />
-                <div className="h-4 bg-white/60 mt-4" />
-                <div className="h-3 bg-white/50 mt-2 w-2/3" />
+              <div key={i}>
+                <Skeleton className="aspect-[3/4]" />
+                <Skeleton className="skeleton-line w-[70%] mt-4" />
+                <Skeleton className="skeleton-line w-[55%] mt-2" />
               </div>
             ))
           ) : (
@@ -387,9 +388,9 @@ const hero = featuredExhibition
         <Reveal><SectionLabel>Events</SectionLabel></Reveal>
         <div className="mt-16">
           {loading ? (
-            <div className="space-y-4 animate-pulse">
+            <div className="space-y-4">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-12 bg-white/70 border border-[var(--color-rule)]" />
+                <Skeleton key={i} className="h-12 w-full" />
               ))}
             </div>
           ) : (
@@ -420,10 +421,10 @@ const hero = featuredExhibition
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mt-16">
           {loading ? (
             Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="animate-pulse">
-                <div className="aspect-[4/3] bg-white/70 border border-[var(--color-rule)]" />
-                <div className="h-4 bg-white/60 mt-4" />
-                <div className="h-3 bg-white/50 mt-2 w-2/3" />
+              <div key={i}>
+                <Skeleton className="aspect-[4/3]" />
+                <Skeleton className="skeleton-line w-[70%] mt-4" />
+                <Skeleton className="skeleton-line w-[55%] mt-2" />
               </div>
             ))
           ) : (

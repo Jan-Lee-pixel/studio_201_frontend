@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { exhibitionService } from '@/features/exhibitions/services/exhibitionService';
 import { mediaAssetService } from '@/features/mediaAssets/services/mediaAssetService';
+import { DashboardContentSkeleton } from "@/components/ui/SkeletonPage";
 
 const COVER_BUCKET = 'studio201-public';
 const MAX_FILE_SIZE_MB = 20;
@@ -179,11 +180,7 @@ export default function ExhibitionEditPage() {
   };
 
   if (loading) {
-    return (
-      <div className="p-8 text-gray-500 font-dm-mono text-sm uppercase tracking-widest">
-        Loading Exhibition...
-      </div>
-    );
+    return <DashboardContentSkeleton />;
   }
 
   return (
