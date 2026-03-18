@@ -1,0 +1,3 @@
+module.exports=[84376,a=>{"use strict";var b=a.i(87924);function c(){return(0,b.jsxs)("div",{className:"content",children:[(0,b.jsxs)("div",{className:"page-header",style:{marginBottom:"2rem"},children:[(0,b.jsx)("h1",{className:"page-title",children:"Messages"}),(0,b.jsx)("p",{className:"page-subtitle text-gray-400",children:"Messaging is coming soon."})]}),(0,b.jsx)("div",{className:"card",children:(0,b.jsx)("div",{className:"card-body text-sm text-gray-500 font-dm-mono",children:"This module is not available yet. We’ll notify you when curator messaging is ready."})})]})}a.s(["default",()=>c])}];
+
+//# sourceMappingURL=src_app_%28artist%29_artist_messages_page_tsx_389c80f7._.js.map

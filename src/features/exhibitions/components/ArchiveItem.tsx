@@ -3,7 +3,7 @@ import { Reveal } from "@/components/animation/Reveal";
 
 interface ArchiveItemProps {
   slug: string;
-  image: string;
+  image?: string | null;
   title: string;
   meta: string;
   delay?: 0 | 1 | 2 | 3 | 4 | 5;
@@ -14,11 +14,15 @@ export function ArchiveItem({ slug, image, title, meta, delay = 0 }: ArchiveItem
     <Reveal delay={delay} className="group cursor-pointer">
       <Link href={`/exhibitions/${slug}`}>
         <div className="aspect-[3/2] overflow-hidden mb-4 bg-[var(--color-bone)]">
-          <img
-            src={image}
-            alt={title}
-            className="w-full h-full object-cover filter brightness-85 saturate-65 transition-all duration-500 ease-out group-hover:brightness-100 group-hover:saturate-100"
-          />
+          {image ? (
+            <img
+              src={image}
+              alt={title}
+              className="w-full h-full object-cover filter brightness-85 saturate-65 transition-all duration-500 ease-out group-hover:brightness-100 group-hover:saturate-100"
+            />
+          ) : (
+            <div className="w-full h-full bg-[radial-gradient(circle_at_top,rgba(181,96,58,0.25),rgba(23,22,15,0.9))]" />
+          )}
         </div>
         <div className="font-display text-base font-normal text-[var(--color-warm-slate)] mb-1">
           {title}

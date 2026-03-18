@@ -3,7 +3,7 @@ import { Reveal } from "@/components/animation/Reveal";
 
 interface ExhibitionCardProps {
   slug: string;
-  image: string;
+  image?: string | null;
   title: string;
   artist: string;
   date: string;
@@ -15,11 +15,15 @@ export function ExhibitionCard({ slug, image, title, artist, date, delay = 0 }: 
     <Reveal delay={delay} className="group cursor-pointer bg-[var(--color-bone)] border border-[var(--color-rule)] hover:border-[var(--color-sienna)] transition-colors duration-400 overflow-hidden">
       <Link href={`/exhibitions/${slug}`}>
         <div className="aspect-[3/2] overflow-hidden">
-          <img
-            src={image}
-            alt={title}
-            className="w-full h-full object-cover filter saturate-80 transition-all duration-400 ease-out group-hover:saturate-100 group-hover:brightness-105"
-          />
+          {image ? (
+            <img
+              src={image}
+              alt={title}
+              className="w-full h-full object-cover filter saturate-80 transition-all duration-400 ease-out group-hover:saturate-100 group-hover:brightness-105"
+            />
+          ) : (
+            <div className="w-full h-full bg-[radial-gradient(circle_at_top,rgba(181,96,58,0.35),rgba(23,22,15,0.9))]" />
+          )}
         </div>
         <div className="p-7 pb-8">
           <div className="font-sub italic text-sm text-[var(--color-warm-slate)] mb-3">{date}</div>

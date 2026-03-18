@@ -6,7 +6,7 @@ import Link from "next/link";
 
 interface Exhibition {
   slug: string;
-  image: string;
+  image?: string | null;
   title: string;
   artist: string;
   date: string;
@@ -17,6 +17,9 @@ interface ExhibitionsCarouselProps {
 }
 
 export function ExhibitionsCarousel({ exhibitions }: ExhibitionsCarouselProps) {
+  if (exhibitions.length === 0) {
+    return null;
+  }
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
@@ -49,24 +52,32 @@ export function ExhibitionsCarousel({ exhibitions }: ExhibitionsCarouselProps) {
       <div className="relative h-full flex items-center justify-center">
         {/* Previous Peek */}
         <div className="absolute left-0 w-[15%] h-[70%] opacity-30 overflow-hidden">
-          <img
-            key={`prev-${getPreviousIndex()}`}
-            src={previous.image}
-            alt={previous.title}
-            className="w-full h-full object-cover"
-          />
+          {previous.image ? (
+            <img
+              key={`prev-${getPreviousIndex()}`}
+              src={previous.image}
+              alt={previous.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-[radial-gradient(circle_at_top,rgba(181,96,58,0.25),rgba(23,22,15,0.9))]" />
+          )}
         </div>
 
         {/* Current Exhibition */}
         <div className="relative w-[60%] h-[80%] group">
           <Link href={`/exhibitions/${current.slug}`}>
             <div className="relative w-full h-full">
-              <img
-                key={currentIndex}
-                src={current.image}
-                alt={current.title}
-                className="absolute inset-0 w-full h-full object-cover animate-[fadeIn_800ms_ease-out]"
-              />
+              {current.image ? (
+                <img
+                  key={currentIndex}
+                  src={current.image}
+                  alt={current.title}
+                  className="absolute inset-0 w-full h-full object-cover animate-[fadeIn_800ms_ease-out]"
+                />
+              ) : (
+                <div className="absolute inset-0 w-full h-full bg-[radial-gradient(circle_at_top,rgba(181,96,58,0.35),rgba(23,22,15,0.95))]" />
+              )}
             </div>
 
             {/* Text Overlay - Bottom */}
@@ -89,12 +100,16 @@ export function ExhibitionsCarousel({ exhibitions }: ExhibitionsCarouselProps) {
 
         {/* Next Peek */}
         <div className="absolute right-0 w-[15%] h-[70%] opacity-30 overflow-hidden">
-          <img
-            key={`next-${getNextIndex()}`}
-            src={next.image}
-            alt={next.title}
-            className="w-full h-full object-cover"
-          />
+          {next.image ? (
+            <img
+              key={`next-${getNextIndex()}`}
+              src={next.image}
+              alt={next.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-[radial-gradient(circle_at_top,rgba(181,96,58,0.25),rgba(23,22,15,0.9))]" />
+          )}
         </div>
 
         {/* Navigation Buttons */}

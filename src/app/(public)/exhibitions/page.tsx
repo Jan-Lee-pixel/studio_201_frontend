@@ -27,29 +27,31 @@ export default function ExhibitionsPage() {
     return <PublicPageSkeleton tone="dark" />;
   }
 
-  // Fallback to static if no dynamic data
-  const carouselData = exhibitions.length > 0 ? exhibitions.map(ex => ({
+  if (exhibitions.length === 0) {
+    return (
+      <div className="min-h-screen bg-[var(--color-charcoal)] flex items-center justify-center px-6 md:px-12">
+        <div className="text-center">
+          <div className="font-mono text-[10px] tracking-[0.18em] uppercase text-[var(--color-sienna)] mb-4">
+            Studio 201
+          </div>
+          <h1 className="font-display text-[clamp(36px,6vw,64px)] text-[var(--color-cream)]">
+            No exhibitions yet
+          </h1>
+          <p className="font-sub italic text-[var(--color-dust)] mt-3">
+            Check back soon for upcoming shows.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const carouselData = exhibitions.map(ex => ({
     slug: ex.slug,
     title: ex.title,
     artist: "Group Exhibition", // Placeholder unless backend provides artist association for solo shows
     date: formatDate(ex.startDate),
-    image: ex.coverImageUrl || "https://images.unsplash.com/photo-1541367777708-7905fe3296c0?w=1800&q=80"
-  })) : [
-    {
-      slug: "mga-paa-sa-alapaap",
-      image: "https://images.unsplash.com/photo-1578926375605-eaf7559b1458?w=1800&q=80",
-      title: "Mga Paa sa Alapaap",
-      artist: "Maria Santos",
-      date: "Now on View",
-    },
-    {
-      slug: "lupa-at-langit",
-      image: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=800&q=80",
-      title: "Lupa at Langit",
-      artist: "Jun Manlangit",
-      date: "Opening Nov 30, 2025",
-    }
-  ];
+    image: ex.coverImageUrl || null
+  }));
 
   return <ExhibitionsCarousel exhibitions={carouselData} />;
 }

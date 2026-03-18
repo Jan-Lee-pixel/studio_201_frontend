@@ -1,0 +1,247 @@
+{
+  "version": 3,
+  "pages404": true,
+  "appType": "app",
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "priority": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [
+    {
+      "page": "/admin/exhibitions/[id]",
+      "regex": "^/admin/exhibitions/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/admin/exhibitions/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/artists/[slug]",
+      "regex": "^/artists/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPslug": "nxtPslug"
+      },
+      "namedRegex": "^/artists/(?<nxtPslug>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/events/[slug]",
+      "regex": "^/events/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPslug": "nxtPslug"
+      },
+      "namedRegex": "^/events/(?<nxtPslug>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/events/[slug]/documentation",
+      "regex": "^/events/([^/]+?)/documentation(?:/)?$",
+      "routeKeys": {
+        "nxtPslug": "nxtPslug"
+      },
+      "namedRegex": "^/events/(?<nxtPslug>[^/]+?)/documentation(?:/)?$"
+    },
+    {
+      "page": "/exhibitions/[slug]",
+      "regex": "^/exhibitions/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPslug": "nxtPslug"
+      },
+      "namedRegex": "^/exhibitions/(?<nxtPslug>[^/]+?)(?:/)?$"
+    }
+  ],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_global-error",
+      "regex": "^/_global\\-error(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_global\\-error(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/admin",
+      "regex": "^/admin(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin(?:/)?$"
+    },
+    {
+      "page": "/admin/analytics",
+      "regex": "^/admin/analytics(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/analytics(?:/)?$"
+    },
+    {
+      "page": "/admin/artists",
+      "regex": "^/admin/artists(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/artists(?:/)?$"
+    },
+    {
+      "page": "/admin/editions",
+      "regex": "^/admin/editions(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/editions(?:/)?$"
+    },
+    {
+      "page": "/admin/events",
+      "regex": "^/admin/events(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/events(?:/)?$"
+    },
+    {
+      "page": "/admin/exhibitions",
+      "regex": "^/admin/exhibitions(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/exhibitions(?:/)?$"
+    },
+    {
+      "page": "/admin/exhibitions/new",
+      "regex": "^/admin/exhibitions/new(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/exhibitions/new(?:/)?$"
+    },
+    {
+      "page": "/admin/settings",
+      "regex": "^/admin/settings(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/settings(?:/)?$"
+    },
+    {
+      "page": "/admin/submissions",
+      "regex": "^/admin/submissions(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/submissions(?:/)?$"
+    },
+    {
+      "page": "/archive",
+      "regex": "^/archive(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/archive(?:/)?$"
+    },
+    {
+      "page": "/artist/artworks",
+      "regex": "^/artist/artworks(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/artist/artworks(?:/)?$"
+    },
+    {
+      "page": "/artist/dashboard",
+      "regex": "^/artist/dashboard(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/artist/dashboard(?:/)?$"
+    },
+    {
+      "page": "/artist/messages",
+      "regex": "^/artist/messages(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/artist/messages(?:/)?$"
+    },
+    {
+      "page": "/artist/profile",
+      "regex": "^/artist/profile(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/artist/profile(?:/)?$"
+    },
+    {
+      "page": "/artists",
+      "regex": "^/artists(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/artists(?:/)?$"
+    },
+    {
+      "page": "/artworks",
+      "regex": "^/artworks(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/artworks(?:/)?$"
+    },
+    {
+      "page": "/dashboard",
+      "regex": "^/dashboard(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard(?:/)?$"
+    },
+    {
+      "page": "/editions",
+      "regex": "^/editions(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/editions(?:/)?$"
+    },
+    {
+      "page": "/events",
+      "regex": "^/events(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/events(?:/)?$"
+    },
+    {
+      "page": "/exhibitions",
+      "regex": "^/exhibitions(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/exhibitions(?:/)?$"
+    },
+    {
+      "page": "/favicon.ico",
+      "regex": "^/favicon\\.ico(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/favicon\\.ico(?:/)?$"
+    },
+    {
+      "page": "/login",
+      "regex": "^/login(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/login(?:/)?$"
+    },
+    {
+      "page": "/pending",
+      "regex": "^/pending(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/pending(?:/)?$"
+    },
+    {
+      "page": "/spaces",
+      "regex": "^/spaces(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/spaces(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments",
+    "clientParamParsing": false,
+    "dynamicRSCPrerender": false
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}
