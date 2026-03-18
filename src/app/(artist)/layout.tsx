@@ -8,6 +8,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import "../../styles/dashboard.css";
 import { DashboardShellSkeleton } from "@/components/ui/SkeletonPage";
+import { LogoMark } from "@/components/ui/LogoMark";
 
 export default function ArtistLayout({
   children,
@@ -87,6 +88,7 @@ export default function ArtistLayout({
         {/* Sidebar */}
         <aside className="sidebar">
           <div className="sidebar-logo">
+            <LogoMark className="sidebar-logo-mark" />
             <span className="sidebar-logo-text">Studio 201</span>
             <span className="sidebar-logo-sub">Artist Portal</span>
           </div>

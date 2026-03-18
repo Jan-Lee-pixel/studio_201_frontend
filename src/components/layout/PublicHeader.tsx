@@ -6,6 +6,7 @@ import { useState } from "react";
 import clsx from "clsx";
 import { useScroll } from "@/hooks/useScroll";
 import { Menu, X } from "lucide-react";
+import { LogoMark } from "@/components/ui/LogoMark";
 
 export function PublicHeader() {
   const scrolled = useScroll(60);
@@ -46,12 +47,12 @@ export function PublicHeader() {
     { href: "/events", label: "Events" },
     { href: "/archive", label: "Archive" },
   ];
-
   return (
     <>
       <nav className={navClass}>
-        <Link href="/" className="font-display text-lg tracking-[-0.01em]">
-          Studio 201
+        <Link href="/" className="flex items-center gap-3">
+          <LogoMark className="h-6 md:h-7 w-auto" />
+          <span className="font-display text-lg tracking-[-0.01em]">Studio 201</span>
         </Link>
 
         {/* Desktop Nav */}

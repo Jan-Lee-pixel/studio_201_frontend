@@ -49,9 +49,9 @@ export default function ArtistsPage() {
               <ArtistCard
                 key={artist.id}
                 slug={artist.slug}
-                image={artist.profileImageUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&q=80"}
+                image={artist.profileImageUrl || null}
                 name={artist.fullName}
-                medium="Mixed Media"
+                medium=""
                 delay={((i % 4) + 1) as 1 | 2 | 3 | 4}
               />
             ))

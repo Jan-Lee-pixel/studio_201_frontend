@@ -13,126 +13,6 @@ import { exhibitionService, Exhibition } from "@/features/exhibitions/services/e
 import { artistService, PublicUserProfile } from "@/features/artists/services/artistService";
 import { eventService, EventDto } from "@/features/events/services/eventService";
 
-const heroFallback = {
-  slug: "mga-paa-sa-alapaap",
-  image: "https://images.unsplash.com/photo-1578926375605-eaf7559b1458?w=1800&q=80",
-  title: "Mga Paa sa Alapaap",
-  artist: "Maria Santos",
-  date: "Oct 3 – Nov 28, 2025",
-};
-
-const upcomingFallback = [
-  {
-    slug: "lupa-at-langit",
-    image: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=800&q=80",
-    title: "Lupa at Langit",
-    artist: "Jun Manlangit",
-    date: "Opening Nov 30, 2025",
-  },
-  {
-    slug: "ulan-sa-disyembre",
-    image: "https://images.unsplash.com/photo-1620510625142-b45cbb784397?w=800&q=80",
-    title: "Ulan sa Disyembre",
-    artist: "Elena Yap",
-    date: "Opening Jan 15, 2026",
-  },
-  {
-    slug: "dagat-ng-alaala",
-    image: "https://images.unsplash.com/photo-1541367777708-7905fe3296c0?w=800&q=80",
-    title: "Dagat ng Alaala",
-    artist: "Carlo Reyes",
-    date: "Opening Mar 5, 2026",
-  },
-];
-
-const artistFallback = [
-  {
-    slug: "maria-santos",
-    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&q=80",
-    name: "Maria Santos",
-    medium: "Painting, Mixed Media",
-  },
-  {
-    slug: "jun-manlangit",
-    image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600&q=80",
-    name: "Jun Manlangit",
-    medium: "Sculpture, Installation",
-  },
-  {
-    slug: "elena-yap",
-    image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=600&q=80",
-    name: "Elena Yap",
-    medium: "Photography, Video",
-  },
-  {
-    slug: "carlo-reyes",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80",
-    name: "Carlo Reyes",
-    medium: "Drawing, Printmaking",
-  },
-];
-
-const eventsFallback = [
-  {
-    date: "Nov 5, 2025",
-    day: "Wednesday",
-    type: "Artist Talk",
-    title: "Painting as Memory",
-    subtitle: "A Conversation with Maria Santos",
-    venue: "Studio 201",
-    time: "7:00 PM",
-  },
-  {
-    date: "Nov 12, 2025",
-    day: "Wednesday",
-    type: "Opening Night",
-    title: "Mga Paa sa Alapaap",
-    subtitle: "Maria Santos",
-    venue: "Studio 201",
-    time: "6:00 PM",
-  },
-  {
-    date: "Dec 2, 2025",
-    day: "Tuesday",
-    type: "Workshop [External]",
-    title: "Relief Printmaking",
-    subtitle: "with Jun Manlangit",
-    venue: "Sugbo Mercado",
-    time: "2:00 PM",
-    isExternal: true,
-  },
-  {
-    date: "Dec 15, 2025",
-    day: "Monday",
-    type: "Symposium",
-    title: "Contemporary Art in the Visayas",
-    subtitle: "Panel Discussion",
-    venue: "Studio 201",
-    time: "10:00 AM",
-  },
-];
-
-const archiveFallback = [
-  {
-    slug: "halina-at-luha",
-    image: "https://images.unsplash.com/photo-1590907047706-ee9c08cf3189?w=800&q=80",
-    title: "Halina at Luha",
-    meta: "Maria Santos — 2024",
-  },
-  {
-    slug: "tahanan",
-    image: "https://images.unsplash.com/photo-1544967082-d9d25d867d66?w=800&q=80",
-    title: "Tahanan",
-    meta: "Group Exhibition — 2024",
-  },
-  {
-    slug: "sa-pamamagitan-ng-kahoy",
-    image: "https://images.unsplash.com/photo-1547891654-e66ed7ebb968?w=800&q=80",
-    title: "Sa Pamamagitan ng Kahoy",
-    meta: "Jun Manlangit — 2023",
-  },
-];
-
 const formatDateRange = (start?: string, end?: string) => {
   if (!start) return "Dates TBA";
   const startDate = new Date(start);
@@ -199,10 +79,10 @@ export default function Home() {
     return exhibitions.find((ex) => ex.isFeatured) || exhibitions[0];
   }, [exhibitions]);
 
-const hero = featuredExhibition
+  const hero = featuredExhibition
     ? {
         slug: featuredExhibition.slug,
-        image: featuredExhibition.coverImageUrl || heroFallback.image,
+        image: featuredExhibition.coverImageUrl || null,
         title: featuredExhibition.title,
         artist: "Studio 201",
         date: formatDateRange(featuredExhibition.startDate, featuredExhibition.endDate),
@@ -211,10 +91,19 @@ const hero = featuredExhibition
             ? "Upcoming Exhibition"
             : "Now on View",
       }
-    : { ...heroFallback, label: "Now on View" };
+    : {
+        slug: "",
+        image: null,
+        title: "Studio 201",
+        artist: "Exhibitions coming soon",
+        date: "",
+        label: "Studio 201",
+      };
+  const heroLink = featuredExhibition ? `/exhibitions/${hero.slug}` : "/exhibitions";
+  const heroCta = featuredExhibition ? "View Exhibition →" : "Explore Exhibitions →";
 
   const upcomingExhibitions = useMemo(() => {
-    if (exhibitions.length === 0) return upcomingFallback;
+    if (exhibitions.length === 0) return [];
     const now = new Date();
     const upcoming = exhibitions.filter((ex) => ex.startDate && new Date(ex.startDate) > now);
     const pool = upcoming.length > 0 ? upcoming : exhibitions;
@@ -224,25 +113,25 @@ const hero = featuredExhibition
 
     return filtered.slice(0, 3).map((ex) => ({
       slug: ex.slug,
-      image: ex.coverImageUrl || upcomingFallback[0].image,
+      image: ex.coverImageUrl || null,
       title: ex.title,
-      artist: "Group Exhibition",
+      artist: "Studio 201",
       date: formatOpeningLabel(ex.startDate),
     }));
   }, [exhibitions, featuredExhibition]);
 
   const featuredArtists = useMemo(() => {
-    if (artists.length === 0) return artistFallback;
+    if (artists.length === 0) return [];
     return artists.slice(0, 4).map((artist) => ({
       slug: artist.slug,
-      image: artist.profileImageUrl || artistFallback[0].image,
+      image: artist.profileImageUrl || null,
       name: artist.fullName,
-      medium: "Mixed Media",
+      medium: "",
     }));
   }, [artists]);
 
   const featuredEvents = useMemo(() => {
-    if (events.length === 0) return eventsFallback;
+    if (events.length === 0) return [];
     const now = new Date();
     const sorted = [...events].sort((a, b) => {
       const aDate = a.startDate ? new Date(a.startDate).getTime() : Number.MAX_SAFE_INTEGER;
@@ -273,13 +162,13 @@ const hero = featuredExhibition
   }, [events]);
 
   const archiveItems = useMemo(() => {
-    if (archiveExhibitions.length === 0) return archiveFallback;
+    if (archiveExhibitions.length === 0) return [];
 
     return archiveExhibitions.slice(0, 3).map((ex) => {
       const year = ex.endDate ? new Date(ex.endDate).getFullYear() : ex.startDate ? new Date(ex.startDate).getFullYear() : "";
       return {
         slug: ex.slug,
-        image: ex.coverImageUrl || archiveFallback[0].image,
+        image: ex.coverImageUrl || null,
         title: ex.title,
         meta: year ? `${year}` : "Archive Exhibition",
       };
@@ -290,11 +179,15 @@ const hero = featuredExhibition
     <div className="w-full">
       {/* HERO SECTION */}
       <section className="relative w-full h-screen overflow-hidden">
-        <img
-          src={hero.image}
-          alt={hero.title}
-          className="absolute inset-0 w-full h-full object-cover animate-hero-reveal origin-center"
-        />
+        {hero.image ? (
+          <img
+            src={hero.image}
+            alt={hero.title}
+            className="absolute inset-0 w-full h-full object-cover animate-hero-reveal origin-center"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(181,96,58,0.35),rgba(23,22,15,0.95))]" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-[rgba(23,22,15,0.82)] via-[rgba(23,22,15,0.1)_55%] to-transparent" />
 
         <div className="absolute bottom-18 left-6 right-6 md:left-12 md:right-12 max-w-[680px]">
@@ -307,15 +200,17 @@ const hero = featuredExhibition
           <div className="font-sub text-xl italic font-light text-[var(--color-dust)] mb-2 opacity-0 translate-y-3 animate-slide-up [animation-delay:400ms]">
             {hero.artist}
           </div>
-          <div className="font-mono text-[11px] text-[var(--color-dust)] tracking-[0.06em] mb-9 opacity-0 translate-y-3 animate-slide-up [animation-delay:460ms]">
-            {hero.date}
-          </div>
+          {hero.date ? (
+            <div className="font-mono text-[11px] text-[var(--color-dust)] tracking-[0.06em] mb-9 opacity-0 translate-y-3 animate-slide-up [animation-delay:460ms]">
+              {hero.date}
+            </div>
+          ) : null}
           <div className="opacity-0 translate-y-3 animate-slide-up [animation-delay:540ms]">
             <Link
-              href={`/exhibitions/${hero.slug}`}
+              href={heroLink}
               className="relative inline-block font-body font-medium text-sm tracking-[0.02em] text-[var(--color-cream)] after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-[1px] after:bg-current after:scale-x-0 after:origin-left after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.16,1,0.3,1)] hover:after:scale-x-100"
             >
-              View Exhibition →
+              {heroCta}
             </Link>
           </div>
         </div>
@@ -341,17 +236,23 @@ const hero = featuredExhibition
               </div>
             ))
           ) : (
-            upcomingExhibitions.map((ex, i) => (
-              <ExhibitionCard
-                key={`${ex.slug}-${i}`}
-                slug={ex.slug}
-                image={ex.image}
-                title={ex.title}
-                artist={ex.artist}
-                date={ex.date}
-                delay={((i % 3) + 1) as 1 | 2 | 3}
-              />
-            ))
+            upcomingExhibitions.length === 0 ? (
+              <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-16 text-[var(--color-warm-slate)] font-mono text-xs tracking-[0.2em] uppercase">
+                No exhibitions yet
+              </div>
+            ) : (
+              upcomingExhibitions.map((ex, i) => (
+                <ExhibitionCard
+                  key={`${ex.slug}-${i}`}
+                  slug={ex.slug}
+                  image={ex.image}
+                  title={ex.title}
+                  artist={ex.artist}
+                  date={ex.date}
+                  delay={((i % 3) + 1) as 1 | 2 | 3}
+                />
+              ))
+            )
           )}
         </div>
       </section>
@@ -369,16 +270,22 @@ const hero = featuredExhibition
               </div>
             ))
           ) : (
-            featuredArtists.map((artist, i) => (
-              <ArtistCard
-                key={`${artist.slug}-${i}`}
-                slug={artist.slug}
-                image={artist.image}
-                name={artist.name}
-                medium={artist.medium}
-                delay={((i % 4) + 1) as 1 | 2 | 3 | 4}
-              />
-            ))
+            featuredArtists.length === 0 ? (
+              <div className="col-span-2 md:col-span-4 text-center py-16 text-[var(--color-warm-slate)] font-mono text-xs tracking-[0.2em] uppercase">
+                No artists yet
+              </div>
+            ) : (
+              featuredArtists.map((artist, i) => (
+                <ArtistCard
+                  key={`${artist.slug}-${i}`}
+                  slug={artist.slug}
+                  image={artist.image}
+                  name={artist.name}
+                  medium={artist.medium}
+                  delay={((i % 4) + 1) as 1 | 2 | 3 | 4}
+                />
+              ))
+            )
           )}
         </div>
       </section>
@@ -394,13 +301,19 @@ const hero = featuredExhibition
               ))}
             </div>
           ) : (
-            featuredEvents.map((event, i) => (
-              <EventRow
-                key={`${event.title}-${i}`}
-                {...event}
-                delay={((i % 5) + 1) as 1 | 2 | 3 | 4 | 5}
-              />
-            ))
+            featuredEvents.length === 0 ? (
+              <div className="text-center py-10 text-[var(--color-warm-slate)] font-mono text-xs tracking-[0.2em] uppercase">
+                No events scheduled
+              </div>
+            ) : (
+              featuredEvents.map((event, i) => (
+                <EventRow
+                  key={`${event.title}-${i}`}
+                  {...event}
+                  delay={((i % 5) + 1) as 1 | 2 | 3 | 4 | 5}
+                />
+              ))
+            )
           )}
         </div>
         <div className="mt-12">
@@ -428,16 +341,22 @@ const hero = featuredExhibition
               </div>
             ))
           ) : (
-            archiveItems.map((item, i) => (
-              <ArchiveItem
-                key={`${item.slug}-${i}`}
-                slug={item.slug}
-                image={item.image}
-                title={item.title}
-                meta={item.meta}
-                delay={((i % 3) + 1) as 1 | 2 | 3}
-              />
-            ))
+            archiveItems.length === 0 ? (
+              <div className="col-span-1 md:col-span-3 text-center py-16 text-[var(--color-warm-slate)] font-mono text-xs tracking-[0.2em] uppercase">
+                Archive coming soon
+              </div>
+            ) : (
+              archiveItems.map((item, i) => (
+                <ArchiveItem
+                  key={`${item.slug}-${i}`}
+                  slug={item.slug}
+                  image={item.image}
+                  title={item.title}
+                  meta={item.meta}
+                  delay={((i % 3) + 1) as 1 | 2 | 3}
+                />
+              ))
+            )
           )}
         </div>
         <div className="mt-12">

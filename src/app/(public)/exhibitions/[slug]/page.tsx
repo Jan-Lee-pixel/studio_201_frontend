@@ -81,17 +81,21 @@ export default function ExhibitionResultPage() {
   const heroArtistLabel =
     artistNames.length > 0
       ? `${artistNames.slice(0, 3).join(" · ")}${artistNames.length > 3 ? ` +${artistNames.length - 3}` : ""}`
-      : "Artists Group // Studio 201 Collection";
+      : "Artists to be announced";
 
   return (
     <div>
       {/* HERO */}
       <section className="relative h-screen overflow-hidden">
-        <img
-          src={exhibition.coverImageUrl || "https://images.unsplash.com/photo-1578926375605-eaf7559b1458?w=1800&q=80"}
-          alt={exhibition.title}
-          className="w-full h-full object-cover brightness-75"
-        />
+        {exhibition.coverImageUrl ? (
+          <img
+            src={exhibition.coverImageUrl}
+            alt={exhibition.title}
+            className="w-full h-full object-cover brightness-75"
+          />
+        ) : (
+          <div className="w-full h-full bg-[radial-gradient(circle_at_top,rgba(181,96,58,0.35),rgba(23,22,15,0.95))]" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-[rgba(23,22,15,0.85)] to-transparent via-transparent via-60%"></div>
         <div className="absolute bottom-20 left-6 right-6 md:left-12 md:right-12 border-t border-[rgba(240,237,229,0.2)] pt-8">
           <div className="flex justify-between items-end mb-4">
@@ -115,11 +119,8 @@ export default function ExhibitionResultPage() {
         {/* INTRO */}
         <div className="grid grid-cols-1 md:grid-cols-[1fr_480px] gap-12 md:gap-30 py-24 border-b border-[var(--color-rule)]">
           <Reveal className="text-[var(--color-warm-slate)]">
-            <h3 className="font-sub italic text-[26px] font-light mb-8 leading-[1.4]">
-              Exploring New Horizons in Philippine Arts.
-            </h3>
             <p className="text-base leading-[1.75] mb-5">
-              {exhibition.description || "The works in this collection represent a curated journey into the depths of identity, space, and contemporary artistic practice."}
+              {exhibition.description || "Exhibition details will be announced soon."}
             </p>
             <div className="mt-12">
               <Link
@@ -136,43 +137,22 @@ export default function ExhibitionResultPage() {
               Artist
             </div>
             <div className="font-body text-[15px] text-[var(--color-near-black)] mb-8">
-              Maria Santos
-            </div>
-
-            <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--color-dust)] mb-4">
-              Medium
-            </div>
-            <div className="font-body text-[15px] text-[var(--color-near-black)] mb-8">
-              Oil, Mixed Media
+              {heroArtistLabel}
             </div>
 
             <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--color-dust)] mb-4">
               Duration
             </div>
             <div className="font-body text-[15px] text-[var(--color-near-black)] mb-8">
-              Oct 3 – Nov 28, 2025
+              {getDurationString(exhibition.startDate, exhibition.endDate)}
             </div>
-
-            <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--color-dust)] mb-4">
-              Location
-            </div>
-            <div className="font-body text-[15px] text-[var(--color-near-black)] mb-8">
-              Studio 201 Main Gallery
-              <br />
-              Cebu, Philippines
-            </div>
-
-            <div className="mt-10">
-              <Button>Inquire about works</Button>
-            </div>
+            {artworks.length > 0 ? (
+              <div className="mt-10">
+                <Button>Inquire about works</Button>
+              </div>
+            ) : null}
           </Reveal>
         </div>
-
-        {/* PULL QUOTE */}
-        <Reveal className="font-sub italic text-[clamp(22px,3vw,32px)] font-light text-[var(--color-warm-slate)] leading-[1.4] py-16 border-y border-[var(--color-rule)] my-12 max-w-[720px] ml-auto">
-          The body always knows where home is, even when the mind has learned to
-          forget.
-        </Reveal>
 
         {/* ARTWORKS */}
         <div className="py-20">
@@ -185,7 +165,7 @@ export default function ExhibitionResultPage() {
             {artworks.length > 0 ? artworks.map((artwork, i) => (
               <ArtworkCard
                 key={artwork.id}
-                image={artwork.mediaAssetUrl || "https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=800&q=80"}
+                image={artwork.mediaAssetUrl || null}
                 title={artwork.title}
                 meta={
                   artistLookup[artwork.artistId]?.fullName

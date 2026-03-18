@@ -8,6 +8,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import "../../styles/dashboard.css";
 import { DashboardShellSkeleton } from "@/components/ui/SkeletonPage";
+import { LogoMark } from "@/components/ui/LogoMark";
 
 export default function AdminLayout({
   children,
@@ -97,6 +98,7 @@ export default function AdminLayout({
         {/* Admin Sidebar */}
         <aside className="sidebar admin-sidebar">
           <div className="sidebar-logo">
+            <LogoMark className="sidebar-logo-mark" />
             <span className="sidebar-logo-text">Studio 201</span>
             <span className="sidebar-logo-sub">Curator Admin</span>
           </div>
