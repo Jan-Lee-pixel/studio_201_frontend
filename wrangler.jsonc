@@ -3,7 +3,7 @@
   "main": ".open-next/worker.js",
   "name": "studio201",
   "compatibility_date": "2026-03-18",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": ["nodejs_compat", "enable_nodejs_fs_module"],
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
