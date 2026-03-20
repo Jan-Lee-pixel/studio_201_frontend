@@ -6,6 +6,7 @@ export interface ArtworkSubmission {
   artistId: string;
   title: string;
   category?: string | null;
+  artType?: string | null;
   description?: string;
   status: 'Pending' | 'Approved' | 'Rejected';
   mediaAssetId?: string;
@@ -20,6 +21,7 @@ export interface CreateSubmissionPayload {
   exhibitionId: string;
   title: string;
   category?: string | null;
+  artType?: string | null;
   description?: string;
   mediaAssetId?: string;
 }
@@ -28,6 +30,7 @@ export interface UpdateSubmissionPayload {
   exhibitionId?: string;
   title?: string;
   category?: string | null;
+  artType?: string | null;
   description?: string;
   mediaAssetId?: string;
 }

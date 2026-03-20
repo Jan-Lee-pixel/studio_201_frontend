@@ -77,6 +77,7 @@ function buildSubmissionMeta(item: ArtworkSubmission) {
   const detail = parseSubmissionDescription(item.description);
   return [
     item.category,
+    item.artType,
     `Submitted ${formatShortDate(item.createdAt)}`,
     detail ? `${detail.slice(0, 72)}${detail.length > 72 ? "..." : ""}` : "",
   ]
@@ -85,7 +86,9 @@ function buildSubmissionMeta(item: ArtworkSubmission) {
 }
 
 function buildPortfolioMeta(item: PortfolioItem) {
-  return [item.category, item.year, item.medium, item.dimensions].filter(Boolean).join(" · ");
+  return [item.category, item.artType, item.year, item.medium, item.dimensions]
+    .filter(Boolean)
+    .join(" · ");
 }
 
 function StatCard({

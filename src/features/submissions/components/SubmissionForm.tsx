@@ -9,7 +9,12 @@ import {
   ArtworkSubmission,
 } from "@/features/submissions/services/artworkSubmissionService";
 import { exhibitionService, Exhibition } from "@/features/exhibitions/services/exhibitionService";
-import { ARTWORK_CATEGORY_OPTIONS } from "@/features/artworks/constants/categories";
+import {
+  ARTWORK_CATEGORY_OPTIONS,
+  getArtTypeDraft,
+  getArtTypeOptions,
+  resolveArtTypeValue,
+} from "@/features/artworks/constants/categories";
 import { createClient } from "@/lib/supabase/client";
 import { mediaAssetService } from "@/features/mediaAssets/services/mediaAssetService";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -17,15 +22,47 @@ import { Skeleton } from "@/components/ui/Skeleton";
 const ARTWORK_BUCKET = "studio201-public";
 const MAX_FILE_SIZE_MB = 20;
 
-const submissionSchema = z.object({
-  exhibitionId: z.string().min(1, "Select an exhibition"),
-  title: z.string().min(1, "Title is required").max(255),
-  category: z.string().optional(),
-  description: z.string().optional(),
-  year: z.string().optional(),
-  medium: z.string().optional(),
-  dimensions: z.string().optional(),
-});
+const submissionSchema = z
+  .object({
+    exhibitionId: z.string().min(1, "Select an exhibition"),
+    title: z.string().min(1, "Title is required").max(255),
+    category: z.string().min(1, "Select a category"),
+    artType: z.string().optional(),
+    artTypeCustom: z.string().optional(),
+    description: z.string().optional(),
+    year: z.string().optional(),
+    medium: z.string().optional(),
+    dimensions: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.category === "Other") {
+      if (!data.artTypeCustom?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["artTypeCustom"],
+          message: "Enter the type of art",
+        });
+      }
+      return;
+    }
+
+    if (!data.artType?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["artType"],
+        message: "Select a type of art",
+      });
+      return;
+    }
+
+    if (data.artType === "Other" && !data.artTypeCustom?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["artTypeCustom"],
+        message: "Enter the type of art",
+      });
+    }
+  });
 
 type SubmissionFormData = z.infer<typeof submissionSchema>;
 
@@ -70,10 +107,14 @@ function parseSubmissionDescription(description?: string | null) {
 
 function getDefaultValues(submission?: ArtworkSubmission | null): SubmissionFormData {
   const parsed = parseSubmissionDescription(submission?.description);
+  const artTypeDraft = getArtTypeDraft(submission?.category, submission?.artType);
+
   return {
     exhibitionId: submission?.exhibitionId ?? "",
     title: submission?.title ?? "",
     category: submission?.category ?? "",
+    artType: artTypeDraft.artType,
+    artTypeCustom: artTypeDraft.artTypeCustom,
     description: parsed.description,
     year: parsed.year,
     medium: parsed.medium,
@@ -102,17 +143,45 @@ export function SubmissionForm({
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<SubmissionFormData>({
     resolver: zodResolver(submissionSchema),
     defaultValues: getDefaultValues(submission),
   });
 
+  const selectedCategory = watch("category");
+  const selectedArtType = watch("artType");
+  const artTypeOptions = getArtTypeOptions(selectedCategory);
+
   useEffect(() => {
     reset(getDefaultValues(submission));
     setSelectedFile(null);
     setErrorMsg(null);
   }, [reset, submission]);
+
+  useEffect(() => {
+    if (!selectedCategory) {
+      setValue("artType", "");
+      setValue("artTypeCustom", "");
+      return;
+    }
+
+    if (selectedCategory === "Other") {
+      setValue("artType", "");
+      return;
+    }
+
+    if (selectedArtType && !artTypeOptions.includes(selectedArtType)) {
+      setValue("artType", "");
+      setValue("artTypeCustom", "");
+    }
+
+    if (selectedArtType !== "Other") {
+      setValue("artTypeCustom", "");
+    }
+  }, [artTypeOptions, selectedArtType, selectedCategory, setValue]);
 
   useEffect(() => {
     let mounted = true;
@@ -141,6 +210,7 @@ export function SubmissionForm({
     setIsSubmitting(true);
     setErrorMsg(null);
 
+    const artTypePayload = resolveArtTypeValue(data.category, data.artType, data.artTypeCustom);
     const fullDescription = [
       data.year ? `Year: ${data.year}` : "",
       data.medium ? `Medium: ${data.medium}` : "",
@@ -215,7 +285,8 @@ export function SubmissionForm({
           submission.id,
           {
             title: data.title,
-            category: data.category?.trim() || undefined,
+            category: data.category.trim(),
+            artType: artTypePayload,
             description: descriptionPayload,
             mediaAssetId,
           },
@@ -226,7 +297,8 @@ export function SubmissionForm({
           {
             exhibitionId: data.exhibitionId,
             title: data.title,
-            category: data.category?.trim() || undefined,
+            category: data.category.trim(),
+            artType: artTypePayload,
             description: descriptionPayload,
             mediaAssetId,
           },
@@ -395,8 +467,14 @@ export function SubmissionForm({
             ) : null}
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label">Category</label>
-            <select {...register("category")} className="form-select" defaultValue="">
+            <label className="form-label">
+              Category <span className="text-red-500">*</span>
+            </label>
+            <select
+              {...register("category")}
+              className={`form-select ${errors.category ? "border-red-500" : ""}`}
+              defaultValue=""
+            >
               <option value="">Select a category</option>
               {ARTWORK_CATEGORY_OPTIONS.map((category) => (
                 <option key={category} value={category}>
@@ -404,30 +482,92 @@ export function SubmissionForm({
                 </option>
               ))}
             </select>
+            {errors.category ? (
+              <p className="text-red-500 text-xs mt-1 font-dm-mono">{errors.category.message}</p>
+            ) : null}
           </div>
         </div>
         <div style={{ height: "14px" }}></div>
 
         <div className="form-row">
           <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">
+              Type of Art <span className="text-red-500">*</span>
+            </label>
+            {selectedCategory === "Other" ? (
+              <>
+                <input
+                  {...register("artTypeCustom")}
+                  className={`form-input ${errors.artTypeCustom ? "border-red-500" : ""}`}
+                  type="text"
+                  placeholder="e.g. Handmade illustration"
+                />
+                {errors.artTypeCustom ? (
+                  <p className="text-red-500 text-xs mt-1 font-dm-mono">
+                    {errors.artTypeCustom.message}
+                  </p>
+                ) : null}
+              </>
+            ) : (
+              <>
+                <select
+                  {...register("artType")}
+                  className={`form-select ${errors.artType ? "border-red-500" : ""}`}
+                  disabled={!selectedCategory}
+                  defaultValue=""
+                >
+                  <option value="" disabled>
+                    {selectedCategory ? "Select a type of art" : "Select a category first"}
+                  </option>
+                  {artTypeOptions.map((artType) => (
+                    <option key={artType} value={artType}>
+                      {artType}
+                    </option>
+                  ))}
+                </select>
+                {errors.artType ? (
+                  <p className="text-red-500 text-xs mt-1 font-dm-mono">{errors.artType.message}</p>
+                ) : null}
+                {selectedArtType === "Other" ? (
+                  <>
+                    <div style={{ height: "10px" }}></div>
+                    <input
+                      {...register("artTypeCustom")}
+                      className={`form-input ${errors.artTypeCustom ? "border-red-500" : ""}`}
+                      type="text"
+                      placeholder="Enter the type of art"
+                    />
+                    {errors.artTypeCustom ? (
+                      <p className="text-red-500 text-xs mt-1 font-dm-mono">
+                        {errors.artTypeCustom.message}
+                      </p>
+                    ) : null}
+                  </>
+                ) : null}
+              </>
+            )}
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Year</label>
             <input {...register("year")} className="form-input" type="text" placeholder="e.g. 2026" />
           </div>
+        </div>
+        <div style={{ height: "14px" }}></div>
+
+        <div className="form-row">
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Medium</label>
             <input
               {...register("medium")}
               className="form-input"
               type="text"
-              placeholder="e.g. Oil on canvas"
+              placeholder="e.g. Acrylic on canvas"
             />
           </div>
-        </div>
-        <div style={{ height: "14px" }}></div>
-
-        <div className="form-group" style={{ marginBottom: 0 }}>
-          <label className="form-label">Dimensions</label>
-          <input {...register("dimensions")} className="form-input" type="text" placeholder="H × W cm" />
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Dimensions</label>
+            <input {...register("dimensions")} className="form-input" type="text" placeholder="H × W cm" />
+          </div>
         </div>
         <div style={{ height: "14px" }}></div>
 
@@ -468,10 +608,7 @@ export function SubmissionForm({
           <button
             type="submit"
             className="btn btn-primary btn-sm"
-            disabled={
-              isSubmitting ||
-              (!isEditing && (loadingExhibitions || exhibitions.length === 0))
-            }
+            disabled={isSubmitting || (!isEditing && (loadingExhibitions || exhibitions.length === 0))}
           >
             {isSubmitting ? (isEditing ? "Saving..." : "Submitting...") : isEditing ? "Save changes" : "Submit for review"}
           </button>

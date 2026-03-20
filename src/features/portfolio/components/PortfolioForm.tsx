@@ -1,26 +1,63 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { createClient } from "@/lib/supabase/client";
 import { mediaAssetService } from "@/features/mediaAssets/services/mediaAssetService";
 import { portfolioService } from "@/features/portfolio/services/portfolioService";
-import { ARTWORK_CATEGORY_OPTIONS } from "@/features/artworks/constants/categories";
+import {
+  ARTWORK_CATEGORY_OPTIONS,
+  getArtTypeDraft,
+  getArtTypeOptions,
+  resolveArtTypeValue,
+} from "@/features/artworks/constants/categories";
 
 const PORTFOLIO_BUCKET = "studio201-public";
 const MAX_FILE_SIZE_MB = 20;
 
-const portfolioSchema = z.object({
-  title: z.string().min(1, "Title is required").max(255),
-  category: z.string().optional(),
-  description: z.string().optional(),
-  year: z.string().optional(),
-  medium: z.string().optional(),
-  dimensions: z.string().optional(),
-  isPublic: z.boolean().optional(),
-});
+const portfolioSchema = z
+  .object({
+    title: z.string().min(1, "Title is required").max(255),
+    category: z.string().min(1, "Select a category"),
+    artType: z.string().optional(),
+    artTypeCustom: z.string().optional(),
+    description: z.string().optional(),
+    year: z.string().optional(),
+    medium: z.string().optional(),
+    dimensions: z.string().optional(),
+    isPublic: z.boolean().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.category === "Other") {
+      if (!data.artTypeCustom?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["artTypeCustom"],
+          message: "Enter the type of art",
+        });
+      }
+      return;
+    }
+
+    if (!data.artType?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["artType"],
+        message: "Select a type of art",
+      });
+      return;
+    }
+
+    if (data.artType === "Other" && !data.artTypeCustom?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["artTypeCustom"],
+        message: "Enter the type of art",
+      });
+    }
+  });
 
 type PortfolioFormData = z.infer<typeof portfolioSchema>;
 
@@ -31,7 +68,22 @@ interface PortfolioFormProps {
   onSuccess: () => void;
 }
 
-export function PortfolioForm({ token, artistId, authUserId, onSuccess }: PortfolioFormProps) {
+function getDefaultValues(): PortfolioFormData {
+  const artTypeDraft = getArtTypeDraft("", "");
+  return {
+    title: "",
+    category: "",
+    artType: artTypeDraft.artType,
+    artTypeCustom: artTypeDraft.artTypeCustom,
+    description: "",
+    year: "",
+    medium: "",
+    dimensions: "",
+    isPublic: true,
+  };
+}
+
+export function PortfolioForm({ token, artistId: _artistId, authUserId, onSuccess }: PortfolioFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -42,13 +94,39 @@ export function PortfolioForm({ token, artistId, authUserId, onSuccess }: Portfo
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<PortfolioFormData>({
     resolver: zodResolver(portfolioSchema),
-    defaultValues: {
-      isPublic: true,
-    },
+    defaultValues: getDefaultValues(),
   });
+
+  const selectedCategory = watch("category");
+  const selectedArtType = watch("artType");
+  const artTypeOptions = getArtTypeOptions(selectedCategory);
+
+  useEffect(() => {
+    if (!selectedCategory) {
+      setValue("artType", "");
+      setValue("artTypeCustom", "");
+      return;
+    }
+
+    if (selectedCategory === "Other") {
+      setValue("artType", "");
+      return;
+    }
+
+    if (selectedArtType && !artTypeOptions.includes(selectedArtType)) {
+      setValue("artType", "");
+      setValue("artTypeCustom", "");
+    }
+
+    if (selectedArtType !== "Other") {
+      setValue("artTypeCustom", "");
+    }
+  }, [artTypeOptions, selectedArtType, selectedCategory, setValue]);
 
   const onSubmit = async (data: PortfolioFormData) => {
     setIsSubmitting(true);
@@ -119,7 +197,8 @@ export function PortfolioForm({ token, artistId, authUserId, onSuccess }: Portfo
       await portfolioService.createPortfolioItem(
         {
           title: data.title,
-          category: data.category?.trim() || undefined,
+          category: data.category.trim(),
+          artType: resolveArtTypeValue(data.category, data.artType, data.artTypeCustom),
           description: data.description,
           year: data.year,
           medium: data.medium,
@@ -130,7 +209,7 @@ export function PortfolioForm({ token, artistId, authUserId, onSuccess }: Portfo
         token
       );
 
-      reset();
+      reset(getDefaultValues());
       setSelectedFile(null);
       onSuccess();
     } catch (error) {
@@ -139,6 +218,12 @@ export function PortfolioForm({ token, artistId, authUserId, onSuccess }: Portfo
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleClear = () => {
+    reset(getDefaultValues());
+    setSelectedFile(null);
+    setErrorMsg(null);
   };
 
   return (
@@ -151,19 +236,19 @@ export function PortfolioForm({ token, artistId, authUserId, onSuccess }: Portfo
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="card-body">
-        {errorMsg && (
+        {errorMsg ? (
           <div className="p-3 mb-4 text-sm text-red-600 bg-red-50 rounded font-dm-mono">
             {errorMsg}
           </div>
-        )}
+        ) : null}
 
         <div className="form-group">
           <input
             type="file"
             ref={fileInputRef}
-            onChange={(e) => {
-              if (e.target.files && e.target.files.length > 0) {
-                setSelectedFile(e.target.files[0]);
+            onChange={(event) => {
+              if (event.target.files && event.target.files.length > 0) {
+                setSelectedFile(event.target.files[0]);
               }
             }}
             style={{ display: "none" }}
@@ -180,8 +265,15 @@ export function PortfolioForm({ token, artistId, authUserId, onSuccess }: Portfo
           >
             {selectedFile ? (
               <>
-                <div className="upload-icon" style={{ color: "var(--terracotta)", borderColor: "var(--terracotta)" }}>✓</div>
-                <p className="upload-text" style={{ color: "var(--terracotta)" }}>{selectedFile.name}</p>
+                <div
+                  className="upload-icon"
+                  style={{ color: "var(--terracotta)", borderColor: "var(--terracotta)" }}
+                >
+                  ✓
+                </div>
+                <p className="upload-text" style={{ color: "var(--terracotta)" }}>
+                  {selectedFile.name}
+                </p>
                 <p className="upload-sub">
                   {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB — Click to change file
                 </p>
@@ -207,11 +299,19 @@ export function PortfolioForm({ token, artistId, authUserId, onSuccess }: Portfo
               type="text"
               placeholder="Work title"
             />
-            {errors.title && <p className="text-red-500 text-xs mt-1 font-dm-mono">{errors.title.message}</p>}
+            {errors.title ? (
+              <p className="text-red-500 text-xs mt-1 font-dm-mono">{errors.title.message}</p>
+            ) : null}
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label">Category</label>
-            <select {...register("category")} className="form-select" defaultValue="">
+            <label className="form-label">
+              Category <span className="text-red-500">*</span>
+            </label>
+            <select
+              {...register("category")}
+              className={`form-select ${errors.category ? "border-red-500" : ""}`}
+              defaultValue=""
+            >
               <option value="">Select a category</option>
               {ARTWORK_CATEGORY_OPTIONS.map((category) => (
                 <option key={category} value={category}>
@@ -219,40 +319,97 @@ export function PortfolioForm({ token, artistId, authUserId, onSuccess }: Portfo
                 </option>
               ))}
             </select>
+            {errors.category ? (
+              <p className="text-red-500 text-xs mt-1 font-dm-mono">{errors.category.message}</p>
+            ) : null}
           </div>
         </div>
         <div style={{ height: "14px" }}></div>
 
         <div className="form-row">
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label">Year</label>
-            <input
-              {...register("year")}
-              className="form-input"
-              type="text"
-              placeholder="e.g. 2026"
-            />
+            <label className="form-label">
+              Type of Art <span className="text-red-500">*</span>
+            </label>
+            {selectedCategory === "Other" ? (
+              <>
+                <input
+                  {...register("artTypeCustom")}
+                  className={`form-input ${errors.artTypeCustom ? "border-red-500" : ""}`}
+                  type="text"
+                  placeholder="e.g. Handmade illustration"
+                />
+                {errors.artTypeCustom ? (
+                  <p className="text-red-500 text-xs mt-1 font-dm-mono">
+                    {errors.artTypeCustom.message}
+                  </p>
+                ) : null}
+              </>
+            ) : (
+              <>
+                <select
+                  {...register("artType")}
+                  className={`form-select ${errors.artType ? "border-red-500" : ""}`}
+                  disabled={!selectedCategory}
+                  defaultValue=""
+                >
+                  <option value="" disabled>
+                    {selectedCategory ? "Select a type of art" : "Select a category first"}
+                  </option>
+                  {artTypeOptions.map((artType) => (
+                    <option key={artType} value={artType}>
+                      {artType}
+                    </option>
+                  ))}
+                </select>
+                {errors.artType ? (
+                  <p className="text-red-500 text-xs mt-1 font-dm-mono">{errors.artType.message}</p>
+                ) : null}
+                {selectedArtType === "Other" ? (
+                  <>
+                    <div style={{ height: "10px" }}></div>
+                    <input
+                      {...register("artTypeCustom")}
+                      className={`form-input ${errors.artTypeCustom ? "border-red-500" : ""}`}
+                      type="text"
+                      placeholder="Enter the type of art"
+                    />
+                    {errors.artTypeCustom ? (
+                      <p className="text-red-500 text-xs mt-1 font-dm-mono">
+                        {errors.artTypeCustom.message}
+                      </p>
+                    ) : null}
+                  </>
+                ) : null}
+              </>
+            )}
           </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Year</label>
+            <input {...register("year")} className="form-input" type="text" placeholder="e.g. 2026" />
+          </div>
+        </div>
+        <div style={{ height: "14px" }}></div>
+
+        <div className="form-row">
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Medium</label>
             <input
               {...register("medium")}
               className="form-input"
               type="text"
-              placeholder="e.g. Oil on canvas"
+              placeholder="e.g. Acrylic on canvas"
             />
           </div>
-        </div>
-        <div style={{ height: "14px" }}></div>
-
-        <div className="form-group" style={{ marginBottom: 0 }}>
-          <label className="form-label">Dimensions</label>
-          <input
-            {...register("dimensions")}
-            className="form-input"
-            type="text"
-            placeholder="H × W cm"
-          />
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Dimensions</label>
+            <input
+              {...register("dimensions")}
+              className="form-input"
+              type="text"
+              placeholder="H × W cm"
+            />
+          </div>
         </div>
         <div style={{ height: "14px" }}></div>
 
@@ -272,15 +429,21 @@ export function PortfolioForm({ token, artistId, authUserId, onSuccess }: Portfo
           </label>
         </div>
 
-        <div className="card-footer" style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "24px", padding: 0, borderTop: "none" }}>
-          <button type="button" className="btn btn-secondary btn-sm" onClick={() => { reset(); setSelectedFile(null); }} disabled={isSubmitting}>
+        <div
+          className="card-footer"
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: "10px",
+            marginTop: "24px",
+            padding: 0,
+            borderTop: "none",
+          }}
+        >
+          <button type="button" className="btn btn-secondary btn-sm" onClick={handleClear} disabled={isSubmitting}>
             Clear
           </button>
-          <button
-            type="submit"
-            className="btn btn-primary btn-sm"
-            disabled={isSubmitting}
-          >
+          <button type="submit" className="btn btn-primary btn-sm" disabled={isSubmitting}>
             {isSubmitting ? "Uploading..." : "Add to Portfolio"}
           </button>
         </div>

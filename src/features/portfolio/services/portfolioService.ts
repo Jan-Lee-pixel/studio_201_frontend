@@ -5,6 +5,7 @@ export interface PortfolioItem {
   artistId: string;
   title: string;
   category?: string | null;
+  artType?: string | null;
   description?: string | null;
   year?: string | null;
   medium?: string | null;
@@ -19,6 +20,7 @@ export interface PortfolioItem {
 export interface CreatePortfolioItemPayload {
   title: string;
   category?: string | null;
+  artType?: string | null;
   description?: string | null;
   year?: string | null;
   medium?: string | null;
