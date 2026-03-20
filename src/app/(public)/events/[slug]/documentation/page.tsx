@@ -3,21 +3,14 @@ import { ArrowLeft } from "lucide-react";
 import { Reveal } from "@/components/animation/Reveal";
 import { ImageGrid } from "@/features/events/components/ImageGrid";
 
-// Mock data generator for images based on slug
-const getEventImages = (slug: string) => {
-  // Common placeholders for the demo
-  const mockImages: { id: string; url: string; alt?: string; type?: "image" | "video"; thumbnailUrl?: string }[] = [
-    { id: "1", type: "image", url: "https://images.unsplash.com/photo-1547891654-e66ed7ebb968?w=1200&q=80", alt: "Opening remarks" },
-    { id: "2", type: "image", url: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=1200&q=80", alt: "Art viewing" },
-    { id: "3", type: "video", url: "https://www.w3schools.com/html/mov_bbb.mp4", thumbnailUrl: "https://peach.blender.org/wp-content/uploads/bbb-splash.png", alt: "Big Buck Bunny Sample Video" },
-    { id: "4", type: "image", url: "https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=1200&q=80", alt: "Artist interview" },
-    { id: "5", type: "image", url: "https://images.unsplash.com/photo-1578926375605-eaf7559b1458?w=1200&q=80", alt: "Gallery wide shot" },
-    { id: "6", type: "image", url: "https://images.unsplash.com/photo-1620510625142-b45cbb784397?w=1200&q=80", alt: "Close up of artwork" },
-    { id: "7", type: "image", url: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=80", alt: "Studio exterior" },
-    { id: "8", type: "image", url: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=1200&q=80", alt: "Guest taking photos" },
-  ];
-
-  return mockImages;
+const getEventImages = () => {
+  return [] as {
+    id: string;
+    url: string;
+    alt?: string;
+    type?: "image" | "video";
+    thumbnailUrl?: string;
+  }[];
 };
 
 export default async function EventDocumentationPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -29,7 +22,7 @@ export default async function EventDocumentationPage({ params }: { params: Promi
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 
-  const images = getEventImages(slug);
+  const images = getEventImages();
 
   return (
     <div className="pt-32 pb-32 min-h-[80vh] bg-[var(--color-parchment)]">

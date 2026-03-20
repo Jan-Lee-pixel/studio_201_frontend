@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import "../../styles/dashboard.css";
 import { DashboardShellSkeleton } from "@/components/ui/SkeletonPage";
 import { LogoMark } from "@/components/ui/LogoMark";
+import { StudioImagePlaceholder } from "@/components/ui/StudioImagePlaceholder";
 
 export default function AdminLayout({
   children,
@@ -204,9 +205,7 @@ export default function AdminLayout({
 
           <div className="sidebar-bottom">
             <div className="sidebar-user">
-              <div className="sidebar-avatar" style={{ background: 'var(--ochre)' }}>
-                {profile.fullName.charAt(0).toUpperCase()}
-              </div>
+              <StudioImagePlaceholder className="sidebar-avatar" markClassName="w-6" />
               <div className="sidebar-user-info">
                 <div className="sidebar-user-name">{profile.fullName}</div>
                 <div className="sidebar-user-role" style={{ textTransform: 'capitalize' }}>{profile.role ?? profile.accountStatus}</div>

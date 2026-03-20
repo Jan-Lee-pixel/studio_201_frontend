@@ -1,4 +1,11 @@
-import { createClient } from "@/lib/supabase/server";
+import {
+  AUTH_MESSAGES,
+  resolveAuthorizedDestination,
+} from "@/lib/auth/destinations";
+import {
+  copyResponseCookies,
+  createRouteHandlerClient,
+} from "@/lib/supabase/route-handler";
 import { NextRequest, NextResponse } from "next/server";
 
 const API_BASE_URL =
@@ -89,7 +96,8 @@ export async function GET(request: NextRequest) {
     return buildRedirect(requestUrl, "/login", { error: "Missing authentication code." });
   }
 
-  const supabase = await createClient();
+  const sessionResponse = new NextResponse(null, { status: 204 });
+  const supabase = createRouteHandlerClient(request, sessionResponse);
   const {
     data: { session },
     error: exchangeError,
@@ -97,7 +105,7 @@ export async function GET(request: NextRequest) {
 
   if (exchangeError || !session) {
     return buildRedirect(requestUrl, "/login", {
-      error: exchangeError?.message || "Could not complete sign in.",
+      error: exchangeError?.message || AUTH_MESSAGES.incompleteSignIn,
     });
   }
 
@@ -113,32 +121,33 @@ export async function GET(request: NextRequest) {
     profile = await ensureProfile(session.access_token, session.user.email, fullName);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to sync profile with server";
-    return buildRedirect(requestUrl, "/login", { error: message });
-  }
-
-  const accountStatus = profile.accountStatus?.toLowerCase();
-  const role = profile.role?.toLowerCase();
-
-  if (accountStatus === "rejected") {
     await supabase.auth.signOut();
-    return buildRedirect(requestUrl, "/login", {
-      error: "Your application was not approved. Please contact Studio 201 for assistance.",
+    const redirectResponse = buildRedirect(requestUrl, "/login", { error: message });
+    copyResponseCookies(sessionResponse, redirectResponse);
+    return redirectResponse;
+  }
+
+  const destination = resolveAuthorizedDestination(profile.role, profile.accountStatus);
+
+  if (profile.accountStatus?.toLowerCase() === "rejected") {
+    await supabase.auth.signOut();
+    const redirectResponse = buildRedirect(requestUrl, "/login", {
+      error: AUTH_MESSAGES.rejected,
     });
+    copyResponseCookies(sessionResponse, redirectResponse);
+    return redirectResponse;
   }
 
-  if (accountStatus === "pending") {
-    return buildRedirect(requestUrl, "/pending");
+  if (destination) {
+    const redirectResponse = buildRedirect(requestUrl, "/auth/complete", { next: destination });
+    copyResponseCookies(sessionResponse, redirectResponse);
+    return redirectResponse;
   }
 
-  if (role === "admin") {
-    return buildRedirect(requestUrl, "/admin");
-  }
-
-  if (role === "artist") {
-    return buildRedirect(requestUrl, "/artist/dashboard");
-  }
-
-  return buildRedirect(requestUrl, "/login", {
-    error: "Your account is awaiting approval. Please check back later.",
+  await supabase.auth.signOut();
+  const redirectResponse = buildRedirect(requestUrl, "/login", {
+    error: AUTH_MESSAGES.awaitingApproval,
   });
+  copyResponseCookies(sessionResponse, redirectResponse);
+  return redirectResponse;
 }

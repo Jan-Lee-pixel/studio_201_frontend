@@ -5,6 +5,7 @@ import { useAuth } from '@/providers/AuthProvider';
 import { authService } from '@/features/auth/services/authService';
 import { createClient } from '@/lib/supabase/client';
 import { DashboardContentSkeleton } from '@/components/ui/SkeletonPage';
+import { StudioImagePlaceholder } from '@/components/ui/StudioImagePlaceholder';
 
 type ArtistProfileForm = {
   fullName: string;
@@ -34,18 +35,6 @@ function slugify(value: string) {
     .trim()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)+/g, '');
-}
-
-function getInitials(name: string) {
-  return (
-    name
-      .split(' ')
-      .map((word) => word[0])
-      .filter(Boolean)
-      .slice(0, 2)
-      .join('')
-      .toUpperCase() || '?'
-  );
 }
 
 function SaveStatusBadge({ status }: { status: SaveStatus }) {
@@ -555,7 +544,7 @@ export default function ArtistProfilePage() {
                     className="avatar-img"
                   />
                 ) : (
-                  <div className="avatar-initials">{getInitials(form.fullName)}</div>
+                  <StudioImagePlaceholder className="avatar-initials" markClassName="w-8" />
                 )}
 
                 <div className="photo-actions">

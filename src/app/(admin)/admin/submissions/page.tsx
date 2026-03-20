@@ -7,6 +7,7 @@ import { ArtworkSubmission } from "@/features/submissions/services/artworkSubmis
 import { exhibitionService, Exhibition } from "@/features/exhibitions/services/exhibitionService";
 import { artistService, PublicUserProfile } from "@/features/artists/services/artistService";
 import { DashboardContentSkeleton } from "@/components/ui/SkeletonPage";
+import { StudioImagePlaceholder } from "@/components/ui/StudioImagePlaceholder";
 
 export default function AdminSubmissionsPage() {
   const { session, profile, loading: authLoading } = useAuth();
@@ -165,7 +166,11 @@ export default function AdminSubmissionsPage() {
               {pending.map(sub => (
                 <div key={sub.id} className="border border-[var(--color-rule)] bg-[var(--color-bone)] overflow-hidden flex flex-col group hover:border-[var(--color-sienna)] transition-colors">
                   <div className="aspect-[4/3] bg-gray-200 relative">
-                     <img src="https://images.unsplash.com/photo-1541367777708-7905fe3296c0?w=600&q=80" alt={sub.title} className="w-full h-full object-cover" />
+                    {sub.mediaAssetUrl ? (
+                      <img src={sub.mediaAssetUrl} alt={sub.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <StudioImagePlaceholder className="w-full h-full" markClassName="w-20" label="Artwork" />
+                    )}
                   </div>
                   <div className="p-4 flex flex-col flex-grow">
                     <div className="font-display text-xl mb-1 truncate">{sub.title}</div>

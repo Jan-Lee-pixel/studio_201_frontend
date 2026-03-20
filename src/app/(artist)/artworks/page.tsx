@@ -2,7 +2,6 @@
 
 export const dynamic = "force-dynamic";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/providers/AuthProvider";
 import {
@@ -16,6 +15,7 @@ import {
 import { PortfolioForm } from "@/features/portfolio/components/PortfolioForm";
 import { SubmissionForm } from "@/features/submissions/components/SubmissionForm";
 import { DashboardContentSkeleton } from "@/components/ui/SkeletonPage";
+import { PortalLink } from "@/components/ui/PortalLink";
 
 function slugify(value: string) {
   return value
@@ -653,12 +653,12 @@ export default function ArtistArtworksPage() {
                 >
                   Submit for Review
                 </button>
-                <Link href={manageArtworksHref} className="artist-artworks-linkButton">
+                <PortalLink href={manageArtworksHref} className="artist-artworks-linkButton">
                   View All Artworks
-                </Link>
-                <Link href={publicProfileHref} className="artist-artworks-linkButton">
+                </PortalLink>
+                <PortalLink href={publicProfileHref} className="artist-artworks-linkButton">
                   Public Page
-                </Link>
+                </PortalLink>
               </div>
             </div>
 
@@ -720,9 +720,9 @@ export default function ArtistArtworksPage() {
                   <div className="artist-artworks-kicker">Public portfolio</div>
                   <h2 className="artist-artworks-sectionTitle">Showcase preview</h2>
                 </div>
-                <Link href={manageArtworksHref} className="artist-artworks-textButton">
+                <PortalLink href={manageArtworksHref} className="artist-artworks-textButton">
                   Manage portfolio
-                </Link>
+                </PortalLink>
               </div>
 
               {portfolioLoading ? (
@@ -749,9 +749,9 @@ export default function ArtistArtworksPage() {
                         <span className={`artist-artworks-chip ${item.isPublic ? "sage" : "muted"}`}>
                           {item.isPublic ? "Public" : "Private"}
                         </span>
-                        <Link href={manageArtworksHref} className="artist-artworks-inlineButton">
+                        <PortalLink href={manageArtworksHref} className="artist-artworks-inlineButton">
                           Manage
-                        </Link>
+                        </PortalLink>
                       </div>
                     </div>
                   ))}
@@ -765,9 +765,9 @@ export default function ArtistArtworksPage() {
                   <div className="artist-artworks-kicker">Curator review</div>
                   <h2 className="artist-artworks-sectionTitle">Recent submissions</h2>
                 </div>
-                <Link href={manageArtworksHref} className="artist-artworks-textButton">
+                <PortalLink href={manageArtworksHref} className="artist-artworks-textButton">
                   Manage submissions
-                </Link>
+                </PortalLink>
               </div>
 
               {submissionsLoading ? (
@@ -794,9 +794,9 @@ export default function ArtistArtworksPage() {
                         <span className={`artist-artworks-chip ${getSubmissionTone(item.status)}`}>
                           {item.status}
                         </span>
-                        <Link href={manageArtworksHref} className="artist-artworks-inlineButton">
+                        <PortalLink href={manageArtworksHref} className="artist-artworks-inlineButton">
                           Manage
-                        </Link>
+                        </PortalLink>
                       </div>
                     </div>
                   ))}
