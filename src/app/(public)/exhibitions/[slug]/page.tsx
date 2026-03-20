@@ -4,13 +4,13 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Reveal } from "@/components/animation/Reveal";
-import { ArtworkCard } from "@/features/artworks/components/ArtworkCard";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { exhibitionService, Exhibition } from "@/features/exhibitions/services/exhibitionService";
 import { artworkService, PublicArtworkDto } from "@/features/artworks/services/artworkService";
 import { artistService, PublicUserProfile } from "@/features/artists/services/artistService";
 import { PublicPageSkeleton } from "@/components/ui/SkeletonPage";
+import { ArtworkLightbox } from "@/features/artworks/components/ArtworkLightbox";
 
 export default function ExhibitionResultPage() {
   const params = useParams();
@@ -21,6 +21,7 @@ export default function ExhibitionResultPage() {
   const [artists, setArtists] = useState<PublicUserProfile[]>([]);
   const [artistLookup, setArtistLookup] = useState<Record<string, PublicUserProfile>>({});
   const [loading, setLoading] = useState(true);
+  const [selectedArtworkIndex, setSelectedArtworkIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (!slug) return;
@@ -82,6 +83,7 @@ export default function ExhibitionResultPage() {
     artistNames.length > 0
       ? `${artistNames.slice(0, 3).join(" · ")}${artistNames.length > 3 ? ` +${artistNames.length - 3}` : ""}`
       : "Artists to be announced";
+  const galleryArtworks = artworks.filter((artwork) => Boolean(artwork.mediaAssetUrl));
 
   return (
     <div>
@@ -155,27 +157,39 @@ export default function ExhibitionResultPage() {
         </div>
 
         {/* ARTWORKS */}
-        <div className="py-20">
+        <div className="py-20 md:py-24">
           <Reveal>
-            <h2 className="font-display text-[28px] font-normal mb-12 tracking-[-0.01em]">
+            <h2 className="mb-12 font-display text-[28px] font-normal tracking-[-0.01em] text-[var(--color-near-black)]">
               Works in Exhibition
             </h2>
           </Reveal>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16">
-            {artworks.length > 0 ? artworks.map((artwork, i) => (
-              <ArtworkCard
-                key={artwork.id}
-                image={artwork.mediaAssetUrl || null}
-                title={artwork.title}
-                meta={[artistLookup[artwork.artistId]?.fullName, artwork.description].filter(Boolean).join(" · ") || undefined}
-                delay={((i % 4) + 1) as 1 | 2 | 3 | 4}
-              />
-            )) : (
-              <div className="col-span-2 text-center py-12 text-gray-500 font-dm-mono text-xs tracking-widest uppercase">
-                No artworks have been submitted for this exhibition yet.
-              </div>
-            )}
-          </div>
+
+          {galleryArtworks.length > 0 ? (
+            <div className="grid grid-cols-1 gap-x-14 gap-y-18 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-18 lg:gap-y-24">
+              {galleryArtworks.map((artwork, index) => (
+                <Reveal key={artwork.id} delay={((index % 3) + 1) as 1 | 2 | 3}>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedArtworkIndex(index)}
+                    className="group block w-full cursor-zoom-in border-none bg-transparent p-0 text-left"
+                    aria-label={`View ${artwork.title}`}
+                  >
+                    <div className="flex min-h-[220px] items-center justify-center sm:min-h-[260px] md:min-h-[320px]">
+                      <img
+                        src={artwork.mediaAssetUrl || undefined}
+                        alt={artwork.title}
+                        className="block h-auto max-h-[420px] w-full object-contain transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.015]"
+                      />
+                    </div>
+                  </button>
+                </Reveal>
+              ))}
+            </div>
+          ) : (
+            <div className="py-12 text-center font-mono text-xs uppercase tracking-[0.16em] text-[var(--color-dust)]">
+              No artworks have been submitted for this exhibition yet.
+            </div>
+          )}
         </div>
 
         {/* RELATED ARTISTS */}
@@ -207,6 +221,22 @@ export default function ExhibitionResultPage() {
           )}
         </Reveal>
       </div>
+
+      {selectedArtworkIndex !== null ? (
+        <ArtworkLightbox
+          artworks={galleryArtworks.map((artwork) => ({
+            id: artwork.id,
+            imageUrl: artwork.mediaAssetUrl as string,
+            title: artwork.title,
+            artistName: artistLookup[artwork.artistId]?.fullName,
+            category: artwork.category,
+            artType: artwork.artType,
+            description: artwork.description,
+          }))}
+          initialIndex={selectedArtworkIndex}
+          onClose={() => setSelectedArtworkIndex(null)}
+        />
+      ) : null}
     </div>
   );
 }

@@ -5,6 +5,8 @@ export interface PublicArtworkDto {
   exhibitionId: string;
   artistId: string;
   title: string;
+  category?: string | null;
+  artType?: string | null;
   description: string;
   status: string;
   mediaAssetId: string | null;
