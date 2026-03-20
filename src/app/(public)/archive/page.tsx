@@ -3,10 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Reveal } from "@/components/animation/Reveal";
 import { SectionLabel } from "@/components/ui/SectionLabel";
+import { StudioImagePlaceholder } from "@/components/ui/StudioImagePlaceholder";
 import { exhibitionService, Exhibition } from "@/features/exhibitions/services/exhibitionService";
 import { PublicPageSkeleton } from "@/components/ui/SkeletonPage";
-
-const fallbackImage = "https://images.unsplash.com/photo-1578926375605-eaf7559b1458?w=800&q=80";
 
 export default function ArchivePage() {
   const [archiveExhibitions, setArchiveExhibitions] = useState<Exhibition[]>([]);
@@ -32,7 +31,7 @@ export default function ArchivePage() {
         year: year || "Archive",
         title: ex.title,
         artist: "Studio 201",
-        image: ex.coverImageUrl || fallbackImage,
+        image: ex.coverImageUrl || null,
       };
     });
   }, [archiveExhibitions]);
@@ -77,11 +76,19 @@ export default function ArchivePage() {
               className="group cursor-pointer bg-[var(--color-bone)] border border-[var(--color-rule)] hover:border-[var(--color-sienna)] transition-colors duration-400 overflow-hidden"
             >
               <div className="aspect-[3/2] overflow-hidden">
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="w-full h-full object-cover filter brightness-85 saturate-60 transition-all duration-500 ease-out group-hover:brightness-100 group-hover:saturate-100"
-                />
+                {item.image ? (
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="w-full h-full object-cover filter brightness-85 saturate-60 transition-all duration-500 ease-out group-hover:brightness-100 group-hover:saturate-100"
+                  />
+                ) : (
+                  <StudioImagePlaceholder
+                    className="w-full h-full"
+                    markClassName="w-20 md:w-24"
+                    label="Archive"
+                  />
+                )}
               </div>
               <div className="p-7">
                 <div className="font-mono text-[10px] text-[var(--color-dust)] tracking-[0.1em] mb-2">

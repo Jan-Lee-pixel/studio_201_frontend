@@ -1,10 +1,14 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useAuth } from '@/providers/AuthProvider';
+import { resolveAuthorizedDestination } from '@/lib/auth/destinations';
 import { createClient } from '@/lib/supabase/client';
 
 export default function LoginPage() {
+  const router = useRouter();
+  const { session, profile, loading: authLoading } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
@@ -15,6 +19,15 @@ export default function LoginPage() {
     () => searchParams.get('info') || 'New artist accounts are still reviewed by Studio 201 after sign-in.',
     [searchParams]
   );
+
+  useEffect(() => {
+    if (authLoading || !session) {
+      return;
+    }
+
+    const destination = resolveAuthorizedDestination(profile?.role, profile?.accountStatus);
+    router.replace(destination ? `/auth/complete?next=${encodeURIComponent(destination)}` : '/auth/complete');
+  }, [authLoading, profile?.accountStatus, profile?.role, router, session]);
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
@@ -67,24 +80,21 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={handleGoogleSignIn}
-            disabled={loading}
+            disabled={loading || authLoading}
             className="flex w-full items-center justify-center gap-3 border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-50 disabled:opacity-50"
           >
             <span className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-300 text-xs font-semibold text-gray-700">
               G
             </span>
             <span className="font-dm-mono text-xs uppercase tracking-[0.14em]">
-              {loading ? 'Opening Google...' : 'Continue with Google'}
+              {loading ? 'Opening Google...' : authLoading ? 'Checking session...' : 'Continue with Google'}
             </span>
           </button>
 
           <div className="border border-gray-100 bg-[#faf7f1] p-4 text-sm leading-6 text-gray-600">
             {helperCopy}
           </div>
-
-          <div className="text-center text-xs uppercase tracking-[0.14em] text-gray-400 font-dm-mono">
-            Email code can be added next, but Google is the first live flow.
-          </div>
+          
         </div>
       </div>
     </div>

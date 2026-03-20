@@ -2,7 +2,6 @@
 
 export const dynamic = "force-dynamic";
 
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/providers/AuthProvider";
 import {
@@ -15,6 +14,7 @@ import {
 } from "@/features/portfolio/services/portfolioService";
 import { SubmissionForm } from "@/features/submissions/components/SubmissionForm";
 import { DashboardContentSkeleton } from "@/components/ui/SkeletonPage";
+import { PortalLink } from "@/components/ui/PortalLink";
 
 type NoticeTone = "success" | "error";
 
@@ -641,12 +641,12 @@ export default function ArtistArtworksManagePage() {
               </p>
 
               <div className="artist-manage-actions">
-                <Link href="/artist/artworks" className="artist-manage-button">
+                <PortalLink href="/artist/artworks" className="artist-manage-button">
                   Back to overview
-                </Link>
-                <Link href={publicProfileHref} className="artist-manage-linkButton">
+                </PortalLink>
+                <PortalLink href={publicProfileHref} className="artist-manage-linkButton">
                   Public Page
-                </Link>
+                </PortalLink>
               </div>
             </div>
 

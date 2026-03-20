@@ -3,12 +3,13 @@
 export const dynamic = "force-dynamic";
 
 import { useAuth } from "@/providers/AuthProvider";
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import "../../styles/dashboard.css";
 import { DashboardShellSkeleton } from "@/components/ui/SkeletonPage";
 import { LogoMark } from "@/components/ui/LogoMark";
+import { PortalLink } from "@/components/ui/PortalLink";
+import { StudioImagePlaceholder } from "@/components/ui/StudioImagePlaceholder";
 
 function slugify(value: string) {
   return value
@@ -575,14 +576,14 @@ export default function ArtistLayout({
                 <ul className="artist-nav-list">
                   {section.items.map((item) => (
                     <li key={item.href}>
-                      <Link
+                      <PortalLink
                         href={item.href}
                         className={`artist-nav-link ${item.active ? "active" : ""}`}
                         aria-current={item.active ? "page" : undefined}
                       >
                         {item.icon}
                         <span>{item.label}</span>
-                      </Link>
+                      </PortalLink>
                     </li>
                   ))}
                 </ul>
@@ -596,7 +597,10 @@ export default function ArtistLayout({
                 {profile.profileImageUrl ? (
                   <img src={profile.profileImageUrl} alt={profile.fullName} />
                 ) : (
-                  profile.fullName.charAt(0).toUpperCase()
+                  <StudioImagePlaceholder
+                    className="w-full h-full rounded-full"
+                    markClassName="w-6"
+                  />
                 )}
               </div>
               <div>
@@ -605,9 +609,9 @@ export default function ArtistLayout({
               </div>
             </div>
 
-            <Link href={publicProfileHref} className="artist-nav-footer-link">
+            <PortalLink href={publicProfileHref} className="artist-nav-footer-link">
               View Public Page
-            </Link>
+            </PortalLink>
           </div>
         </aside>
 
@@ -634,9 +638,9 @@ export default function ArtistLayout({
 
             <div className="artist-topbar-right">
               <span className="artist-date">{today}</span>
-              <Link href="/artist/profile" className="artist-topbar-link">
+              <PortalLink href="/artist/profile" className="artist-topbar-link">
                 Profile
-              </Link>
+              </PortalLink>
             </div>
           </header>
 

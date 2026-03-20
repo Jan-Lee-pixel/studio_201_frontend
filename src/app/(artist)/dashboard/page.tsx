@@ -2,7 +2,6 @@
 
 export const dynamic = "force-dynamic";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/providers/AuthProvider";
 import {
@@ -16,6 +15,8 @@ import {
 import { SubmissionForm } from "@/features/submissions/components/SubmissionForm";
 import { PortfolioForm } from "@/features/portfolio/components/PortfolioForm";
 import { DashboardContentSkeleton } from "@/components/ui/SkeletonPage";
+import { PortalLink } from "@/components/ui/PortalLink";
+import { StudioImagePlaceholder } from "@/components/ui/StudioImagePlaceholder";
 
 function slugify(value: string) {
   return value
@@ -45,18 +46,6 @@ function getStatusTone(status: string) {
   if (normalized === "pending") return "ochre";
   if (normalized === "rejected") return "terra";
   return "muted";
-}
-
-function getInitials(name: string) {
-  return (
-    name
-      .split(" ")
-      .map((word) => word[0])
-      .filter(Boolean)
-      .slice(0, 2)
-      .join("")
-      .toUpperCase() || "?"
-  );
 }
 
 function parseSubmissionDescription(description?: string | null) {
@@ -784,12 +773,12 @@ export default function ArtistDashboardPage() {
                 >
                   Add Public Work
                 </button>
-                <Link href={manageArtworksHref} className="artist-dashboard-linkButton">
+                <PortalLink href={manageArtworksHref} className="artist-dashboard-linkButton">
                   View All Artworks
-                </Link>
-                <Link href={publicProfileHref} className="artist-dashboard-linkButton">
+                </PortalLink>
+                <PortalLink href={publicProfileHref} className="artist-dashboard-linkButton">
                   Public Page
-                </Link>
+                </PortalLink>
               </div>
             </div>
 
@@ -853,9 +842,9 @@ export default function ArtistDashboardPage() {
                     <div className="artist-dashboard-kicker">Recent reviews</div>
                     <h2 className="artist-dashboard-sectionTitle">Latest submissions</h2>
                   </div>
-                  <Link href={manageArtworksHref} className="artist-dashboard-textButton">
+                  <PortalLink href={manageArtworksHref} className="artist-dashboard-textButton">
                     Manage all
-                  </Link>
+                  </PortalLink>
                 </div>
 
                 {submissionsLoading ? (
@@ -881,9 +870,9 @@ export default function ArtistDashboardPage() {
                           <span className={`artist-dashboard-chip ${getStatusTone(item.status)}`}>
                             {item.status}
                           </span>
-                          <Link href={manageArtworksHref} className="artist-dashboard-inlineButton">
+                          <PortalLink href={manageArtworksHref} className="artist-dashboard-inlineButton">
                             Manage
-                          </Link>
+                          </PortalLink>
                         </div>
                       </div>
                     ))}
@@ -897,9 +886,9 @@ export default function ArtistDashboardPage() {
                     <div className="artist-dashboard-kicker">Public portfolio</div>
                     <h2 className="artist-dashboard-sectionTitle">Showcase preview</h2>
                   </div>
-                  <Link href={manageArtworksHref} className="artist-dashboard-textButton">
+                  <PortalLink href={manageArtworksHref} className="artist-dashboard-textButton">
                     View all artworks
-                  </Link>
+                  </PortalLink>
                 </div>
 
                 {portfolioLoading ? (
@@ -926,9 +915,9 @@ export default function ArtistDashboardPage() {
                           <span className={`artist-dashboard-chip ${item.isPublic ? "sage" : "muted"}`}>
                             {item.isPublic ? "Public" : "Private"}
                           </span>
-                          <Link href={manageArtworksHref} className="artist-dashboard-inlineButton">
+                          <PortalLink href={manageArtworksHref} className="artist-dashboard-inlineButton">
                             Manage
-                          </Link>
+                          </PortalLink>
                         </div>
                       </div>
                     ))}
@@ -1003,7 +992,10 @@ export default function ArtistDashboardPage() {
                     {profile.profileImageUrl ? (
                       <img src={profile.profileImageUrl} alt={profile.fullName} />
                     ) : (
-                      getInitials(profile.fullName)
+                      <StudioImagePlaceholder
+                        className="w-full h-full rounded-full"
+                        markClassName="w-7"
+                      />
                     )}
                   </div>
                   <div>
@@ -1042,12 +1034,12 @@ export default function ArtistDashboardPage() {
                 </div>
 
                 <div className="artist-dashboard-profileActions">
-                  <Link href="/artist/profile" className="artist-dashboard-linkButton">
+                  <PortalLink href="/artist/profile" className="artist-dashboard-linkButton">
                     Edit Profile
-                  </Link>
-                  <Link href={publicProfileHref} className="artist-dashboard-linkButton">
+                  </PortalLink>
+                  <PortalLink href={publicProfileHref} className="artist-dashboard-linkButton">
                     Public Page
-                  </Link>
+                  </PortalLink>
                 </div>
               </section>
 
@@ -1072,9 +1064,9 @@ export default function ArtistDashboardPage() {
                 </div>
 
                 <div className="artist-dashboard-profileActions">
-                  <Link href={manageArtworksHref} className="artist-dashboard-linkButton">
+                  <PortalLink href={manageArtworksHref} className="artist-dashboard-linkButton">
                     Manage Artworks
-                  </Link>
+                  </PortalLink>
                 </div>
               </section>
             </div>

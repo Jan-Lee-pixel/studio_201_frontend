@@ -26,8 +26,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [supabase] = useState(() => createClient());
   const invalidTokenCount = useRef(0);
-  const supabase = createClient();
 
   useEffect(() => {
     let mounted = true;
@@ -118,7 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [supabase.auth]);
+  }, [supabase]);
 
   return (
     <AuthContext.Provider value={{ user, session, profile, isLoading, loading: isLoading }}>

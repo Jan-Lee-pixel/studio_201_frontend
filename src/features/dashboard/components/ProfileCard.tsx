@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { UserProfile } from "@/features/auth/services/authService";
 import { ArtworkSubmission } from "@/features/submissions/services/artworkSubmissionService";
+import { StudioImagePlaceholder } from "@/components/ui/StudioImagePlaceholder";
 
 interface ProfileCardProps {
   profile: UserProfile;
@@ -23,7 +24,7 @@ export function ProfileCard({ profile, submissions, loading }: ProfileCardProps)
           {profile.profileImageUrl ? (
             <img src={profile.profileImageUrl} alt={profile.fullName} className="profile-avatar-image" />
           ) : (
-            profile.fullName.charAt(0).toUpperCase()
+            <StudioImagePlaceholder className="w-full h-full rounded-full" markClassName="w-8" />
           )}
           <div className="profile-avatar-edit">
             <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5">

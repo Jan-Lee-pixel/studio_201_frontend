@@ -36,10 +36,24 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   const path = request.nextUrl.pathname
+  const isLoginRoute = path === '/login'
   const isProtectedRoute =
     path === '/admin' || path.startsWith('/admin/') ||
     path === '/artist' || path.startsWith('/artist/') ||
+    path === '/pending' || path.startsWith('/pending/') ||
     path === '/dashboard' || path.startsWith('/dashboard/')
+
+  if (user && isLoginRoute) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/auth/complete'
+    url.search = ''
+
+    const redirectResponse = NextResponse.redirect(url)
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie)
+    })
+    return redirectResponse
+  }
 
   if (
     !user &&

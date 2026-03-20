@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Reveal } from "@/components/animation/Reveal";
+import { StudioImagePlaceholder } from "@/components/ui/StudioImagePlaceholder";
 
 interface ArtistCardProps {
   slug: string;
@@ -21,7 +22,7 @@ export function ArtistCard({ slug, image, name, medium, delay = 0 }: ArtistCardP
               className="w-full h-full object-cover transition-filter duration-400 ease-out group-hover:brightness-90"
             />
           ) : (
-            <div className="w-full h-full bg-[linear-gradient(160deg,rgba(181,96,58,0.28),rgba(23,22,15,0.92))]" />
+            <StudioImagePlaceholder className="w-full h-full" markClassName="w-18 md:w-20" />
           )}
         </div>
         <div className="font-display text-lg text-[var(--color-near-black)] mb-1.5 relative inline-block">

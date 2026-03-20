@@ -1,4 +1,5 @@
 import { SectionLabel } from "@/components/ui/SectionLabel";
+import { StudioImagePlaceholder } from "@/components/ui/StudioImagePlaceholder";
 import { Reveal } from "@/components/animation/Reveal";
 import { ArtworkCard } from "@/features/artworks/components/ArtworkCard";
 import { EventRow } from "@/features/events/components/EventRow";
@@ -153,11 +154,19 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
       {/* HERO */}
       <div className="grid grid-cols-1 md:grid-cols-[340px_1fr] lg:grid-cols-[420px_1fr] min-h-screen">
         <div className="relative h-[60vw] max-h-[480px] overflow-hidden bg-[var(--color-bone)] md:sticky md:top-0 md:h-screen md:max-h-none md:self-start">
-          <img
-            src={artist.profileImageUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&q=80"}
-            alt={artist.fullName}
-            className="block w-full h-full object-cover"
-          />
+          {artist.profileImageUrl ? (
+            <img
+              src={artist.profileImageUrl}
+              alt={artist.fullName}
+              className="block w-full h-full object-cover"
+            />
+          ) : (
+            <StudioImagePlaceholder
+              className="w-full h-full"
+              markClassName="w-24 md:w-32 lg:w-40"
+              label="Studio 201"
+            />
+          )}
         </div>
 
         <div className="p-6 md:p-20 flex flex-col justify-end">
