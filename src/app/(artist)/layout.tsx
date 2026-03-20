@@ -10,6 +10,7 @@ import { DashboardShellSkeleton } from "@/components/ui/SkeletonPage";
 import { LogoMark } from "@/components/ui/LogoMark";
 import { PortalLink } from "@/components/ui/PortalLink";
 import { StudioImagePlaceholder } from "@/components/ui/StudioImagePlaceholder";
+import { createClient } from "@/lib/supabase/client";
 
 function slugify(value: string) {
   return value
@@ -28,6 +29,8 @@ export default function ArtistLayout({
   const pathname = usePathname();
   const router = useRouter();
   const [navOpen, setNavOpen] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
+  const [supabase] = useState(() => createClient());
   const normalizedRole = profile?.role?.toLowerCase();
   const normalizedStatus = profile?.accountStatus?.toLowerCase();
   const isArtworksRoute = pathname.startsWith("/artist/artworks") || pathname === "/artworks";
@@ -53,6 +56,20 @@ export default function ArtistLayout({
   useEffect(() => {
     setNavOpen(false);
   }, [pathname]);
+
+  const handleSignOut = async () => {
+    if (signingOut) return;
+
+    try {
+      setSigningOut(true);
+      await supabase.auth.signOut();
+      router.replace("/login");
+      router.refresh();
+    } catch (error) {
+      console.error("Failed to sign out from artist portal", error);
+      setSigningOut(false);
+    }
+  };
 
   if (loading) {
     return <DashboardShellSkeleton />;
@@ -237,7 +254,8 @@ export default function ArtistLayout({
         .artist-nav {
           background: linear-gradient(180deg, #2c1d11 0%, #23170e 100%);
           color: rgba(255, 255, 255, 0.84);
-          min-height: 100vh;
+          height: 100vh;
+          height: 100dvh;
           padding: 28px 18px 22px;
           display: flex;
           flex-direction: column;
@@ -245,6 +263,8 @@ export default function ArtistLayout({
           position: sticky;
           top: 0;
           z-index: 30;
+          align-self: start;
+          overflow-y: auto;
         }
 
         .artist-nav-header {
@@ -504,6 +524,17 @@ export default function ArtistLayout({
           background: #fff8f0;
         }
 
+        .artist-topbar-button {
+          appearance: none;
+          cursor: pointer;
+        }
+
+        .artist-topbar-button:disabled {
+          cursor: wait;
+          opacity: 0.72;
+          transform: none;
+        }
+
         .artist-main-content {
           min-width: 0;
         }
@@ -518,6 +549,8 @@ export default function ArtistLayout({
             top: 0;
             left: 0;
             width: min(88vw, 320px);
+            height: 100vh;
+            height: 100dvh;
             transform: translateX(-100%);
             transition: transform 0.22s ease;
             box-shadow: 20px 0 40px rgba(0, 0, 0, 0.18);
@@ -641,6 +674,15 @@ export default function ArtistLayout({
               <PortalLink href="/artist/profile" className="artist-topbar-link">
                 Profile
               </PortalLink>
+              <button
+                type="button"
+                className="artist-topbar-link artist-topbar-button"
+                onClick={() => void handleSignOut()}
+                disabled={signingOut}
+                aria-busy={signingOut}
+              >
+                {signingOut ? "Logging Out" : "Log Out"}
+              </button>
             </div>
           </header>
 
