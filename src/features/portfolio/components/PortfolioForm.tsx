@@ -7,12 +7,14 @@ import * as z from "zod";
 import { createClient } from "@/lib/supabase/client";
 import { mediaAssetService } from "@/features/mediaAssets/services/mediaAssetService";
 import { portfolioService } from "@/features/portfolio/services/portfolioService";
+import { ARTWORK_CATEGORY_OPTIONS } from "@/features/artworks/constants/categories";
 
 const PORTFOLIO_BUCKET = "studio201-public";
 const MAX_FILE_SIZE_MB = 20;
 
 const portfolioSchema = z.object({
   title: z.string().min(1, "Title is required").max(255),
+  category: z.string().optional(),
   description: z.string().optional(),
   year: z.string().optional(),
   medium: z.string().optional(),
@@ -117,6 +119,7 @@ export function PortfolioForm({ token, artistId, authUserId, onSuccess }: Portfo
       await portfolioService.createPortfolioItem(
         {
           title: data.title,
+          category: data.category?.trim() || undefined,
           description: data.description,
           year: data.year,
           medium: data.medium,
@@ -207,6 +210,21 @@ export function PortfolioForm({ token, artistId, authUserId, onSuccess }: Portfo
             {errors.title && <p className="text-red-500 text-xs mt-1 font-dm-mono">{errors.title.message}</p>}
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Category</label>
+            <select {...register("category")} className="form-select" defaultValue="">
+              <option value="">Select a category</option>
+              {ARTWORK_CATEGORY_OPTIONS.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div style={{ height: "14px" }}></div>
+
+        <div className="form-row">
+          <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Year</label>
             <input
               {...register("year")}
@@ -215,10 +233,6 @@ export function PortfolioForm({ token, artistId, authUserId, onSuccess }: Portfo
               placeholder="e.g. 2026"
             />
           </div>
-        </div>
-        <div style={{ height: "14px" }}></div>
-
-        <div className="form-row">
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Medium</label>
             <input
@@ -228,15 +242,17 @@ export function PortfolioForm({ token, artistId, authUserId, onSuccess }: Portfo
               placeholder="e.g. Oil on canvas"
             />
           </div>
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label">Dimensions</label>
-            <input
-              {...register("dimensions")}
-              className="form-input"
-              type="text"
-              placeholder="H × W cm"
-            />
-          </div>
+        </div>
+        <div style={{ height: "14px" }}></div>
+
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label className="form-label">Dimensions</label>
+          <input
+            {...register("dimensions")}
+            className="form-input"
+            type="text"
+            placeholder="H × W cm"
+          />
         </div>
         <div style={{ height: "14px" }}></div>
 

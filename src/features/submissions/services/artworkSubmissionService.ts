@@ -5,6 +5,7 @@ export interface ArtworkSubmission {
   exhibitionId: string;
   artistId: string;
   title: string;
+  category?: string | null;
   description?: string;
   status: 'Pending' | 'Approved' | 'Rejected';
   mediaAssetId?: string;
@@ -18,6 +19,15 @@ export interface ArtworkSubmission {
 export interface CreateSubmissionPayload {
   exhibitionId: string;
   title: string;
+  category?: string | null;
+  description?: string;
+  mediaAssetId?: string;
+}
+
+export interface UpdateSubmissionPayload {
+  exhibitionId?: string;
+  title?: string;
+  category?: string | null;
   description?: string;
   mediaAssetId?: string;
 }
@@ -38,6 +48,27 @@ export const artworkSubmissionService = {
       method: 'POST',
       body: JSON.stringify(payload),
     }, token);
+  },
+
+  /**
+   * Artist: Update a pending submission
+   */
+  async updateSubmission(
+    id: string,
+    payload: UpdateSubmissionPayload,
+    token?: string
+  ): Promise<ArtworkSubmission> {
+    return apiClient<ArtworkSubmission>(`/artworksubmissions/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }, token);
+  },
+
+  /**
+   * Artist: Delete a non-approved submission
+   */
+  async deleteSubmission(id: string, token?: string): Promise<void> {
+    await apiClient(`/artworksubmissions/${id}`, { method: 'DELETE' }, token);
   },
 
   /**
