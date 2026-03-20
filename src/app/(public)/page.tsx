@@ -238,7 +238,7 @@ export default function Home() {
           ) : (
             upcomingExhibitions.length === 0 ? (
               <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-16 text-[var(--color-warm-slate)] font-mono text-xs tracking-[0.2em] uppercase">
-                No exhibitions yet
+                No upcoming exhibitions yet
               </div>
             ) : (
               upcomingExhibitions.map((ex, i) => (
