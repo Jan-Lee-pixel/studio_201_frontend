@@ -1,103 +1,47 @@
 'use client';
 
-import { useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { apiClient } from '@/lib/apiClient';
-import type { UserProfile } from '@/features/auth/services/authService';
 
 export default function LoginPage() {
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const authInFlight = useRef(false);
-  const router = useRouter();
   const supabase = createClient();
+  const searchParams = useSearchParams();
+  const searchError = searchParams.get('error');
+  const visibleError = error || searchError;
+  const helperCopy = useMemo(
+    () => searchParams.get('info') || 'New artist accounts are still reviewed by Studio 201 after sign-in.',
+    [searchParams]
+  );
 
-  const handleAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (authInFlight.current) return;
-    authInFlight.current = true;
+  const handleGoogleSignIn = async () => {
     setLoading(true);
     setError(null);
 
-    let authError;
-    let authData;
-
     try {
-      if (isSignUp) {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-        });
-        authError = error;
-        authData = data;
-      } else {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        authError = error;
-        authData = data;
-      }
+      const redirectToUrl = new URL('/auth/callback', window.location.origin);
+      redirectToUrl.searchParams.set('app_origin', window.location.origin);
+
+      const { error: authError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectToUrl.toString(),
+          queryParams: {
+            prompt: 'select_account',
+          },
+        },
+      });
 
       if (authError) {
         setError(authError.message);
         setLoading(false);
-        return;
       }
-
-      if (!authData?.session) {
-        if (isSignUp) {
-          setError('Please check your email to verify your account, or sign in if you already have an account.');
-        } else {
-          setError('Login failed: No session returned.');
-        }
-        setLoading(false);
-        return;
-      }
-
-      // Ensure the user exists in the Django backend and get their access status
-      const accessToken = authData?.session?.access_token;
-      const profileInfo = await apiClient<UserProfile>('/profile/ensure', {
-        method: 'POST',
-        body: JSON.stringify({
-          email: email,
-          fullName: isSignUp ? email.split('@')[0] : '' // Default name for new sign ups
-        })
-      }, accessToken);
-
-      // Refresh layout
-      router.refresh();
-
-      // Route based on approval status and role
-      const accountStatus = profileInfo.accountStatus?.toLowerCase();
-      const role = profileInfo.role?.toLowerCase();
-      if (accountStatus === 'rejected') {
-        await supabase.auth.signOut();
-        setError('Your application was not approved. Please contact Studio 201 for assistance.');
-        setLoading(false);
-        return;
-      }
-      if (accountStatus === 'pending') {
-        router.push('/pending');
-        return;
-      }
-      if (role === 'admin') {
-        router.push('/admin');
-      } else if (role === 'artist') {
-        router.push('/artist/dashboard');
-      } else {
-        setError('Your account is awaiting approval. Please check back later.');
-        setLoading(false);
-      }
-    } catch (err: any) {
-      setError(err.message || 'Failed to sync profile with server');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Could not start Google sign-in.';
+      setError(message);
       setLoading(false);
-    } finally {
-      authInFlight.current = false;
     }
   };
 
@@ -106,71 +50,42 @@ export default function LoginPage() {
       <div className="max-w-md w-full space-y-8 bg-white p-10 shadow-sm border border-gray-100">
         <div>
           <h2 className="mt-2 text-center text-3xl font-playfair font-medium text-gray-900">
-            {isSignUp ? 'Apply to Studio 201' : 'Sign in to Studio 201'}
+            Sign in to Studio 201
           </h2>
-          <p className="mt-4 text-center text-sm text-gray-600">
-            For Artists
+          <p className="mt-4 text-center text-sm leading-6 text-gray-600">
+            Keep it simple. Sign in with Google and we will route you based on your approval status.
           </p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleAuth}>
-          {error && (
+
+        <div className="mt-8 space-y-6">
+          {visibleError && (
             <div className="bg-red-50 text-red-500 text-sm p-3 rounded-md text-center">
-              {error}
+              {visibleError}
             </div>
           )}
-          <div className="space-y-4">
-            <div>
-              <label className="text-xs uppercase tracking-wider text-gray-400 font-dm-mono mb-2 block">
-                Email Address
-              </label>
-              <input
-                type="email"
-                required
-                className="w-full px-4 py-3 border border-gray-200 focus:border-black focus:ring-0 transition-colors text-sm"
-                placeholder="artist@studio201.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="text-xs uppercase tracking-wider text-gray-400 font-dm-mono mb-2 block">
-                Password
-              </label>
-              <input
-                type="password"
-                required
-                className="w-full px-4 py-3 border border-gray-200 focus:border-black focus:ring-0 transition-colors text-sm"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
+
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+            className="flex w-full items-center justify-center gap-3 border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-50 disabled:opacity-50"
+          >
+            <span className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-300 text-xs font-semibold text-gray-700">
+              G
+            </span>
+            <span className="font-dm-mono text-xs uppercase tracking-[0.14em]">
+              {loading ? 'Opening Google...' : 'Continue with Google'}
+            </span>
+          </button>
+
+          <div className="border border-gray-100 bg-[#faf7f1] p-4 text-sm leading-6 text-gray-600">
+            {helperCopy}
           </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex justify-center py-3 px-4 uppercase tracking-widest text-xs border border-transparent text-white bg-black hover:bg-gray-800 transition-colors disabled:opacity-50 font-dm-mono"
-            >
-              {loading ? (isSignUp ? 'Creating Account...' : 'Authenticating...') : (isSignUp ? 'Sign Up' : 'Sign In')}
-            </button>
+          <div className="text-center text-xs uppercase tracking-[0.14em] text-gray-400 font-dm-mono">
+            Email code can be added next, but Google is the first live flow.
           </div>
-          
-          <div className="mt-4 text-center text-sm text-gray-600">
-            {isSignUp ? "Already have an account? " : "Don't have an account? "}
-            <button
-              type="button"
-              className="text-black font-medium hover:underline focus:outline-none"
-              onClick={() => {
-                setIsSignUp(!isSignUp);
-                setError(null);
-              }}
-            >
-              {isSignUp ? 'Sign In' : 'Sign Up'}
-            </button>
-          </div>
-        </form>
+        </div>
       </div>
     </div>
   );
