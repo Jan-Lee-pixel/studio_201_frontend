@@ -3,7 +3,7 @@ import { Reveal } from "@/components/animation/Reveal";
 interface ArtworkCardProps {
   image?: string | null;
   title: string;
-  meta: string;
+  meta?: string;
   delay?: 0 | 1 | 2 | 3 | 4 | 5;
 }
 
@@ -24,9 +24,11 @@ export function ArtworkCard({ image, title, meta, delay = 0 }: ArtworkCardProps)
       <div className="font-body text-[15px] font-medium text-[var(--color-near-black)] mb-1">
         {title}
       </div>
-      <div className="font-body text-[13px] text-[var(--color-dust)]">
-        {meta}
-      </div>
+      {meta ? (
+        <div className="font-body text-[13px] text-[var(--color-dust)]">
+          {meta}
+        </div>
+      ) : null}
     </Reveal>
   );
 }

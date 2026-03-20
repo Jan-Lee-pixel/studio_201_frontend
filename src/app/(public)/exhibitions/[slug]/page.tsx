@@ -167,11 +167,7 @@ export default function ExhibitionResultPage() {
                 key={artwork.id}
                 image={artwork.mediaAssetUrl || null}
                 title={artwork.title}
-                meta={
-                  artistLookup[artwork.artistId]?.fullName
-                    ? `${artistLookup[artwork.artistId].fullName} · ${artwork.description || "Digital submission"}`
-                    : artwork.description || "Digital submission"
-                }
+                meta={[artistLookup[artwork.artistId]?.fullName, artwork.description].filter(Boolean).join(" · ") || undefined}
                 delay={((i % 4) + 1) as 1 | 2 | 3 | 4}
               />
             )) : (
