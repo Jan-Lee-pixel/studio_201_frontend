@@ -1,19 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import clsx from "clsx";
 import { useScroll } from "@/hooks/useScroll";
 import { Menu, X } from "lucide-react";
 import { LogoMark } from "@/components/ui/LogoMark";
+import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/providers/AuthProvider";
 
 export function PublicHeader() {
   const scrolled = useScroll(60);
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
+  const [supabase] = useState(() => createClient());
+  const { session, loading } = useAuth();
   const isHero = pathname === "/" || pathname.startsWith("/exhibitions");
   const keepTransparent = pathname === "/exhibitions";
+  const isAuthenticated = Boolean(session?.user);
+  const showLogin = !loading && !isAuthenticated && pathname !== "/login";
+  const showLogout = !loading && isAuthenticated;
 
   const navClass = clsx(
     "fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-5 md:px-12 md:py-6 transition-all duration-400 ease-[cubic-bezier(0.25,0,0,1)]",
@@ -41,12 +50,38 @@ export function PublicHeader() {
       },
     );
 
+  const actionButtonClass = clsx(
+    "inline-flex items-center justify-center px-4 py-2 border text-[11px] font-mono uppercase tracking-[0.12em] transition-colors duration-300 cursor-pointer",
+    (scrolled || !isHero) && !keepTransparent
+      ? "border-[var(--color-near-black)] text-[var(--color-near-black)] hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)]"
+      : "border-[rgba(240,237,229,0.6)] text-[var(--color-cream)] hover:bg-[var(--color-cream)] hover:text-[var(--color-near-black)]",
+  );
+
+  const mobileActionClass =
+    "inline-flex items-center justify-center px-5 py-3 border border-[rgba(240,237,229,0.5)] font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-cream)] transition-colors duration-300 hover:bg-[var(--color-cream)] hover:text-[var(--color-near-black)]";
+
   const navLinks = [
     { href: "/exhibitions", label: "Exhibitions" },
     { href: "/artists", label: "Artists" },
     { href: "/events", label: "Events" },
     { href: "/archive", label: "Archive" },
   ];
+
+  const handleSignOut = async () => {
+    if (signingOut) return;
+
+    try {
+      setSigningOut(true);
+      setMobileOpen(false);
+      await supabase.auth.signOut();
+      router.replace("/");
+      router.refresh();
+    } catch (error) {
+      console.error("Failed to sign out from public header", error);
+      setSigningOut(false);
+    }
+  };
+
   return (
     <>
       <nav className={navClass}>
@@ -72,15 +107,28 @@ export function PublicHeader() {
         <div className="flex items-center gap-4">
           <Link
             href="/"
-            className={clsx(
-              "hidden md:inline-flex items-center justify-center px-4 py-2 border text-[11px] font-mono uppercase tracking-[0.12em] transition-colors duration-300",
-              (scrolled || !isHero) && !keepTransparent
-                ? "border-[var(--color-near-black)] text-[var(--color-near-black)] hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)]"
-                : "border-[rgba(240,237,229,0.6)] text-[var(--color-cream)] hover:bg-[var(--color-cream)] hover:text-[var(--color-near-black)]",
-            )}
+            className={clsx("hidden md:inline-flex", actionButtonClass)}
           >
             Home
           </Link>
+
+          {showLogin ? (
+            <Link href="/login" className={clsx("hidden md:inline-flex", actionButtonClass)}>
+              Log In
+            </Link>
+          ) : null}
+
+          {showLogout ? (
+            <button
+              type="button"
+              onClick={() => void handleSignOut()}
+              className={clsx("hidden md:inline-flex", actionButtonClass)}
+              disabled={signingOut}
+              aria-busy={signingOut}
+            >
+              {signingOut ? "Signing Out" : "Log Out"}
+            </button>
+          ) : null}
 
           {/* Mobile Toggle */}
           <button
@@ -141,6 +189,27 @@ export function PublicHeader() {
             {link.label}
           </Link>
         ))}
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+          <Link href="/" onClick={() => setMobileOpen(false)} className={mobileActionClass}>
+            Home
+          </Link>
+          {showLogin ? (
+            <Link href="/login" onClick={() => setMobileOpen(false)} className={mobileActionClass}>
+              Log In
+            </Link>
+          ) : null}
+          {showLogout ? (
+            <button
+              type="button"
+              onClick={() => void handleSignOut()}
+              className={mobileActionClass}
+              disabled={signingOut}
+              aria-busy={signingOut}
+            >
+              {signingOut ? "Signing Out" : "Log Out"}
+            </button>
+          ) : null}
+        </div>
       </div>
     </>
   );
