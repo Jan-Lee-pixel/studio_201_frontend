@@ -89,6 +89,7 @@ export function SubmissionForm({ token, onSuccess, artistId }: SubmissionFormPro
     ]
       .filter((s) => s.trim() !== "")
       .join("\n");
+    const descriptionPayload = fullDescription.trim() ? fullDescription : undefined;
 
     try {
       let mediaAssetId: string | undefined;
@@ -152,7 +153,7 @@ export function SubmissionForm({ token, onSuccess, artistId }: SubmissionFormPro
         {
           exhibitionId: data.exhibitionId,
           title: data.title,
-          description: fullDescription,
+          description: descriptionPayload,
           mediaAssetId,
         },
         token
