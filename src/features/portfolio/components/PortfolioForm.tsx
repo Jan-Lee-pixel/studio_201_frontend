@@ -65,30 +65,53 @@ interface PortfolioFormProps {
   token: string;
   artistId: string;
   authUserId: string;
+  portfolioItem?: {
+    id: string;
+    title: string;
+    category?: string | null;
+    artType?: string | null;
+    description?: string | null;
+    year?: string | null;
+    medium?: string | null;
+    dimensions?: string | null;
+    isPublic: boolean;
+    mediaAssetId?: string | null;
+    mediaAssetUrl?: string | null;
+  } | null;
+  onCancel?: () => void;
   onSuccess: () => void;
 }
 
-function getDefaultValues(): PortfolioFormData {
-  const artTypeDraft = getArtTypeDraft("", "");
+function getDefaultValues(portfolioItem?: PortfolioFormProps["portfolioItem"]): PortfolioFormData {
+  const category = portfolioItem?.category || "";
+  const artTypeDraft = getArtTypeDraft(category, portfolioItem?.artType || "");
   return {
-    title: "",
-    category: "",
+    title: portfolioItem?.title || "",
+    category,
     artType: artTypeDraft.artType,
     artTypeCustom: artTypeDraft.artTypeCustom,
-    description: "",
-    year: "",
-    medium: "",
-    dimensions: "",
-    isPublic: true,
+    description: portfolioItem?.description || "",
+    year: portfolioItem?.year || "",
+    medium: portfolioItem?.medium || "",
+    dimensions: portfolioItem?.dimensions || "",
+    isPublic: portfolioItem?.isPublic ?? true,
   };
 }
 
-export function PortfolioForm({ token, artistId: _artistId, authUserId, onSuccess }: PortfolioFormProps) {
+export function PortfolioForm({
+  token,
+  artistId: _artistId,
+  authUserId,
+  portfolioItem = null,
+  onCancel,
+  onSuccess,
+}: PortfolioFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const supabase = createClient();
+  const isEditing = Boolean(portfolioItem);
 
   const {
     register,
@@ -99,12 +122,18 @@ export function PortfolioForm({ token, artistId: _artistId, authUserId, onSucces
     formState: { errors },
   } = useForm<PortfolioFormData>({
     resolver: zodResolver(portfolioSchema),
-    defaultValues: getDefaultValues(),
+    defaultValues: getDefaultValues(portfolioItem),
   });
 
   const selectedCategory = watch("category");
   const selectedArtType = watch("artType");
   const artTypeOptions = getArtTypeOptions(selectedCategory);
+
+  useEffect(() => {
+    reset(getDefaultValues(portfolioItem));
+    setSelectedFile(null);
+    setErrorMsg(null);
+  }, [portfolioItem, reset]);
 
   useEffect(() => {
     if (!selectedCategory) {
@@ -188,40 +217,47 @@ export function PortfolioForm({ token, artistId: _artistId, authUserId, onSucces
           });
 
         mediaAssetId = mediaAsset.id;
-      } else {
+      } else if (!isEditing) {
         setErrorMsg("Please choose an artwork image.");
         setIsSubmitting(false);
         return;
       }
 
-      await portfolioService.createPortfolioItem(
-        {
-          title: data.title,
-          category: data.category.trim(),
-          artType: resolveArtTypeValue(data.category, data.artType, data.artTypeCustom),
-          description: data.description,
-          year: data.year,
-          medium: data.medium,
-          dimensions: data.dimensions,
-          isPublic: data.isPublic ?? true,
-          mediaAssetId,
-        },
-        token
-      );
+      const payload = {
+        title: data.title,
+        category: data.category.trim(),
+        artType: resolveArtTypeValue(data.category, data.artType, data.artTypeCustom),
+        description: data.description,
+        year: data.year,
+        medium: data.medium,
+        dimensions: data.dimensions,
+        isPublic: data.isPublic ?? true,
+        ...(mediaAssetId ? { mediaAssetId } : {}),
+      };
 
-      reset(getDefaultValues());
+      if (isEditing && portfolioItem?.id) {
+        await portfolioService.updatePortfolioItem(portfolioItem.id, payload, token);
+      } else {
+        await portfolioService.createPortfolioItem(payload, token);
+      }
+
+      reset(getDefaultValues(portfolioItem));
       setSelectedFile(null);
       onSuccess();
     } catch (error) {
       console.error("Portfolio upload failed:", error);
-      setErrorMsg("Failed to add artwork to portfolio. Please try again.");
+      setErrorMsg(
+        isEditing
+          ? "Failed to update portfolio artwork. Please try again."
+          : "Failed to add artwork to portfolio. Please try again."
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleClear = () => {
-    reset(getDefaultValues());
+    reset(getDefaultValues(portfolioItem));
     setSelectedFile(null);
     setErrorMsg(null);
   };
@@ -229,7 +265,7 @@ export function PortfolioForm({ token, artistId: _artistId, authUserId, onSucces
   return (
     <div className="card" id="portfolio-upload">
       <div className="card-header">
-        <h2 className="card-title">Showcase Artwork</h2>
+        <h2 className="card-title">{isEditing ? "Edit Showcase Artwork" : "Showcase Artwork"}</h2>
         <span className="artwork-status status-approved" style={{ fontSize: "8px" }}>
           Public portfolio
         </span>
@@ -277,6 +313,12 @@ export function PortfolioForm({ token, artistId: _artistId, authUserId, onSucces
                 <p className="upload-sub">
                   {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB — Click to change file
                 </p>
+              </>
+            ) : isEditing && portfolioItem?.mediaAssetUrl ? (
+              <>
+                <div className="upload-icon">✓</div>
+                <p className="upload-text">Current artwork image is kept</p>
+                <p className="upload-sub">Click here only if you want to replace it</p>
               </>
             ) : (
               <>
@@ -440,11 +482,22 @@ export function PortfolioForm({ token, artistId: _artistId, authUserId, onSucces
             borderTop: "none",
           }}
         >
+          {isEditing && onCancel ? (
+            <button type="button" className="btn btn-secondary btn-sm" onClick={onCancel} disabled={isSubmitting}>
+              Cancel
+            </button>
+          ) : null}
           <button type="button" className="btn btn-secondary btn-sm" onClick={handleClear} disabled={isSubmitting}>
             Clear
           </button>
           <button type="submit" className="btn btn-primary btn-sm" disabled={isSubmitting}>
-            {isSubmitting ? "Uploading..." : "Add to Portfolio"}
+            {isSubmitting
+              ? isEditing
+                ? "Saving..."
+                : "Uploading..."
+              : isEditing
+                ? "Save Portfolio Work"
+                : "Add to Portfolio"}
           </button>
         </div>
       </form>

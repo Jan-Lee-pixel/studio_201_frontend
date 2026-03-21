@@ -12,6 +12,7 @@ import {
   portfolioService,
   PortfolioItem,
 } from "@/features/portfolio/services/portfolioService";
+import { PortfolioForm } from "@/features/portfolio/components/PortfolioForm";
 import { SubmissionForm } from "@/features/submissions/components/SubmissionForm";
 import { DashboardContentSkeleton } from "@/components/ui/SkeletonPage";
 import { PortalLink } from "@/components/ui/PortalLink";
@@ -98,8 +99,10 @@ export default function ArtistArtworksManagePage() {
   const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([]);
   const [portfolioLoading, setPortfolioLoading] = useState(true);
   const [notice, setNotice] = useState<{ tone: NoticeTone; message: string } | null>(null);
+  const [editingPortfolioItem, setEditingPortfolioItem] = useState<PortfolioItem | null>(null);
   const [editingSubmission, setEditingSubmission] = useState<ArtworkSubmission | null>(null);
   const noticeTimer = useRef<number | null>(null);
+  const activeEditMode = editingPortfolioItem ? "portfolio" : editingSubmission ? "submission" : null;
 
   const setNoticeMessage = (message: string, tone: NoticeTone) => {
     setNotice({ tone, message });
@@ -149,6 +152,28 @@ export default function ArtistArtworksManagePage() {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (!activeEditMode) {
+      document.body.style.overflow = "";
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setEditingPortfolioItem(null);
+      setEditingSubmission(null);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [activeEditMode]);
 
   const handleTogglePortfolioVisibility = async (item: PortfolioItem) => {
     if (!session?.access_token) return;
@@ -201,16 +226,17 @@ export default function ArtistArtworksManagePage() {
     }
   };
 
+  const handleStartEditingPortfolioItem = (item: PortfolioItem) => {
+    setEditingSubmission(null);
+    setEditingPortfolioItem(item);
+    setNotice(null);
+  };
+
   const handleStartEditingSubmission = (item: ArtworkSubmission) => {
+    setEditingPortfolioItem(null);
     if (item.status !== "Pending") return;
     setEditingSubmission(item);
     setNotice(null);
-    window.setTimeout(() => {
-      document.getElementById("artist-manage-edit-panel")?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }, 50);
   };
 
   const handleDeleteSubmission = async (item: ArtworkSubmission) => {
@@ -231,7 +257,7 @@ export default function ArtistArtworksManagePage() {
     } catch (error) {
       console.error("Failed to delete submission:", error);
       setSubmissions(snapshot);
-      setNoticeMessage("Failed to delete submission. Approved works stay locked.", "error");
+      setNoticeMessage("Failed to delete submission. Please try again.", "error");
     }
   };
 
@@ -239,6 +265,12 @@ export default function ArtistArtworksManagePage() {
     await fetchSubmissions();
     setEditingSubmission(null);
     setNoticeMessage("Pending submission updated.", "success");
+  };
+
+  const handlePortfolioUpdated = async () => {
+    await fetchPortfolio();
+    setEditingPortfolioItem(null);
+    setNoticeMessage("Portfolio artwork updated.", "success");
   };
 
   if (authLoading) {
@@ -258,6 +290,10 @@ export default function ArtistArtworksManagePage() {
   const approvedCount = submissions.filter((item) => item.status === "Approved").length;
   const pendingCount = submissions.filter((item) => item.status === "Pending").length;
   const publicCount = portfolioItems.filter((item) => item.isPublic).length;
+  const closeEditModal = () => {
+    setEditingPortfolioItem(null);
+    setEditingSubmission(null);
+  };
 
   return (
     <>
@@ -577,6 +613,78 @@ export default function ArtistArtworksManagePage() {
           border: 1px solid #eed7cf;
         }
 
+        .artist-manage-modalShell {
+          position: fixed;
+          inset: 0;
+          z-index: 9999;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 16px;
+        }
+
+        .artist-manage-modalBackdrop {
+          position: absolute;
+          inset: 0;
+          background: rgba(18, 16, 13, 0.68);
+          backdrop-filter: blur(4px);
+        }
+
+        .artist-manage-modalPanel {
+          position: relative;
+          width: min(1080px, calc(100vw - 24px));
+          max-height: calc(100dvh - 24px);
+          overflow-y: auto;
+          border-radius: 28px;
+          padding: 18px;
+          background: #f7f1e8;
+          box-shadow: 0 28px 80px rgba(18, 16, 13, 0.28);
+        }
+
+        .artist-manage-modalHeader {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 16px;
+          margin-bottom: 14px;
+        }
+
+        .artist-manage-modalTitle {
+          font-family: var(--serif);
+          color: #1a1612;
+          margin: 0;
+          font-size: clamp(1.7rem, 2.8vw, 2.2rem);
+          line-height: 1.05;
+        }
+
+        .artist-manage-modalCopy {
+          margin-top: 8px;
+          color: #75685c;
+          line-height: 1.6;
+          max-width: 700px;
+        }
+
+        .artist-manage-modalClose {
+          flex-shrink: 0;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 42px;
+          height: 42px;
+          border-radius: 999px;
+          border: 1px solid #ddd5ca;
+          background: #fffdfa;
+          color: #1a1612;
+          font-size: 1.2rem;
+          cursor: pointer;
+          transition: transform 0.18s ease, background 0.18s ease;
+        }
+
+        .artist-manage-modalClose:hover {
+          transform: translateY(-1px);
+          background: #f4ede3;
+        }
+
         @media (max-width: 1080px) {
           .artist-manage-hero {
             grid-template-columns: minmax(0, 1fr);
@@ -625,6 +733,26 @@ export default function ArtistArtworksManagePage() {
             flex-direction: column;
             align-items: flex-start;
           }
+
+          .artist-manage-modalShell {
+            padding: 10px;
+          }
+
+          .artist-manage-modalPanel {
+            width: min(100vw - 12px, 1080px);
+            max-height: calc(100dvh - 12px);
+            padding: 12px;
+            border-radius: 22px;
+          }
+
+          .artist-manage-modalHeader {
+            flex-direction: column;
+            align-items: stretch;
+          }
+
+          .artist-manage-modalClose {
+            align-self: flex-end;
+          }
         }
       `}</style>
 
@@ -636,8 +764,8 @@ export default function ArtistArtworksManagePage() {
               <h1 className="artist-manage-title">Edit, hide, or clean up your artworks.</h1>
               <p className="artist-manage-copy">
                 This is the focused management page for your artist portal. Pending submissions can
-                be edited here, approved submissions stay locked, and portfolio items can be shown,
-                hidden, or removed.
+                be edited here, approved submissions stay read-only, and any artwork can be removed
+                when you need to clean things up.
               </p>
 
               <div className="artist-manage-actions">
@@ -652,10 +780,10 @@ export default function ArtistArtworksManagePage() {
 
             <div className="artist-manage-summary">
               <div className="artist-manage-kicker">Editing rules</div>
-              <h2 className="artist-manage-summaryTitle">Approved works stay locked.</h2>
+              <h2 className="artist-manage-summaryTitle">Approved works stay read-only.</h2>
               <p className="artist-manage-summaryCopy">
                 Pending submissions can be updated. Approved submissions stay read-only so they match
-                what the gallery already accepted.
+                what the gallery already accepted, but you can still remove them when needed.
               </p>
 
               <div className="artist-manage-summaryList">
@@ -663,7 +791,7 @@ export default function ArtistArtworksManagePage() {
                   <div>Use edit for pending submissions only.</div>
                 </div>
                 <div className="artist-manage-summaryItem">
-                  <div>Use delete to remove non-approved items you no longer want here.</div>
+                  <div>Use delete to remove any artwork you no longer want here.</div>
                 </div>
                 <div className="artist-manage-summaryItem">
                   <div>Use show or hide to control what appears on your public page.</div>
@@ -733,6 +861,13 @@ export default function ArtistArtworksManagePage() {
                           <button
                             type="button"
                             className="artist-manage-inlineButton"
+                            onClick={() => handleStartEditingPortfolioItem(item)}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            className="artist-manage-inlineButton"
                             onClick={() => void handleTogglePortfolioVisibility(item)}
                           >
                             {item.isPublic ? "Hide" : "Show"}
@@ -770,7 +905,7 @@ export default function ArtistArtworksManagePage() {
                 <div className="artist-manage-list">
                   {submissions.map((item) => {
                     const canEdit = item.status === "Pending";
-                    const canDelete = item.status !== "Approved";
+                    const canDelete = true;
 
                     return (
                       <div className="artist-manage-row" key={item.id}>
@@ -822,7 +957,7 @@ export default function ArtistArtworksManagePage() {
                           {!canEdit ? (
                             <div className="artist-manage-lockNote">
                               {item.status === "Approved"
-                                ? "Approved submissions are locked."
+                                ? "Approved submissions cannot be edited, but they can still be deleted."
                                 : "Only pending submissions can be edited."}
                             </div>
                           ) : null}
@@ -834,27 +969,86 @@ export default function ArtistArtworksManagePage() {
               )}
             </section>
 
-            {editingSubmission ? (
-              <section className="artist-manage-panel" id="artist-manage-edit-panel">
-                <div className="artist-manage-panelHeader">
-                  <div>
-                    <div className="artist-manage-kicker">Pending submission</div>
-                    <h2 className="artist-manage-sectionTitle">Edit submission</h2>
-                  </div>
-                </div>
-
-                <SubmissionForm
-                  token={session.access_token}
-                  artistId={profile.id}
-                  submission={editingSubmission}
-                  onCancel={() => setEditingSubmission(null)}
-                  onSuccess={() => void handleSubmissionUpdated()}
-                />
-              </section>
-            ) : null}
           </div>
         </div>
       </div>
+
+      {editingPortfolioItem ? (
+        <div className="artist-manage-modalShell" role="dialog" aria-modal="true" aria-label="Edit showcase work">
+          <button
+            type="button"
+            className="artist-manage-modalBackdrop"
+            onClick={closeEditModal}
+            aria-label="Close edit artwork modal"
+          />
+          <div className="artist-manage-modalPanel" onClick={(event) => event.stopPropagation()}>
+            <div className="artist-manage-modalHeader">
+              <div>
+                <div className="artist-manage-kicker">Public portfolio</div>
+                <h2 className="artist-manage-modalTitle">Edit showcase work</h2>
+                <p className="artist-manage-modalCopy">
+                  Update the details that appear on your public profile without losing your place on this page.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="artist-manage-modalClose"
+                onClick={closeEditModal}
+                aria-label="Close edit showcase work modal"
+              >
+                ×
+              </button>
+            </div>
+
+            <PortfolioForm
+              token={session.access_token}
+              artistId={profile.id}
+              authUserId={session.user.id}
+              portfolioItem={editingPortfolioItem}
+              onCancel={closeEditModal}
+              onSuccess={() => void handlePortfolioUpdated()}
+            />
+          </div>
+        </div>
+      ) : null}
+
+      {editingSubmission ? (
+        <div className="artist-manage-modalShell" role="dialog" aria-modal="true" aria-label="Edit submission">
+          <button
+            type="button"
+            className="artist-manage-modalBackdrop"
+            onClick={closeEditModal}
+            aria-label="Close edit submission modal"
+          />
+          <div className="artist-manage-modalPanel" onClick={(event) => event.stopPropagation()}>
+            <div className="artist-manage-modalHeader">
+              <div>
+                <div className="artist-manage-kicker">Pending submission</div>
+                <h2 className="artist-manage-modalTitle">Edit submission</h2>
+                <p className="artist-manage-modalCopy">
+                  Make changes to pending work here. Once approved, the submission becomes read-only.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="artist-manage-modalClose"
+                onClick={closeEditModal}
+                aria-label="Close edit submission modal"
+              >
+                ×
+              </button>
+            </div>
+
+            <SubmissionForm
+              token={session.access_token}
+              artistId={profile.id}
+              submission={editingSubmission}
+              onCancel={closeEditModal}
+              onSuccess={() => void handleSubmissionUpdated()}
+            />
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }

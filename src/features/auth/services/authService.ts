@@ -7,6 +7,7 @@ export interface UserProfile {
   slug?: string;
   role?: 'admin' | 'artist' | null;
   accountStatus: 'pending' | 'approved' | 'rejected';
+  artistRank?: number | null;
   bio?: string;
   profileImageUrl?: string;
   instagramUrl?: string | null;
