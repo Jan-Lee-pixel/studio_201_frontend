@@ -85,6 +85,7 @@ export default function AdminLayout({
     "/admin/exhibitions/new": "New Exhibition",
     "/admin/submissions": "Submissions",
     "/admin/artists": "Artists",
+    "/admin/merch": "Merch",
     "/admin/events": "Events",
     "/admin/editions": "Editions",
     "/admin/settings": "Settings",
@@ -180,12 +181,12 @@ export default function AdminLayout({
               </Link>
             </li>
             <li>
-              <Link href="/admin/editions" className={pathname === "/admin/editions" ? "active" : ""}>
+              <Link href="/admin/merch" className={pathname === "/admin/merch" ? "active" : ""}>
                 <svg className="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <rect x="2" y="3" width="12" height="10" rx="1" />
                   <path d="M5 3V1M11 3V1M2 7h12" />
                 </svg>
-                Editions
+                Merch
               </Link>
             </li>
           </ul>

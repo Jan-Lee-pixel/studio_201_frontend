@@ -63,6 +63,7 @@ export function PublicHeader() {
   const navLinks = [
     { href: "/exhibitions", label: "Exhibitions" },
     { href: "/artists", label: "Artists" },
+    { href: "/merch", label: "Merch" },
     { href: "/events", label: "Events" },
     { href: "/archive", label: "Archive" },
   ];
