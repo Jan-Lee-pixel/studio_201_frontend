@@ -11,6 +11,9 @@ import { StudioImagePlaceholder } from "@/components/ui/StudioImagePlaceholder";
 
 export default function AdminSubmissionsPage() {
   const { session, profile, loading: authLoading } = useAuth();
+  const accessToken = session?.access_token;
+  const normalizedStatus = profile?.accountStatus?.toLowerCase();
+  const normalizedRole = profile?.role?.toLowerCase();
   const [submissions, setSubmissions] = useState<ArtworkSubmission[]>([]);
   const [loading, setLoading] = useState(true);
   const [exhibitions, setExhibitions] = useState<Exhibition[]>([]);
@@ -20,11 +23,11 @@ export default function AdminSubmissionsPage() {
   const [artistFilter, setArtistFilter] = useState<string>('all');
 
   const fetchSubmissions = async () => {
-    if (!session?.access_token) return;
+    if (!accessToken) return;
     setLoading(true);
     try {
       const data = await apiClient<ArtworkSubmission[]>('/ArtworkSubmissions/all', {
-        headers: { Authorization: `Bearer ${session.access_token}` },
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
       setSubmissions(data);
     } catch (error) {
@@ -48,16 +51,16 @@ export default function AdminSubmissionsPage() {
   };
 
   useEffect(() => {
-    if (session?.access_token && profile?.accountStatus?.toLowerCase() === 'approved' && profile?.role?.toLowerCase() === 'admin') {
-      fetchSubmissions();
-      fetchMeta();
+    if (accessToken && normalizedStatus === 'approved' && normalizedRole === 'admin') {
+      void fetchSubmissions();
+      void fetchMeta();
     } else {
       setLoading(false);
     }
-  }, [session, profile]);
+  }, [accessToken, normalizedRole, normalizedStatus]);
 
   const handleUpdateStatus = async (id: string, currentStatus: string, newStatus: string) => {
-    if (currentStatus === newStatus || !session?.access_token) return;
+    if (currentStatus === newStatus || !accessToken) return;
     
     // Optimistic update
     setSubmissions(prev => prev.map(s => s.id === id ? { ...s, status: newStatus as any } : s));
@@ -65,7 +68,7 @@ export default function AdminSubmissionsPage() {
     try {
       await apiClient(`/ArtworkSubmissions/${id}/status`, {
         method: 'PATCH',
-        headers: { Authorization: `Bearer ${session.access_token}` },
+        headers: { Authorization: `Bearer ${accessToken}` },
         body: JSON.stringify(newStatus)
       });
     } catch (e) {
@@ -79,7 +82,7 @@ export default function AdminSubmissionsPage() {
     return <DashboardContentSkeleton />;
   }
 
-  if (profile?.accountStatus?.toLowerCase() !== 'approved' || profile?.role?.toLowerCase() !== 'admin') {
+  if (normalizedStatus !== 'approved' || normalizedRole !== 'admin') {
     return <div className="p-8 text-red-500 font-serif">You do not have permission to view the review queue.</div>;
   }
 
