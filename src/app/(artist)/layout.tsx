@@ -34,13 +34,15 @@ export default function ArtistLayout({
   const normalizedRole = profile?.role?.toLowerCase();
   const normalizedStatus = profile?.accountStatus?.toLowerCase();
   const isArtworksRoute = pathname.startsWith("/artist/artworks") || pathname === "/artworks";
+  const isBackroomRoute = pathname.startsWith("/artist/backroom") || pathname === "/backroom";
 
   const breadcrumbLabel = useMemo(() => {
     if (pathname === "/artist/profile") return "Profile";
     if (isArtworksRoute) return "Artworks";
+    if (isBackroomRoute) return "Merch";
     if (pathname === "/artist/messages") return "Messages";
     return "Dashboard";
-  }, [isArtworksRoute, pathname]);
+  }, [isArtworksRoute, isBackroomRoute, pathname]);
 
   useEffect(() => {
     if (!loading && profile) {
@@ -176,6 +178,26 @@ export default function ArtistLayout({
               <rect x="1.5" y="1.5" width="13" height="13" rx="1.5" />
               <circle cx="5" cy="5" r="1.25" />
               <path d="M2.5 11l3.5-4 2.5 2.5L11 6.5l2.5 4.5" />
+            </svg>
+          ),
+        },
+        {
+          href: "/artist/backroom",
+          label: "Merch & Backroom",
+          active: isBackroomRoute,
+          icon: (
+            <svg
+              className="artist-nav-icon"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              width="16"
+              height="16"
+            >
+              <path d="M2.5 5.5h11v8h-11z" />
+              <path d="M1.5 5.5l2-3h9l2 3" />
+              <path d="M5.5 8.5h5" />
             </svg>
           ),
         },
