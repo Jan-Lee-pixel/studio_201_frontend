@@ -1,105 +1,19 @@
+import Link from "next/link";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { StudioImagePlaceholder } from "@/components/ui/StudioImagePlaceholder";
 import { Reveal } from "@/components/animation/Reveal";
 import { ArtworkCard } from "@/features/artworks/components/ArtworkCard";
 import { EventRow } from "@/features/events/components/EventRow";
+import { PublicProfileOwnerActions } from "@/features/artists/components/PublicProfileOwnerActions";
+import {
+  formatExhibitionDate,
+  getArtist,
+  getArtistArtworks,
+  getArtistExhibitions,
+  getArtistPortfolioItems,
+} from "./artistData";
 
 import { Metadata } from "next";
-
-type PublicArtist = {
-  id: string;
-  fullName: string;
-  slug: string;
-  bio?: string;
-  profileImageUrl?: string;
-  instagramUrl?: string | null;
-  facebookUrl?: string | null;
-  youtubeUrl?: string | null;
-};
-
-type PublicArtwork = {
-  id: string;
-  exhibitionId: string;
-  artistId: string;
-  title: string;
-  description?: string | null;
-  mediaAssetUrl?: string | null;
-  createdAt: string;
-};
-
-type PortfolioItem = {
-  id: string;
-  artistId: string;
-  title: string;
-  description?: string | null;
-  year?: string | null;
-  medium?: string | null;
-  dimensions?: string | null;
-  mediaAssetUrl?: string | null;
-  createdAt: string;
-};
-
-type PublicExhibition = {
-  id: string;
-  title: string;
-  slug: string;
-  startDate?: string | null;
-  endDate?: string | null;
-};
-
-const API_BASE_URL =
-  process.env.API_INTERNAL_URL ||
-  process.env.NEXT_PUBLIC_API_URL ||
-  "http://localhost:5203/api";
-
-async function getArtist(slug: string): Promise<PublicArtist | null> {
-  try {
-    const res = await fetch(`${API_BASE_URL}/Profile/artists/${slug}`, { cache: "no-store" });
-    if (!res.ok) return null;
-    return res.json();
-  } catch {
-    return null;
-  }
-}
-
-async function getArtistArtworks(artistId: string): Promise<PublicArtwork[]> {
-  try {
-    const res = await fetch(`${API_BASE_URL}/ArtworkSubmissions/public/artist/${artistId}`, { cache: "no-store" });
-    if (!res.ok) return [];
-    return res.json();
-  } catch {
-    return [];
-  }
-}
-
-async function getArtistPortfolioItems(artistId: string): Promise<PortfolioItem[]> {
-  try {
-    const res = await fetch(`${API_BASE_URL}/Portfolio/artist/${artistId}`, { cache: "no-store" });
-    if (!res.ok) return [];
-    return res.json();
-  } catch {
-    return [];
-  }
-}
-
-async function getArtistExhibitions(artistId: string): Promise<PublicExhibition[]> {
-  try {
-    const res = await fetch(`${API_BASE_URL}/Exhibitions/artist/${artistId}`, { cache: "no-store" });
-    if (!res.ok) return [];
-    return res.json();
-  } catch {
-    return [];
-  }
-}
-
-const formatExhibitionDate = (startDate?: string | null) => {
-  if (!startDate) return { date: "Date TBA", day: "" };
-  const dateObj = new Date(startDate);
-  return {
-    date: dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
-    day: dateObj.toLocaleDateString("en-US", { weekday: "short" }),
-  };
-};
 
 // dynamic metadata
 export async function generateMetadata({
@@ -135,10 +49,15 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
     getArtistExhibitions(artist.id),
   ]);
 
-  const portfolioVisible = portfolioItems.filter((item) => Boolean(item.mediaAssetUrl)).slice(0, 6);
-  const submissionsVisible = artworks.filter((artwork) => Boolean(artwork.mediaAssetUrl)).slice(0, 6);
+  const portfolioPublicItems = portfolioItems.filter((item) => Boolean(item.mediaAssetUrl));
+  const approvedSubmissionWorks = artworks.filter((artwork) => Boolean(artwork.mediaAssetUrl));
+  const portfolioVisible = portfolioPublicItems.slice(0, 6);
+  const submissionsVisible = approvedSubmissionWorks.slice(0, 6);
   const visibleArtworks = portfolioVisible.length > 0 ? portfolioVisible : submissionsVisible;
   const usingPortfolio = portfolioVisible.length > 0;
+  const showViewAllWorksLink =
+    (usingPortfolio && (portfolioPublicItems.length > 6 || approvedSubmissionWorks.length > 0)) ||
+    (!usingPortfolio && approvedSubmissionWorks.length > 6);
   const socialLinks = [
     { label: "Instagram", url: artist.instagramUrl },
     { label: "Facebook", url: artist.facebookUrl },
@@ -148,69 +67,124 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
   const nameParts = artist.fullName.split(" ");
   const firstName = nameParts[0] || artist.fullName;
   const lastName = nameParts.slice(1).join(" ");
+  const showcaseCount = portfolioPublicItems.length;
+  const exhibitionWorkCount = approvedSubmissionWorks.length;
+  const upcomingShowCount = exhibitions.length;
 
   return (
-    <div className="pt-20">
-      {/* HERO */}
-      <div className="grid grid-cols-1 md:grid-cols-[340px_1fr] lg:grid-cols-[420px_1fr] min-h-screen">
-        <div className="relative h-[60vw] max-h-[480px] overflow-hidden bg-[var(--color-bone)] md:sticky md:top-0 md:h-screen md:max-h-none md:self-start">
-          {artist.profileImageUrl ? (
-            <img
-              src={artist.profileImageUrl}
-              alt={artist.fullName}
-              className="block w-full h-full object-cover"
-            />
-          ) : (
-            <StudioImagePlaceholder
-              className="w-full h-full"
-              markClassName="w-24 md:w-32 lg:w-40"
-              label="Studio 201"
-            />
-          )}
-        </div>
-
-        <div className="p-6 md:p-20 flex flex-col justify-end">
+    <div className="bg-[var(--color-parchment)] pt-28">
+      <div className="px-6 pb-20 md:px-12">
+        <div className="mx-auto grid max-w-[1280px] grid-cols-1 gap-8 lg:grid-cols-[minmax(300px,380px)_minmax(0,1fr)] lg:gap-14 xl:grid-cols-[minmax(360px,430px)_minmax(0,1fr)]">
           <Reveal>
-            <h1 className="font-display text-[clamp(36px,5vw,60px)] font-normal tracking-[-0.02em] leading-[1.1] mb-3 text-[var(--color-near-black)]">
-              {firstName}
-              {lastName ? (
-                <>
-                  <br />
-                  {lastName}
-                </>
-              ) : null}
-            </h1>
-            <div className="font-mono text-[11px] tracking-[0.1em] text-[var(--color-dust)] uppercase mb-12">
-              Studio 201 Artist
-            </div>
-
-            <p className="font-sub italic text-xl font-light text-[var(--color-warm-slate)] leading-[1.6] mb-8">
-              {artist.bio || "Artist bio will appear here once provided."}
-            </p>
-
-            <p className="text-base leading-[1.75] text-[var(--color-warm-slate)] max-w-[540px] mb-6">
-              Artist profile details will appear here once provided. This space is reserved for practice notes, materials, and context for the body of work.
-            </p>
-
-            <p className="text-base leading-[1.75] text-[var(--color-warm-slate)] max-w-[540px]">
-              Upcoming exhibitions and public programs will be listed below as they are scheduled.
-            </p>
-
-            {socialLinks.length > 0 && (
-              <div className="mt-12 flex flex-wrap gap-6 items-center">
-                {socialLinks.map((link) => (
-                  <a
-                    key={link.label}
-                    href={link.url as string}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="relative inline-block font-body text-[13px] text-[var(--color-warm-slate)] after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-[1px] after:bg-current after:scale-x-0 after:origin-left after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.16,1,0.3,1)] hover:after:scale-x-100"
-                  >
-                    {link.label} →
-                  </a>
-                ))}
+            <div className="lg:sticky lg:top-28">
+              <div className="overflow-hidden rounded-[34px] border border-[var(--color-rule)] bg-[var(--color-bone)] shadow-[0_20px_48px_rgba(27,20,14,0.08)]">
+                <div className="aspect-[4/5]">
+                  {artist.profileImageUrl ? (
+                    <img
+                      src={artist.profileImageUrl}
+                      alt={artist.fullName}
+                      className="block h-full w-full object-cover object-center"
+                    />
+                  ) : (
+                    <StudioImagePlaceholder
+                      className="h-full w-full"
+                      markClassName="w-24 md:w-32"
+                      label="Studio 201"
+                    />
+                  )}
+                </div>
               </div>
-            )}
+            </div>
+          </Reveal>
+
+          <Reveal>
+            <div className="rounded-[34px] border border-[var(--color-rule)] bg-[rgba(255,253,250,0.78)] p-7 shadow-[0_20px_48px_rgba(27,20,14,0.05)] md:p-10 lg:p-12">
+              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+                Public Artist Profile
+              </div>
+
+              <h1 className="mt-6 font-display text-[clamp(42px,6vw,76px)] font-normal tracking-[-0.03em] leading-[0.98] text-[var(--color-near-black)]">
+                {firstName}
+                {lastName ? (
+                  <>
+                    <br />
+                    {lastName}
+                  </>
+                ) : null}
+              </h1>
+
+              <div className="mt-5 font-mono text-[11px] tracking-[0.12em] text-[var(--color-dust)] uppercase">
+                Studio 201 Artist
+              </div>
+
+              <p className="mt-10 max-w-[720px] font-sub text-[clamp(24px,3vw,30px)] italic font-light leading-[1.5] text-[var(--color-warm-slate)]">
+                {artist.bio || "Artist statement coming soon."}
+              </p>
+
+              <div className="mt-10 grid gap-4 sm:grid-cols-3">
+                <div className="rounded-[22px] border border-[var(--color-rule)] bg-[var(--color-linen)] px-5 py-5">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+                    Showcase
+                  </div>
+                  <div className="mt-3 font-display text-[2rem] leading-none text-[var(--color-near-black)]">
+                    {showcaseCount}
+                  </div>
+                  <p className="mt-2 text-sm leading-[1.65] text-[var(--color-warm-slate)]">
+                    Public portfolio works chosen by the artist.
+                  </p>
+                </div>
+
+                <div className="rounded-[22px] border border-[var(--color-rule)] bg-[var(--color-linen)] px-5 py-5">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+                    Exhibition Works
+                  </div>
+                  <div className="mt-3 font-display text-[2rem] leading-none text-[var(--color-near-black)]">
+                    {exhibitionWorkCount}
+                  </div>
+                  <p className="mt-2 text-sm leading-[1.65] text-[var(--color-warm-slate)]">
+                    Approved works currently available through exhibitions.
+                  </p>
+                </div>
+
+                <div className="rounded-[22px] border border-[var(--color-rule)] bg-[var(--color-linen)] px-5 py-5">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+                    Upcoming Shows
+                  </div>
+                  <div className="mt-3 font-display text-[2rem] leading-none text-[var(--color-near-black)]">
+                    {upcomingShowCount}
+                  </div>
+                  <p className="mt-2 text-sm leading-[1.65] text-[var(--color-warm-slate)]">
+                    Scheduled appearances and exhibitions listed below.
+                  </p>
+                </div>
+              </div>
+
+              <p className="mt-10 max-w-[640px] text-base leading-[1.85] text-[var(--color-warm-slate)]">
+                Selected works and upcoming shows are listed below so the page reads like a compact public dossier instead of a dashboard.
+              </p>
+
+              {socialLinks.length > 0 ? (
+                <div className="mt-10 flex flex-wrap gap-4">
+                  {socialLinks.map((link) => (
+                    <a
+                      key={link.label}
+                      href={link.url as string}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center justify-center rounded-full border border-[var(--color-rule)] bg-[var(--color-cream)] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-warm-slate)] transition-colors duration-300 hover:border-[var(--color-near-black)] hover:text-[var(--color-near-black)]"
+                    >
+                      {link.label}
+                    </a>
+                  ))}
+                </div>
+              ) : null}
+
+              <PublicProfileOwnerActions
+                artistId={artist.id}
+                artistSlug={artist.slug}
+                showManageArtworks={false}
+              />
+            </div>
           </Reveal>
         </div>
       </div>
@@ -247,6 +221,16 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
           <p className="mt-6 text-xs font-mono uppercase tracking-[0.1em] text-[var(--color-dust)]">
             Curated portfolio
           </p>
+        ) : null}
+        {showViewAllWorksLink ? (
+          <div className="mt-8">
+            <Link
+              href={`/artists/${artist.slug}/works`}
+              className="inline-flex items-center justify-center border border-[var(--color-near-black)] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-300 hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)]"
+            >
+              View All Works
+            </Link>
+          </div>
         ) : null}
       </div>
 

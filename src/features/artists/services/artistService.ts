@@ -7,6 +7,7 @@ export interface PublicUserProfile {
   fullName: string;
   slug: string;
   role: string;
+  artistRank?: number | null;
   bio?: string;
   profileImageUrl?: string;
   instagramUrl?: string | null;

@@ -9,6 +9,8 @@ export interface PublicArtworkDto {
   artType?: string | null;
   description: string;
   status: string;
+  isVisibleInExhibition: boolean;
+  displayOrder?: number | null;
   mediaAssetId: string | null;
   mediaAssetUrl?: string | null;
   createdAt: string;

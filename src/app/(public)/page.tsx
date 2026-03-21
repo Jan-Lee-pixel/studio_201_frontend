@@ -288,6 +288,16 @@ export default function Home() {
             )
           )}
         </div>
+        <div className="mt-12">
+          <Reveal>
+            <Link
+              href="/artists"
+              className="relative inline-block font-body font-medium text-sm tracking-[0.02em] transition-colors duration-200 after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-[1px] after:bg-current after:scale-x-0 after:origin-left after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.16,1,0.3,1)] hover:after:scale-x-100"
+            >
+              View all artists →
+            </Link>
+          </Reveal>
+        </div>
       </section>
 
       {/* EVENTS */}

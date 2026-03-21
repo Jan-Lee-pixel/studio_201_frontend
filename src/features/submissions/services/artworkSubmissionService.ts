@@ -9,6 +9,8 @@ export interface ArtworkSubmission {
   artType?: string | null;
   description?: string;
   status: 'Pending' | 'Approved' | 'Rejected';
+  isVisibleInExhibition: boolean;
+  displayOrder?: number | null;
   mediaAssetId?: string;
   mediaAssetUrl?: string | null;
   approvedBy?: string | null;
@@ -35,12 +37,26 @@ export interface UpdateSubmissionPayload {
   mediaAssetId?: string;
 }
 
+export interface CurateSubmissionPayload {
+  exhibitionId?: string;
+  isVisibleInExhibition?: boolean;
+  displayOrder?: number | null;
+}
+
 export const artworkSubmissionService = {
   /**
    * Artist: Fetch all of the current artist's submissions
    */
   async getMySubmissions(token?: string): Promise<ArtworkSubmission[]> {
     return apiClient<ArtworkSubmission[]>('/artworksubmissions/me', {}, token);
+  },
+
+  async getSubmissionsByExhibition(exhibitionId: string, token?: string): Promise<ArtworkSubmission[]> {
+    return apiClient<ArtworkSubmission[]>(`/artworksubmissions/exhibition/${exhibitionId}`, {}, token);
+  },
+
+  async getAllSubmissions(token?: string): Promise<ArtworkSubmission[]> {
+    return apiClient<ArtworkSubmission[]>('/artworksubmissions/all', {}, token);
   },
 
   /**
@@ -68,7 +84,7 @@ export const artworkSubmissionService = {
   },
 
   /**
-   * Artist: Delete a non-approved submission
+   * Artist: Delete a submission
    */
   async deleteSubmission(id: string, token?: string): Promise<void> {
     await apiClient(`/artworksubmissions/${id}`, { method: 'DELETE' }, token);
@@ -81,6 +97,17 @@ export const artworkSubmissionService = {
     return apiClient<ArtworkSubmission>(`/artworksubmissions/${id}/status`, {
       method: 'PATCH',
       body: JSON.stringify(status),
+    }, token);
+  },
+
+  async updateCuration(
+    id: string,
+    payload: CurateSubmissionPayload,
+    token?: string
+  ): Promise<ArtworkSubmission> {
+    return apiClient<ArtworkSubmission>(`/artworksubmissions/${id}/curation`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
     }, token);
   },
 };
