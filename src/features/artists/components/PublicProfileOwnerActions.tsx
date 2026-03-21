@@ -9,6 +9,7 @@ interface PublicProfileOwnerActionsProps {
   compact?: boolean;
   showEditProfile?: boolean;
   showManageArtworks?: boolean;
+  topButton?: boolean;
 }
 
 export function PublicProfileOwnerActions({
@@ -17,6 +18,7 @@ export function PublicProfileOwnerActions({
   compact = false,
   showEditProfile = true,
   showManageArtworks = true,
+  topButton = false,
 }: PublicProfileOwnerActionsProps) {
   const { session, profile, loading } = useAuth();
 
@@ -34,6 +36,19 @@ export function PublicProfileOwnerActions({
 
   if (!isOwner) {
     return null;
+  }
+
+  if (topButton) {
+    if (!showEditProfile) return null;
+
+    return (
+      <Link
+        href="/artist/profile"
+        className="inline-flex items-center justify-center border border-[var(--color-near-black)] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-300 hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)]"
+      >
+        Edit Profile
+      </Link>
+    );
   }
 
   const ownerCopy =

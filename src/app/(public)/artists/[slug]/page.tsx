@@ -67,9 +67,6 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
   const nameParts = artist.fullName.split(" ");
   const firstName = nameParts[0] || artist.fullName;
   const lastName = nameParts.slice(1).join(" ");
-  const showcaseCount = portfolioPublicItems.length;
-  const exhibitionWorkCount = approvedSubmissionWorks.length;
-  const upcomingShowCount = exhibitions.length;
 
   return (
     <div className="bg-[var(--color-parchment)] pt-28">
@@ -99,8 +96,16 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
 
           <Reveal>
             <div className="rounded-[34px] border border-[var(--color-rule)] bg-[rgba(255,253,250,0.78)] p-7 shadow-[0_20px_48px_rgba(27,20,14,0.05)] md:p-10 lg:p-12">
-              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
-                Public Artist Profile
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+                  Public Artist Profile
+                </div>
+                <PublicProfileOwnerActions
+                  artistId={artist.id}
+                  artistSlug={artist.slug}
+                  showManageArtworks={false}
+                  topButton
+                />
               </div>
 
               <h1 className="mt-6 font-display text-[clamp(42px,6vw,76px)] font-normal tracking-[-0.03em] leading-[0.98] text-[var(--color-near-black)]">
@@ -117,50 +122,8 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
                 Studio 201 Artist
               </div>
 
-              <p className="mt-10 max-w-[720px] font-sub text-[clamp(24px,3vw,30px)] italic font-light leading-[1.5] text-[var(--color-warm-slate)]">
+              <p className="mt-10 max-w-[720px] whitespace-pre-line font-sub text-[clamp(24px,3vw,30px)] italic font-light leading-[1.5] text-[var(--color-warm-slate)]">
                 {artist.bio || "Artist statement coming soon."}
-              </p>
-
-              <div className="mt-10 grid gap-4 sm:grid-cols-3">
-                <div className="rounded-[22px] border border-[var(--color-rule)] bg-[var(--color-linen)] px-5 py-5">
-                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
-                    Showcase
-                  </div>
-                  <div className="mt-3 font-display text-[2rem] leading-none text-[var(--color-near-black)]">
-                    {showcaseCount}
-                  </div>
-                  <p className="mt-2 text-sm leading-[1.65] text-[var(--color-warm-slate)]">
-                    Public portfolio works chosen by the artist.
-                  </p>
-                </div>
-
-                <div className="rounded-[22px] border border-[var(--color-rule)] bg-[var(--color-linen)] px-5 py-5">
-                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
-                    Exhibition Works
-                  </div>
-                  <div className="mt-3 font-display text-[2rem] leading-none text-[var(--color-near-black)]">
-                    {exhibitionWorkCount}
-                  </div>
-                  <p className="mt-2 text-sm leading-[1.65] text-[var(--color-warm-slate)]">
-                    Approved works currently available through exhibitions.
-                  </p>
-                </div>
-
-                <div className="rounded-[22px] border border-[var(--color-rule)] bg-[var(--color-linen)] px-5 py-5">
-                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
-                    Upcoming Shows
-                  </div>
-                  <div className="mt-3 font-display text-[2rem] leading-none text-[var(--color-near-black)]">
-                    {upcomingShowCount}
-                  </div>
-                  <p className="mt-2 text-sm leading-[1.65] text-[var(--color-warm-slate)]">
-                    Scheduled appearances and exhibitions listed below.
-                  </p>
-                </div>
-              </div>
-
-              <p className="mt-10 max-w-[640px] text-base leading-[1.85] text-[var(--color-warm-slate)]">
-                Selected works and upcoming shows are listed below so the page reads like a compact public dossier instead of a dashboard.
               </p>
 
               {socialLinks.length > 0 ? (
@@ -178,12 +141,6 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
                   ))}
                 </div>
               ) : null}
-
-              <PublicProfileOwnerActions
-                artistId={artist.id}
-                artistSlug={artist.slug}
-                showManageArtworks={false}
-              />
             </div>
           </Reveal>
         </div>
