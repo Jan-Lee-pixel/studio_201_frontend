@@ -30,6 +30,11 @@ export interface MerchItem {
   inquiryEmail?: string | null;
   primaryMediaId?: string | null;
   primaryImageUrl?: string | null;
+  secondaryMediaId?: string | null;
+  secondaryImageUrl?: string | null;
+  tertiaryMediaId?: string | null;
+  tertiaryImageUrl?: string | null;
+  galleryImages?: string[];
   isFeatured: boolean;
   sortOrder?: number | null;
   createdBy?: string | null;
@@ -49,6 +54,8 @@ export interface CreateMerchItemPayload {
   priceLabel?: string | null;
   inquiryEmail?: string | null;
   primaryMediaId?: string | null;
+  secondaryMediaId?: string | null;
+  tertiaryMediaId?: string | null;
   isFeatured?: boolean;
   sortOrder?: number | null;
   artistId?: string | null;

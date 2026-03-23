@@ -14,6 +14,11 @@ export type PublicMerchItem = {
   inquiryEmail?: string | null;
   primaryMediaId?: string | null;
   primaryImageUrl?: string | null;
+  secondaryMediaId?: string | null;
+  secondaryImageUrl?: string | null;
+  tertiaryMediaId?: string | null;
+  tertiaryImageUrl?: string | null;
+  galleryImages?: string[];
   isFeatured: boolean;
   sortOrder?: number | null;
   createdAt: string;
