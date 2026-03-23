@@ -4,63 +4,95 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Reveal } from "@/components/animation/Reveal";
 import { SectionLabel } from "@/components/ui/SectionLabel";
-import { ArtworkLightbox } from "@/features/artworks/components/ArtworkLightbox";
+import { ArtworkPreviewGrid } from "@/features/artworks/components/ArtworkPreviewGrid";
 import { PublicProfileOwnerActions } from "@/features/artists/components/PublicProfileOwnerActions";
-
-type GalleryArtwork = {
-  id: string;
-  title: string;
-  imageUrl: string;
-  category?: string | null;
-  artType?: string | null;
-  description?: string | null;
-  artistName?: string;
-};
+import type { ArtworkPreviewItem } from "@/features/artworks/components/ArtworkPreviewGrid";
 
 interface ArtistWorksGalleryProps {
   artistName: string;
   artistSlug: string;
   artistId: string;
-  portfolioArtworks: GalleryArtwork[];
-  approvedArtworks: GalleryArtwork[];
+  portfolioArtworks: ArtworkPreviewItem[];
+  approvedArtworks: Array<
+    ArtworkPreviewItem & {
+      exhibitionId?: string;
+      exhibitionTitle?: string | null;
+      exhibitionSlug?: string | null;
+    }
+  >;
 }
 
-function GallerySection({
-  title,
+const DEFAULT_APPROVED_PREVIEW_COUNT = 3;
+
+function ApprovedExhibitionSection({
+  exhibitionId,
+  exhibitionTitle,
+  exhibitionSlug,
   artworks,
-  onSelect,
 }: {
-  title: string;
-  artworks: GalleryArtwork[];
-  onSelect: (index: number) => void;
+  exhibitionId: string;
+  exhibitionTitle: string;
+  exhibitionSlug?: string | null;
+  artworks: ArtworkPreviewItem[];
 }) {
-  if (artworks.length === 0) return null;
+  const [isExpanded, setIsExpanded] = useState(false);
+  const visibleArtworks = isExpanded ? artworks : artworks.slice(0, DEFAULT_APPROVED_PREVIEW_COUNT);
+  const hiddenCount = Math.max(0, artworks.length - DEFAULT_APPROVED_PREVIEW_COUNT);
+  const showToggle = artworks.length > DEFAULT_APPROVED_PREVIEW_COUNT;
+  const exhibitionHref = exhibitionSlug ? `/exhibitions/${exhibitionSlug}` : null;
 
   return (
-    <section className="mt-16 first:mt-0">
-      <Reveal>
-        <SectionLabel>{title}</SectionLabel>
-      </Reveal>
-      <div className="mt-10 grid grid-cols-1 gap-x-14 gap-y-18 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-18 lg:gap-y-24">
-        {artworks.map((artwork, index) => (
-          <Reveal key={artwork.id} delay={((index % 3) + 1) as 1 | 2 | 3}>
+    <section key={exhibitionId} className="mt-16 first:mt-0">
+      <div className="sticky top-[86px] z-10 -mx-6 bg-[var(--color-linen)]/95 px-6 pb-6 pt-2 backdrop-blur-sm md:-mx-12 md:px-12">
+        <div className="flex flex-col gap-4 border-b border-[var(--color-rule)] pb-6 md:flex-row md:items-end md:justify-between">
+          <div>
+            <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+              Exhibition
+            </div>
+            <div className="mt-3">
+              {exhibitionHref ? (
+                <Link
+                  href={exhibitionHref}
+                  className="font-display text-[clamp(26px,3vw,38px)] leading-[1.08] tracking-[-0.02em] text-[var(--color-near-black)] transition-colors duration-300 hover:text-[var(--color-sienna)]"
+                >
+                  {exhibitionTitle}
+                </Link>
+              ) : (
+                <h2 className="font-display text-[clamp(26px,3vw,38px)] leading-[1.08] tracking-[-0.02em] text-[var(--color-near-black)]">
+                  {exhibitionTitle}
+                </h2>
+              )}
+            </div>
+            <div className="mt-3 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+              {artworks.length} approved work{artworks.length === 1 ? "" : "s"}
+            </div>
+          </div>
+
+          {showToggle ? (
             <button
               type="button"
-              onClick={() => onSelect(index)}
-              className="group block w-full cursor-zoom-in border-none bg-transparent p-0 text-left"
-              aria-label={`View ${artwork.title}`}
+              onClick={() => setIsExpanded((current) => !current)}
+              className="inline-flex items-center justify-center border border-[var(--color-near-black)] bg-[var(--color-linen)] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-300 hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)]"
             >
-              <div className="flex min-h-[220px] items-center justify-center sm:min-h-[260px] md:min-h-[320px]">
-                <img
-                  src={artwork.imageUrl}
-                  alt={artwork.title}
-                  className="block h-auto max-h-[420px] w-full object-contain transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.015]"
-                />
-              </div>
+              {isExpanded ? "Show Fewer Works" : `Show ${hiddenCount} More Works`}
             </button>
-          </Reveal>
-        ))}
+          ) : null}
+        </div>
       </div>
+
+      <ArtworkPreviewGrid artworks={visibleArtworks} />
+
+      {showToggle && isExpanded ? (
+        <div className="mt-10 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setIsExpanded(false)}
+            className="inline-flex items-center justify-center border border-[var(--color-near-black)] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-300 hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)]"
+          >
+            Show Fewer Works
+          </button>
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -72,24 +104,36 @@ export function ArtistWorksGallery({
   portfolioArtworks,
   approvedArtworks,
 }: ArtistWorksGalleryProps) {
-  const [selectedSection, setSelectedSection] = useState<"portfolio" | "approved" | null>(null);
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const approvedArtworkGroups = useMemo(() => {
+    const groups = new Map<
+      string,
+      {
+        exhibitionId: string;
+        exhibitionTitle: string;
+        exhibitionSlug?: string | null;
+        artworks: ArtworkPreviewItem[];
+      }
+    >();
 
-  const activeArtworks = useMemo(() => {
-    if (selectedSection === "portfolio") return portfolioArtworks;
-    if (selectedSection === "approved") return approvedArtworks;
-    return [];
-  }, [approvedArtworks, portfolioArtworks, selectedSection]);
+    approvedArtworks.forEach((artwork) => {
+      const exhibitionId = artwork.exhibitionId || "unknown-exhibition";
+      const existing = groups.get(exhibitionId);
 
-  const openPortfolio = (index: number) => {
-    setSelectedSection("portfolio");
-    setSelectedIndex(index);
-  };
+      if (existing) {
+        existing.artworks.push(artwork);
+        return;
+      }
 
-  const openApproved = (index: number) => {
-    setSelectedSection("approved");
-    setSelectedIndex(index);
-  };
+      groups.set(exhibitionId, {
+        exhibitionId,
+        exhibitionTitle: artwork.exhibitionTitle || "Approved Exhibition",
+        exhibitionSlug: artwork.exhibitionSlug || null,
+        artworks: [artwork],
+      });
+    });
+
+    return Array.from(groups.values());
+  }, [approvedArtworks]);
 
   return (
     <div className="pt-28 pb-24 px-6 md:px-12 bg-[var(--color-linen)] min-h-screen">
@@ -129,32 +173,35 @@ export function ArtistWorksGallery({
           </div>
         ) : null}
 
-        <GallerySection title="Public Portfolio" artworks={portfolioArtworks} onSelect={openPortfolio} />
-        <GallerySection
-          title="Approved Exhibition Works"
-          artworks={approvedArtworks}
-          onSelect={openApproved}
-        />
-      </div>
+        {portfolioArtworks.length > 0 ? (
+          <section className="mt-16 first:mt-0">
+            <Reveal>
+              <SectionLabel>Public Portfolio</SectionLabel>
+            </Reveal>
+            <ArtworkPreviewGrid artworks={portfolioArtworks} />
+          </section>
+        ) : null}
 
-      {selectedSection && selectedIndex !== null ? (
-        <ArtworkLightbox
-          artworks={activeArtworks.map((artwork) => ({
-            id: artwork.id,
-            imageUrl: artwork.imageUrl,
-            title: artwork.title,
-            artistName: artwork.artistName,
-            category: artwork.category,
-            artType: artwork.artType,
-            description: artwork.description,
-          }))}
-          initialIndex={selectedIndex}
-          onClose={() => {
-            setSelectedSection(null);
-            setSelectedIndex(null);
-          }}
-        />
-      ) : null}
+        {approvedArtworks.length > 0 ? (
+          <section className="mt-16">
+            <Reveal>
+              <SectionLabel>Approved Exhibition Works</SectionLabel>
+            </Reveal>
+            <div className="mt-10 space-y-16">
+            {approvedArtworkGroups.map((group, index) => (
+              <Reveal key={group.exhibitionId} delay={((index % 3) + 1) as 1 | 2 | 3}>
+                <ApprovedExhibitionSection
+                  exhibitionId={group.exhibitionId}
+                  exhibitionTitle={group.exhibitionTitle}
+                  exhibitionSlug={group.exhibitionSlug}
+                  artworks={group.artworks}
+                />
+              </Reveal>
+            ))}
+            </div>
+          </section>
+        ) : null}
+      </div>
     </div>
   );
 }

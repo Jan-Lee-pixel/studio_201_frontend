@@ -12,6 +12,8 @@ export type PublicArtist = {
 export type PublicArtwork = {
   id: string;
   exhibitionId: string;
+  exhibitionTitle?: string | null;
+  exhibitionSlug?: string | null;
   artistId: string;
   title: string;
   category?: string | null;

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Reveal } from "@/components/animation/Reveal";
-import { StudioImagePlaceholder } from "@/components/ui/StudioImagePlaceholder";
 import { SectionLabel } from "@/components/ui/SectionLabel";
+import { MerchGallery } from "@/features/merch/components/MerchGallery";
 import { getPublicMerchBySlug } from "../merchData";
 
 export async function generateMetadata({
@@ -43,6 +43,12 @@ export default async function MerchDetailPage({ params }: { params: Promise<{ sl
   const inquiryHref = item.inquiryEmail
     ? `mailto:${item.inquiryEmail}?subject=${encodeURIComponent(`Inquiry about ${item.title}`)}`
     : null;
+  const galleryImages =
+    item.galleryImages && item.galleryImages.length > 0
+      ? item.galleryImages
+      : [item.primaryImageUrl, item.secondaryImageUrl, item.tertiaryImageUrl].filter(
+          (image): image is string => Boolean(image),
+        );
 
   return (
     <div className="min-h-screen bg-[var(--color-parchment)] pt-28">
@@ -63,19 +69,7 @@ export default async function MerchDetailPage({ params }: { params: Promise<{ sl
       <div className="px-6 py-16 md:px-12 md:py-20">
         <div className="mx-auto grid max-w-[1220px] gap-12 lg:grid-cols-[minmax(320px,460px)_minmax(0,1fr)]">
           <Reveal>
-            <div className="mx-auto w-full max-w-[460px] overflow-hidden border border-[var(--color-rule)] bg-white">
-              <div className="flex min-h-[360px] items-center justify-center bg-[var(--color-bone)] p-8 md:min-h-[520px] md:p-12">
-                {item.primaryImageUrl ? (
-                  <img
-                    src={item.primaryImageUrl}
-                    alt={item.title}
-                    className="block max-h-[300px] w-auto max-w-full object-contain md:max-h-[420px]"
-                  />
-                ) : (
-                  <StudioImagePlaceholder className="h-full w-full" markClassName="w-16" />
-                )}
-              </div>
-            </div>
+            <MerchGallery title={item.title} images={galleryImages} />
           </Reveal>
 
           <Reveal delay={1}>

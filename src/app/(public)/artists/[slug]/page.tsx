@@ -2,9 +2,10 @@ import Link from "next/link";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { StudioImagePlaceholder } from "@/components/ui/StudioImagePlaceholder";
 import { Reveal } from "@/components/animation/Reveal";
-import { ArtworkCard } from "@/features/artworks/components/ArtworkCard";
+import { ArtworkPreviewGrid } from "@/features/artworks/components/ArtworkPreviewGrid";
 import { EventRow } from "@/features/events/components/EventRow";
 import { PublicProfileOwnerActions } from "@/features/artists/components/PublicProfileOwnerActions";
+import type { ArtworkPreviewItem } from "@/features/artworks/components/ArtworkPreviewGrid";
 import {
   formatExhibitionDate,
   getArtist,
@@ -67,6 +68,22 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
   const nameParts = artist.fullName.split(" ");
   const firstName = nameParts[0] || artist.fullName;
   const lastName = nameParts.slice(1).join(" ");
+  const previewArtworks: ArtworkPreviewItem[] = visibleArtworks.map((artwork) => {
+    const description =
+      "year" in artwork || "medium" in artwork || "dimensions" in artwork
+        ? [artwork.year, artwork.medium, artwork.dimensions, artwork.description].filter(Boolean).join(" · ")
+        : artwork.description || "Approved exhibition work";
+
+    return {
+      id: artwork.id,
+      title: artwork.title,
+      imageUrl: artwork.mediaAssetUrl as string,
+      category: artwork.category,
+      artType: artwork.artType,
+      description,
+      artistName: artist.fullName,
+    };
+  });
 
   return (
     <div className="bg-[var(--color-parchment)] pt-28">
@@ -156,23 +173,7 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
             No public artworks yet.
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mt-12">
-            {visibleArtworks.map((artwork, index) => {
-              const meta =
-                "year" in artwork || "medium" in artwork || "dimensions" in artwork
-                  ? [artwork.year, artwork.medium, artwork.dimensions].filter(Boolean).join(" · ")
-                  : artwork.description || "Artwork";
-              return (
-                <ArtworkCard
-                  key={artwork.id}
-                  image={artwork.mediaAssetUrl as string}
-                  title={artwork.title}
-                  meta={meta || "Artwork"}
-                  delay={(index % 3) + 1 as 1 | 2 | 3}
-                />
-              );
-            })}
-          </div>
+          <ArtworkPreviewGrid artworks={previewArtworks} />
         )}
         {usingPortfolio ? (
           <p className="mt-6 text-xs font-mono uppercase tracking-[0.1em] text-[var(--color-dust)]">

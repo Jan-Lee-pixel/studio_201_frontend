@@ -40,6 +40,13 @@ const merchSchema = z.object({
 });
 
 type MerchFormData = z.infer<typeof merchSchema>;
+type ImageSlotKey = "primary" | "secondary" | "tertiary";
+type ImageSlotState = {
+  file: File | null;
+  previewUrl: string | null;
+  mediaId: string | null;
+  cleared: boolean;
+};
 
 type ArtistOption = {
   id: string;
@@ -56,6 +63,32 @@ interface MerchItemFormProps {
   onSuccess: () => void;
   onCancel?: () => void;
 }
+
+const IMAGE_SLOTS: Array<{
+  key: ImageSlotKey;
+  label: string;
+  description: string;
+  optional: boolean;
+}> = [
+  {
+    key: "primary",
+    label: "Main image",
+    description: "Used in the catalog and shown first on the item page.",
+    optional: false,
+  },
+  {
+    key: "secondary",
+    label: "Detail image 2",
+    description: "Optional supporting image for alternate angle or close detail.",
+    optional: true,
+  },
+  {
+    key: "tertiary",
+    label: "Detail image 3",
+    description: "Optional third image for the merch gallery.",
+    optional: true,
+  },
+];
 
 function getDefaultValues(item: MerchItem | null | undefined, mode: "artist" | "admin"): MerchFormData {
   return {
@@ -74,6 +107,29 @@ function getDefaultValues(item: MerchItem | null | undefined, mode: "artist" | "
   };
 }
 
+function getInitialImageSlots(item: MerchItem | null | undefined): Record<ImageSlotKey, ImageSlotState> {
+  return {
+    primary: {
+      file: null,
+      previewUrl: item?.primaryImageUrl || null,
+      mediaId: item?.primaryMediaId || null,
+      cleared: false,
+    },
+    secondary: {
+      file: null,
+      previewUrl: item?.secondaryImageUrl || null,
+      mediaId: item?.secondaryMediaId || null,
+      cleared: false,
+    },
+    tertiary: {
+      file: null,
+      previewUrl: item?.tertiaryImageUrl || null,
+      mediaId: item?.tertiaryMediaId || null,
+      cleared: false,
+    },
+  };
+}
+
 export function MerchItemForm({
   token,
   authUserId,
@@ -87,9 +143,17 @@ export function MerchItemForm({
   const supabase = createClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(item?.primaryImageUrl || null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [imageSlots, setImageSlots] = useState<Record<ImageSlotKey, ImageSlotState>>(getInitialImageSlots(item));
+  const fileInputRefs = useRef<Record<ImageSlotKey, HTMLInputElement | null>>({
+    primary: null,
+    secondary: null,
+    tertiary: null,
+  });
+  const objectUrlRefs = useRef<Record<ImageSlotKey, string | null>>({
+    primary: null,
+    secondary: null,
+    tertiary: null,
+  });
   const isEditing = Boolean(item);
 
   const {
@@ -107,34 +171,110 @@ export function MerchItemForm({
   const channelValue = watch("channel");
   const statusValue = watch("status");
 
+  const revokeObjectUrl = (slot: ImageSlotKey) => {
+    const existing = objectUrlRefs.current[slot];
+    if (existing) {
+      URL.revokeObjectURL(existing);
+      objectUrlRefs.current[slot] = null;
+    }
+  };
+
+  const resetImages = (nextItem: MerchItem | null | undefined) => {
+    (Object.keys(objectUrlRefs.current) as ImageSlotKey[]).forEach(revokeObjectUrl);
+    setImageSlots(getInitialImageSlots(nextItem));
+  };
+
   useEffect(() => {
     reset(getDefaultValues(item, mode));
-    setSelectedFile(null);
-    setPreviewUrl(item?.primaryImageUrl || null);
+    resetImages(item);
     setErrorMsg(null);
   }, [item, mode, reset]);
 
   useEffect(() => {
-    if (!selectedFile) {
-      setPreviewUrl(item?.primaryImageUrl || null);
-      return;
+    return () => {
+      (Object.keys(objectUrlRefs.current) as ImageSlotKey[]).forEach(revokeObjectUrl);
+    };
+  }, []);
+
+  const setSlotFile = (slot: ImageSlotKey, file: File) => {
+    revokeObjectUrl(slot);
+    const objectUrl = URL.createObjectURL(file);
+    objectUrlRefs.current[slot] = objectUrl;
+
+    setImageSlots((current) => ({
+      ...current,
+      [slot]: {
+        ...current[slot],
+        file,
+        previewUrl: objectUrl,
+        cleared: false,
+      },
+    }));
+  };
+
+  const clearSlot = (slot: ImageSlotKey) => {
+    revokeObjectUrl(slot);
+    setImageSlots((current) => ({
+      ...current,
+      [slot]: {
+        file: null,
+        previewUrl: null,
+        mediaId: null,
+        cleared: true,
+      },
+    }));
+  };
+
+  const uploadSlotMedia = async (slot: ImageSlotKey, file: File, title: string) => {
+    const fileSizeMb = file.size / (1024 * 1024);
+    if (fileSizeMb > MAX_FILE_SIZE_MB) {
+      throw new Error(`File too large. Max size is ${MAX_FILE_SIZE_MB}MB.`);
     }
 
-    const objectUrl = URL.createObjectURL(selectedFile);
-    setPreviewUrl(objectUrl);
+    const extensionFromName = file.name.split(".").pop();
+    const extensionFromType = file.type?.split("/").pop();
+    const extension = extensionFromName || extensionFromType || "jpg";
+    const uuid =
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
-    return () => {
-      URL.revokeObjectURL(objectUrl);
-    };
-  }, [item?.primaryImageUrl, selectedFile]);
+    const subfolder = mode === "artist" ? "backroom" : "catalog";
+    const filePath = `merch/${subfolder}/${authUserId}/${uuid}.${extension}`;
+    const uploadResult = await supabase.storage.from(MERCH_BUCKET).upload(filePath, file, {
+      contentType: file.type || "image/jpeg",
+      upsert: false,
+    });
+
+    if (uploadResult.error) {
+      throw new Error("Failed to upload merch image. Please try again.");
+    }
+
+    const { data: publicData } = supabase.storage.from(MERCH_BUCKET).getPublicUrl(filePath);
+
+    try {
+      const mediaAsset = await mediaAssetService.createAsset(
+        {
+          fileName: file.name,
+          filePath,
+          publicUrl: publicData.publicUrl,
+          mediaType: file.type || "image/jpeg",
+          altText: `${title} (${slot} image)`,
+        },
+        token,
+      );
+      return mediaAsset.id;
+    } catch (error) {
+      await supabase.storage.from(MERCH_BUCKET).remove([filePath]);
+      throw error;
+    }
+  };
 
   const onSubmit = async (data: MerchFormData) => {
     setIsSubmitting(true);
     setErrorMsg(null);
 
     try {
-      let primaryMediaId = item?.primaryMediaId ?? undefined;
-      let uploadedFilePath: string | null = null;
       const hasSortOrder = Boolean(data.sortOrder?.trim());
       const parsedSortOrder = hasSortOrder ? Number.parseInt(data.sortOrder!.trim(), 10) : null;
 
@@ -144,59 +284,23 @@ export function MerchItemForm({
         return;
       }
 
-      if (selectedFile) {
-        const fileSizeMb = selectedFile.size / (1024 * 1024);
-        if (fileSizeMb > MAX_FILE_SIZE_MB) {
-          setErrorMsg(`File too large. Max size is ${MAX_FILE_SIZE_MB}MB.`);
-          setIsSubmitting(false);
-          return;
+      const slotMediaIds: Record<ImageSlotKey, string | null> = {
+        primary: imageSlots.primary.mediaId,
+        secondary: imageSlots.secondary.mediaId,
+        tertiary: imageSlots.tertiary.mediaId,
+      };
+
+      for (const slot of IMAGE_SLOTS) {
+        const slotState = imageSlots[slot.key];
+        if (slotState.file) {
+          slotMediaIds[slot.key] = await uploadSlotMedia(slot.key, slotState.file, data.title);
+        } else if (slot.optional && slotState.cleared) {
+          slotMediaIds[slot.key] = null;
         }
+      }
 
-        const extensionFromName = selectedFile.name.split(".").pop();
-        const extensionFromType = selectedFile.type?.split("/").pop();
-        const extension = extensionFromName || extensionFromType || "jpg";
-        const uuid =
-          typeof crypto !== "undefined" && "randomUUID" in crypto
-            ? crypto.randomUUID()
-            : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-
-        const subfolder = mode === "artist" ? "backroom" : "catalog";
-        const filePath = `merch/${subfolder}/${authUserId}/${uuid}.${extension}`;
-        const uploadResult = await supabase.storage.from(MERCH_BUCKET).upload(filePath, selectedFile, {
-          contentType: selectedFile.type || "image/jpeg",
-          upsert: false,
-        });
-
-        if (uploadResult.error) {
-          console.error("Merch upload failed:", uploadResult.error);
-          setErrorMsg("Failed to upload merch image. Please try again.");
-          setIsSubmitting(false);
-          return;
-        }
-
-        uploadedFilePath = filePath;
-        const { data: publicData } = supabase.storage.from(MERCH_BUCKET).getPublicUrl(filePath);
-        const mediaAsset = await mediaAssetService
-          .createAsset(
-            {
-              fileName: selectedFile.name,
-              filePath,
-              publicUrl: publicData.publicUrl,
-              mediaType: selectedFile.type || "image/jpeg",
-              altText: data.title,
-            },
-            token,
-          )
-          .catch(async (error) => {
-            if (uploadedFilePath) {
-              await supabase.storage.from(MERCH_BUCKET).remove([uploadedFilePath]);
-            }
-            throw error;
-          });
-
-        primaryMediaId = mediaAsset.id;
-      } else if (!isEditing) {
-        setErrorMsg("Please choose an image.");
+      if (!slotMediaIds.primary) {
+        setErrorMsg("Please choose a main image.");
         setIsSubmitting(false);
         return;
       }
@@ -210,7 +314,13 @@ export function MerchItemForm({
         priceLabel: data.priceLabel || null,
         inquiryEmail: data.inquiryEmail || null,
         channel: (data.channel || "merch") as MerchChannel,
-        ...(primaryMediaId ? { primaryMediaId } : {}),
+        primaryMediaId: slotMediaIds.primary,
+        ...(isEditing || slotMediaIds.secondary !== null || imageSlots.secondary.cleared
+          ? { secondaryMediaId: slotMediaIds.secondary }
+          : {}),
+        ...(isEditing || slotMediaIds.tertiary !== null || imageSlots.tertiary.cleared
+          ? { tertiaryMediaId: slotMediaIds.tertiary }
+          : {}),
         ...(mode === "admin"
           ? {
               status: (data.status || "published") as MerchStatus,
@@ -228,11 +338,11 @@ export function MerchItemForm({
       }
 
       reset(getDefaultValues(item, mode));
-      setSelectedFile(null);
+      resetImages(item);
       onSuccess();
     } catch (error) {
       console.error("Failed to save merch item", error);
-      setErrorMsg("Failed to save merch item. Please try again.");
+      setErrorMsg(error instanceof Error ? error.message : "Failed to save merch item. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -244,9 +354,7 @@ export function MerchItemForm({
     <div className="border border-[var(--color-rule)] bg-white p-6">
       <div className="mb-5 flex items-center justify-between gap-4">
         <div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
-            {mode === "artist" ? "Merch item" : "Merch item"}
-          </div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Merch item</div>
           <h3 className="mt-2 font-display text-2xl text-[var(--color-near-black)]">
             {isEditing ? "Edit item" : mode === "artist" ? "Add merch or backroom item" : "Add merch item"}
           </h3>
@@ -263,60 +371,81 @@ export function MerchItemForm({
           <div className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">{errorMsg}</div>
         ) : null}
 
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/tiff,image/webp"
-          style={{ display: "none" }}
-          onChange={(event) => {
-            if (event.target.files?.length) {
-              setSelectedFile(event.target.files[0]);
-            }
-          }}
-        />
+        <div className="space-y-3 border border-dashed border-[var(--color-rule)] bg-[var(--color-bone)] px-5 py-5">
+          <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+            Merch gallery
+          </div>
+          <div className="text-sm leading-6 text-[var(--color-dust)]">
+            Use one main image and up to two supporting images so the public item page can show a cleaner gallery and a full preview.
+          </div>
 
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          className="w-full border border-dashed border-[var(--color-rule)] bg-[var(--color-bone)] px-6 py-8 text-left transition-colors hover:border-[var(--color-near-black)]"
-        >
-          <div className="mx-auto grid max-w-4xl gap-5 md:grid-cols-[240px_minmax(0,1fr)] md:items-center">
-            <div className="flex min-h-[220px] items-center justify-center rounded border border-[var(--color-rule)] bg-white p-4">
-              {previewUrl ? (
-                <img
-                  src={previewUrl}
-                  alt="Selected merch preview"
-                  className="max-h-[260px] w-auto max-w-full object-contain"
-                />
-              ) : (
-                <div className="text-center">
-                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
-                    No image yet
+          <div className="grid gap-4 lg:grid-cols-3">
+            {IMAGE_SLOTS.map((slot) => {
+              const slotState = imageSlots[slot.key];
+              const hasImage = Boolean(slotState.previewUrl);
+
+              return (
+                <div key={slot.key} className="rounded border border-[var(--color-rule)] bg-white p-4">
+                  <input
+                    ref={(element) => {
+                      fileInputRefs.current[slot.key] = element;
+                    }}
+                    type="file"
+                    accept="image/jpeg,image/png,image/tiff,image/webp"
+                    className="hidden"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (file) setSlotFile(slot.key, file);
+                      event.currentTarget.value = "";
+                    }}
+                  />
+
+                  <div className="flex min-h-[220px] items-center justify-center rounded border border-[var(--color-rule)] bg-[var(--color-bone)] p-4">
+                    {hasImage ? (
+                      <img
+                        src={slotState.previewUrl || undefined}
+                        alt={`${slot.label} preview`}
+                        className="max-h-[220px] w-auto max-w-full object-contain"
+                      />
+                    ) : (
+                      <div className="text-center">
+                        <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+                          {slot.optional ? "Optional image" : "Required image"}
+                        </div>
+                        <div className="mt-3 text-sm leading-6 text-[var(--color-dust)]">{slot.description}</div>
+                      </div>
+                    )}
                   </div>
-                  <div className="mt-3 text-sm leading-6 text-[var(--color-dust)]">
-                    Choose the main image for this merch item.
+
+                  <div className="mt-4">
+                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">{slot.label}</div>
+                    <div className="mt-2 text-sm leading-6 text-[var(--color-near-black)]">
+                      {slotState.file
+                        ? slotState.file.name
+                        : hasImage
+                          ? "Current image is ready. Replace it if needed."
+                          : slot.description}
+                    </div>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => fileInputRefs.current[slot.key]?.click()}
+                      >
+                        {hasImage ? "Replace image" : "Upload image"}
+                      </button>
+                      {slot.optional && hasImage ? (
+                        <button type="button" className="btn btn-secondary btn-sm" onClick={() => clearSlot(slot.key)}>
+                          Remove
+                        </button>
+                      ) : null}
+                    </div>
                   </div>
                 </div>
-              )}
-            </div>
-
-            <div className="rounded border border-[var(--color-rule)] bg-white px-5 py-5">
-              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
-                {selectedFile ? "Selected image" : previewUrl ? "Current image" : "Upload image"}
-              </div>
-              <div className="mt-3 text-sm leading-6 text-[var(--color-near-black)]">
-                {selectedFile
-                  ? selectedFile.name
-                  : previewUrl
-                    ? "Click here if you want to replace the current merch image."
-                    : "Click here to upload the main image for this item."}
-              </div>
-              <div className="mt-4 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
-                JPG, PNG, TIFF, or WEBP up to {MAX_FILE_SIZE_MB}MB
-              </div>
-            </div>
+              );
+            })}
           </div>
-        </button>
+        </div>
 
         <div className="grid gap-5 md:grid-cols-2">
           <label className="block">
@@ -492,7 +621,7 @@ export function MerchItemForm({
             className="btn btn-secondary btn-sm"
             onClick={() => {
               reset(getDefaultValues(item, mode));
-              setSelectedFile(null);
+              resetImages(item);
               setErrorMsg(null);
             }}
           >
