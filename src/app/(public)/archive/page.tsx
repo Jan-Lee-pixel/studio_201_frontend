@@ -1,44 +1,30 @@
-"use client";
-
-import { useEffect, useMemo, useState } from "react";
 import { Reveal } from "@/components/animation/Reveal";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { StudioImagePlaceholder } from "@/components/ui/StudioImagePlaceholder";
-import { exhibitionService, Exhibition } from "@/features/exhibitions/services/exhibitionService";
-import { PublicPageSkeleton } from "@/components/ui/SkeletonPage";
+import type { Exhibition } from "@/features/exhibitions/services/exhibitionService";
+import { getPublicCollection } from "@/lib/publicApi";
 
-export default function ArchivePage() {
-  const [archiveExhibitions, setArchiveExhibitions] = useState<Exhibition[]>([]);
-  const [loading, setLoading] = useState(true);
+export default async function ArchivePage() {
+  const archiveExhibitions = await getPublicCollection<Exhibition>("/Exhibitions/archive", {
+    revalidate: 600,
+    tags: ["public-archive"],
+  });
 
-  useEffect(() => {
-    exhibitionService
-      .getArchiveExhibitions()
-      .then(setArchiveExhibitions)
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
+  const archiveItems = archiveExhibitions.map((exhibition) => {
+    const year = exhibition.endDate
+      ? new Date(exhibition.endDate).getFullYear().toString()
+      : exhibition.startDate
+        ? new Date(exhibition.startDate).getFullYear().toString()
+        : "";
 
-  const archiveItems = useMemo(() => {
-    return archiveExhibitions.map((ex) => {
-      const year = ex.endDate
-        ? new Date(ex.endDate).getFullYear().toString()
-        : ex.startDate
-          ? new Date(ex.startDate).getFullYear().toString()
-          : "";
-      return {
-        slug: ex.slug,
-        year: year || "Archive",
-        title: ex.title,
-        artist: "Studio 201",
-        image: ex.coverImageUrl || null,
-      };
-    });
-  }, [archiveExhibitions]);
-
-  if (loading) {
-    return <PublicPageSkeleton />;
-  }
+    return {
+      slug: exhibition.slug,
+      year: year || "Archive",
+      title: exhibition.title,
+      artist: "Studio 201",
+      image: exhibition.coverImageUrl || null,
+    };
+  });
 
   return (
     <div className="pt-32 pb-32 min-h-screen">

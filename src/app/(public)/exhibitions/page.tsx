@@ -1,9 +1,6 @@
-'use client';
-
 import { ExhibitionsCarousel } from "@/features/exhibitions/components/ExhibitionCarousel";
-import { exhibitionService, Exhibition } from "@/features/exhibitions/services/exhibitionService";
-import { useEffect, useState } from "react";
-import { PublicPageSkeleton } from "@/components/ui/SkeletonPage";
+import type { Exhibition } from "@/features/exhibitions/services/exhibitionService";
+import { getPublicCollection } from "@/lib/publicApi";
 
 // For realistic date formatting
 const formatDate = (dateStr?: string) => {
@@ -12,20 +9,11 @@ const formatDate = (dateStr?: string) => {
   return date > new Date() ? `Opening ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` : "Now on View";
 }
 
-export default function ExhibitionsPage() {
-  const [exhibitions, setExhibitions] = useState<Exhibition[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    exhibitionService.getExhibitions()
-      .then(setExhibitions)
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) {
-    return <PublicPageSkeleton tone="dark" />;
-  }
+export default async function ExhibitionsPage() {
+  const exhibitions = await getPublicCollection<Exhibition>("/Exhibitions", {
+    revalidate: 60,
+    tags: ["public-exhibitions"],
+  });
 
   if (exhibitions.length === 0) {
     return (

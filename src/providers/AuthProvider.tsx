@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { User, Session } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
 import { authService, UserProfile } from '@/features/auth/services/authService';
@@ -28,6 +29,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [supabase] = useState(() => createClient());
   const invalidTokenCount = useRef(0);
+  const pathname = usePathname();
+
+  const shouldLoadProfile = (() => {
+    if (!pathname) return false;
+    if (
+      pathname.startsWith('/artist') ||
+      pathname.startsWith('/admin') ||
+      pathname.startsWith('/pending') ||
+      pathname.startsWith('/auth') ||
+      pathname === '/login'
+    ) {
+      return true;
+    }
+
+    return pathname.startsWith('/artists/') && pathname !== '/artists';
+  })();
 
   useEffect(() => {
     let mounted = true;
@@ -75,7 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         
-        if (session?.user) {
+        if (session?.user && shouldLoadProfile) {
           try {
             const userProfile = await loadProfile(session);
             if (mounted) setProfile(userProfile);
@@ -83,6 +100,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           } catch (e) {
             console.error('Failed to fetch user profile:', e);
           }
+        } else if (mounted) {
+          setProfile(null);
         }
       } catch (error) {
          console.error('Error fetching session:', error);
@@ -99,7 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         
-        if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+        if (session?.user && shouldLoadProfile && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
            try {
              const userProfile = await loadProfile(session);
              if (mounted) setProfile(userProfile);
@@ -107,7 +126,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
            } catch (e) {
              console.error('Failed to fetch user profile:', e);
            }
-        } else if (!session?.user) {
+        } else if (!session?.user || !shouldLoadProfile) {
           if (mounted) setProfile(null);
         }
         if (mounted) setIsLoading(false);
@@ -118,7 +137,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, [supabase, shouldLoadProfile]);
 
   return (
     <AuthContext.Provider value={{ user, session, profile, isLoading, loading: isLoading }}>

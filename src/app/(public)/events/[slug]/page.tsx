@@ -3,15 +3,14 @@ import { ArrowLeft } from "lucide-react";
 import { Reveal } from "@/components/animation/Reveal";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import type { EventDto } from "@/features/events/services/eventService";
-
-const API_BASE_URL =
-  process.env.API_INTERNAL_URL ||
-  process.env.NEXT_PUBLIC_API_URL ||
-  "http://localhost:5203/api";
+import { getPublicFetchConfig, PUBLIC_API_BASE_URL } from "@/lib/publicApi";
 
 async function getEvent(slug: string): Promise<EventDto | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/Events/slug/${slug}`, { cache: "no-store" });
+    const res = await fetch(
+      `${PUBLIC_API_BASE_URL}/Events/slug/${slug}`,
+      getPublicFetchConfig({ revalidate: 300, tags: [`event-${slug}`, "public-events"] }),
+    );
     if (!res.ok) return null;
     return res.json();
   } catch {
