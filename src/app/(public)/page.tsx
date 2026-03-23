@@ -1,17 +1,14 @@
-"use client";
-
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { ExhibitionCard } from "@/features/exhibitions/components/ExhibitionCard";
 import { ArtistCard } from "@/features/artists/components/ArtistCard";
 import { EventRow } from "@/features/events/components/EventRow";
 import { ArchiveItem } from "@/features/exhibitions/components/ArchiveItem";
 import { Reveal } from "@/components/animation/Reveal";
-import { Skeleton } from "@/components/ui/Skeleton";
-import { exhibitionService, Exhibition } from "@/features/exhibitions/services/exhibitionService";
-import { artistService, PublicUserProfile } from "@/features/artists/services/artistService";
-import { eventService, EventDto } from "@/features/events/services/eventService";
+import type { Exhibition } from "@/features/exhibitions/services/exhibitionService";
+import type { PublicUserProfile } from "@/features/artists/services/artistService";
+import type { EventDto } from "@/features/events/services/eventService";
+import { getPublicCollection } from "@/lib/publicApi";
 
 const formatDateRange = (start?: string, end?: string) => {
   if (!start) return "Dates TBA";
@@ -41,43 +38,28 @@ const formatEventDay = (dateStr?: string) => {
   return new Date(dateStr).toLocaleDateString("en-US", { weekday: "long" });
 };
 
-export default function Home() {
-  const [exhibitions, setExhibitions] = useState<Exhibition[]>([]);
-  const [archiveExhibitions, setArchiveExhibitions] = useState<Exhibition[]>([]);
-  const [artists, setArtists] = useState<PublicUserProfile[]>([]);
-  const [events, setEvents] = useState<EventDto[]>([]);
-  const [loading, setLoading] = useState(true);
+export default async function Home() {
+  const [exhibitions, archiveExhibitions, artists, events] = await Promise.all([
+    getPublicCollection<Exhibition>("/Exhibitions", {
+      revalidate: 60,
+      tags: ["public-exhibitions"],
+    }),
+    getPublicCollection<Exhibition>("/Exhibitions/archive", {
+      revalidate: 600,
+      tags: ["public-archive"],
+    }),
+    getPublicCollection<PublicUserProfile>("/Profile/artists", {
+      revalidate: 300,
+      tags: ["public-artists"],
+    }),
+    getPublicCollection<EventDto>("/Events", {
+      revalidate: 300,
+      tags: ["public-events"],
+    }),
+  ]);
 
-  useEffect(() => {
-    let mounted = true;
-
-    const load = async () => {
-      const results = await Promise.allSettled([
-        exhibitionService.getExhibitions(),
-        exhibitionService.getArchiveExhibitions(),
-        artistService.getArtists(),
-        eventService.getEvents(),
-      ]);
-
-      if (!mounted) return;
-
-      if (results[0].status === "fulfilled") setExhibitions(results[0].value);
-      if (results[1].status === "fulfilled") setArchiveExhibitions(results[1].value);
-      if (results[2].status === "fulfilled") setArtists(results[2].value);
-      if (results[3].status === "fulfilled") setEvents(results[3].value);
-      setLoading(false);
-    };
-
-    load();
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  const featuredExhibition = useMemo(() => {
-    if (exhibitions.length === 0) return null;
-    return exhibitions.find((ex) => ex.isFeatured) || exhibitions[0];
-  }, [exhibitions]);
+  const featuredExhibition =
+    exhibitions.find((exhibition) => exhibition.isFeatured) || exhibitions[0] || null;
 
   const hero = featuredExhibition
     ? {
@@ -102,37 +84,33 @@ export default function Home() {
   const heroLink = featuredExhibition ? `/exhibitions/${hero.slug}` : "/exhibitions";
   const heroCta = featuredExhibition ? "View Exhibition →" : "Explore Exhibitions →";
 
-  const upcomingExhibitions = useMemo(() => {
+  const now = new Date();
+  const upcomingExhibitions = (() => {
     if (exhibitions.length === 0) return [];
-    const now = new Date();
-    const upcoming = exhibitions.filter((ex) => ex.startDate && new Date(ex.startDate) > now);
+    const upcoming = exhibitions.filter((exhibition) => exhibition.startDate && new Date(exhibition.startDate) > now);
     const pool = upcoming.length > 0 ? upcoming : exhibitions;
     const filtered = featuredExhibition
-      ? pool.filter((ex) => ex.id !== featuredExhibition.id)
+      ? pool.filter((exhibition) => exhibition.id !== featuredExhibition.id)
       : pool;
 
-    return filtered.slice(0, 3).map((ex) => ({
-      slug: ex.slug,
-      image: ex.coverImageUrl || null,
-      title: ex.title,
+    return filtered.slice(0, 3).map((exhibition) => ({
+      slug: exhibition.slug,
+      image: exhibition.coverImageUrl || null,
+      title: exhibition.title,
       artist: "Studio 201",
-      date: formatOpeningLabel(ex.startDate),
+      date: formatOpeningLabel(exhibition.startDate),
     }));
-  }, [exhibitions, featuredExhibition]);
+  })();
 
-  const featuredArtists = useMemo(() => {
-    if (artists.length === 0) return [];
-    return artists.slice(0, 4).map((artist) => ({
-      slug: artist.slug,
-      image: artist.profileImageUrl || null,
-      name: artist.fullName,
-      medium: "",
-    }));
-  }, [artists]);
+  const featuredArtists = artists.slice(0, 4).map((artist) => ({
+    slug: artist.slug,
+    image: artist.profileImageUrl || null,
+    name: artist.fullName,
+    medium: "",
+  }));
 
-  const featuredEvents = useMemo(() => {
+  const featuredEvents = (() => {
     if (events.length === 0) return [];
-    const now = new Date();
     const sorted = [...events].sort((a, b) => {
       const aDate = a.startDate ? new Date(a.startDate).getTime() : Number.MAX_SAFE_INTEGER;
       const bDate = b.startDate ? new Date(b.startDate).getTime() : Number.MAX_SAFE_INTEGER;
@@ -147,33 +125,34 @@ export default function Home() {
 
     const pool = upcoming.length > 0 ? upcoming : sorted;
 
-    return pool.slice(0, 4).map((ev) => ({
-      slug: ev.slug,
-      date: formatEventDate(ev.startDate),
-      day: formatEventDay(ev.startDate),
-      type: ev.type || "Event",
-      title: ev.title,
-      subtitle: ev.subtitle || "",
-      venue: ev.venue || "Studio 201",
-      time: ev.timeLabel || "",
-      isExternal: ev.isExternal,
-      hasDocumentation: ev.hasDocumentation,
+    return pool.slice(0, 4).map((event) => ({
+      slug: event.slug,
+      date: formatEventDate(event.startDate),
+      day: formatEventDay(event.startDate),
+      type: event.type || "Event",
+      title: event.title,
+      subtitle: event.subtitle || "",
+      venue: event.venue || "Studio 201",
+      time: event.timeLabel || "",
+      isExternal: event.isExternal,
+      hasDocumentation: event.hasDocumentation,
     }));
-  }, [events]);
+  })();
 
-  const archiveItems = useMemo(() => {
-    if (archiveExhibitions.length === 0) return [];
+  const archiveItems = archiveExhibitions.slice(0, 3).map((exhibition) => {
+    const year = exhibition.endDate
+      ? new Date(exhibition.endDate).getFullYear()
+      : exhibition.startDate
+        ? new Date(exhibition.startDate).getFullYear()
+        : "";
 
-    return archiveExhibitions.slice(0, 3).map((ex) => {
-      const year = ex.endDate ? new Date(ex.endDate).getFullYear() : ex.startDate ? new Date(ex.startDate).getFullYear() : "";
-      return {
-        slug: ex.slug,
-        image: ex.coverImageUrl || null,
-        title: ex.title,
-        meta: year ? `${year}` : "Archive Exhibition",
-      };
-    });
-  }, [archiveExhibitions]);
+    return {
+      slug: exhibition.slug,
+      image: exhibition.coverImageUrl || null,
+      title: exhibition.title,
+      meta: year ? `${year}` : "Archive Exhibition",
+    };
+  });
 
   return (
     <div className="w-full">
@@ -225,34 +204,22 @@ export default function Home() {
       <section className="py-20 md:py-30 px-6 md:px-12 bg-[var(--color-parchment)]">
         <Reveal><SectionLabel>Upcoming Exhibitions</SectionLabel></Reveal>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[2px] mt-16">
-          {loading ? (
-            Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="border border-[var(--color-rule)] bg-white/70">
-                <Skeleton className="aspect-[4/3]" />
-                <div className="p-4">
-                  <Skeleton className="skeleton-line w-[70%] mb-2" />
-                  <Skeleton className="skeleton-line w-[55%]" />
-                </div>
-              </div>
-            ))
+          {upcomingExhibitions.length === 0 ? (
+            <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-16 text-[var(--color-warm-slate)] font-mono text-xs tracking-[0.2em] uppercase">
+              No upcoming exhibitions yet
+            </div>
           ) : (
-            upcomingExhibitions.length === 0 ? (
-              <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-16 text-[var(--color-warm-slate)] font-mono text-xs tracking-[0.2em] uppercase">
-                No upcoming exhibitions yet
-              </div>
-            ) : (
-              upcomingExhibitions.map((ex, i) => (
-                <ExhibitionCard
-                  key={`${ex.slug}-${i}`}
-                  slug={ex.slug}
-                  image={ex.image}
-                  title={ex.title}
-                  artist={ex.artist}
-                  date={ex.date}
-                  delay={((i % 3) + 1) as 1 | 2 | 3}
-                />
-              ))
-            )
+            upcomingExhibitions.map((ex, i) => (
+              <ExhibitionCard
+                key={`${ex.slug}-${i}`}
+                slug={ex.slug}
+                image={ex.image}
+                title={ex.title}
+                artist={ex.artist}
+                date={ex.date}
+                delay={((i % 3) + 1) as 1 | 2 | 3}
+              />
+            ))
           )}
         </div>
       </section>
@@ -261,31 +228,21 @@ export default function Home() {
       <section className="py-20 md:py-30 px-6 md:px-12 bg-[var(--color-linen)]">
         <Reveal><SectionLabel>Artists</SectionLabel></Reveal>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mt-16">
-          {loading ? (
-            Array.from({ length: 4 }).map((_, i) => (
-              <div key={i}>
-                <Skeleton className="aspect-[3/4]" />
-                <Skeleton className="skeleton-line w-[70%] mt-4" />
-                <Skeleton className="skeleton-line w-[55%] mt-2" />
-              </div>
-            ))
+          {featuredArtists.length === 0 ? (
+            <div className="col-span-2 md:col-span-4 text-center py-16 text-[var(--color-warm-slate)] font-mono text-xs tracking-[0.2em] uppercase">
+              No artists yet
+            </div>
           ) : (
-            featuredArtists.length === 0 ? (
-              <div className="col-span-2 md:col-span-4 text-center py-16 text-[var(--color-warm-slate)] font-mono text-xs tracking-[0.2em] uppercase">
-                No artists yet
-              </div>
-            ) : (
-              featuredArtists.map((artist, i) => (
-                <ArtistCard
-                  key={`${artist.slug}-${i}`}
-                  slug={artist.slug}
-                  image={artist.image}
-                  name={artist.name}
-                  medium={artist.medium}
-                  delay={((i % 4) + 1) as 1 | 2 | 3 | 4}
-                />
-              ))
-            )
+            featuredArtists.map((artist, i) => (
+              <ArtistCard
+                key={`${artist.slug}-${i}`}
+                slug={artist.slug}
+                image={artist.image}
+                name={artist.name}
+                medium={artist.medium}
+                delay={((i % 4) + 1) as 1 | 2 | 3 | 4}
+              />
+            ))
           )}
         </div>
         <div className="mt-12">
@@ -304,26 +261,18 @@ export default function Home() {
       <section className="py-20 md:py-30 px-6 md:px-12 bg-[var(--color-parchment)]">
         <Reveal><SectionLabel>Events</SectionLabel></Reveal>
         <div className="mt-16">
-          {loading ? (
-            <div className="space-y-4">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <Skeleton key={i} className="h-12 w-full" />
-              ))}
+          {featuredEvents.length === 0 ? (
+            <div className="text-center py-10 text-[var(--color-warm-slate)] font-mono text-xs tracking-[0.2em] uppercase">
+              No events scheduled
             </div>
           ) : (
-            featuredEvents.length === 0 ? (
-              <div className="text-center py-10 text-[var(--color-warm-slate)] font-mono text-xs tracking-[0.2em] uppercase">
-                No events scheduled
-              </div>
-            ) : (
-              featuredEvents.map((event, i) => (
-                <EventRow
-                  key={`${event.title}-${i}`}
-                  {...event}
-                  delay={((i % 5) + 1) as 1 | 2 | 3 | 4 | 5}
-                />
-              ))
-            )
+            featuredEvents.map((event, i) => (
+              <EventRow
+                key={`${event.title}-${i}`}
+                {...event}
+                delay={((i % 5) + 1) as 1 | 2 | 3 | 4 | 5}
+              />
+            ))
           )}
         </div>
         <div className="mt-12">
@@ -342,31 +291,21 @@ export default function Home() {
       <section className="py-20 md:py-30 px-6 md:px-12 bg-[var(--color-linen)]">
         <Reveal><SectionLabel>Selected Archive</SectionLabel></Reveal>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mt-16">
-          {loading ? (
-            Array.from({ length: 3 }).map((_, i) => (
-              <div key={i}>
-                <Skeleton className="aspect-[4/3]" />
-                <Skeleton className="skeleton-line w-[70%] mt-4" />
-                <Skeleton className="skeleton-line w-[55%] mt-2" />
-              </div>
-            ))
+          {archiveItems.length === 0 ? (
+            <div className="col-span-1 md:col-span-3 text-center py-16 text-[var(--color-warm-slate)] font-mono text-xs tracking-[0.2em] uppercase">
+              Archive coming soon
+            </div>
           ) : (
-            archiveItems.length === 0 ? (
-              <div className="col-span-1 md:col-span-3 text-center py-16 text-[var(--color-warm-slate)] font-mono text-xs tracking-[0.2em] uppercase">
-                Archive coming soon
-              </div>
-            ) : (
-              archiveItems.map((item, i) => (
-                <ArchiveItem
-                  key={`${item.slug}-${i}`}
-                  slug={item.slug}
-                  image={item.image}
-                  title={item.title}
-                  meta={item.meta}
-                  delay={((i % 3) + 1) as 1 | 2 | 3}
-                />
-              ))
-            )
+            archiveItems.map((item, i) => (
+              <ArchiveItem
+                key={`${item.slug}-${i}`}
+                slug={item.slug}
+                image={item.image}
+                title={item.title}
+                meta={item.meta}
+                delay={((i % 3) + 1) as 1 | 2 | 3}
+              />
+            ))
           )}
         </div>
         <div className="mt-12">

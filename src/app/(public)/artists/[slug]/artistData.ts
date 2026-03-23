@@ -1,3 +1,5 @@
+import { getPublicFetchConfig, PUBLIC_API_BASE_URL } from "@/lib/publicApi";
+
 export type PublicArtist = {
   id: string;
   fullName: string;
@@ -45,14 +47,12 @@ export type PublicExhibition = {
   endDate?: string | null;
 };
 
-const API_BASE_URL =
-  process.env.API_INTERNAL_URL ||
-  process.env.NEXT_PUBLIC_API_URL ||
-  "http://localhost:5203/api";
-
 export async function getArtist(slug: string): Promise<PublicArtist | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/Profile/artists/${slug}`, { cache: "no-store" });
+    const res = await fetch(
+      `${PUBLIC_API_BASE_URL}/Profile/artists/${slug}`,
+      getPublicFetchConfig({ revalidate: 300, tags: [`artist-${slug}`, "public-artists"] }),
+    );
     if (!res.ok) return null;
     return res.json();
   } catch {
@@ -62,9 +62,10 @@ export async function getArtist(slug: string): Promise<PublicArtist | null> {
 
 export async function getArtistArtworks(artistId: string): Promise<PublicArtwork[]> {
   try {
-    const res = await fetch(`${API_BASE_URL}/ArtworkSubmissions/public/artist/${artistId}`, {
-      cache: "no-store",
-    });
+    const res = await fetch(
+      `${PUBLIC_API_BASE_URL}/ArtworkSubmissions/public/artist/${artistId}`,
+      getPublicFetchConfig({ revalidate: 300, tags: [`artist-artworks-${artistId}`] }),
+    );
     if (!res.ok) return [];
     return res.json();
   } catch {
@@ -74,7 +75,10 @@ export async function getArtistArtworks(artistId: string): Promise<PublicArtwork
 
 export async function getArtistPortfolioItems(artistId: string): Promise<PortfolioItem[]> {
   try {
-    const res = await fetch(`${API_BASE_URL}/Portfolio/artist/${artistId}`, { cache: "no-store" });
+    const res = await fetch(
+      `${PUBLIC_API_BASE_URL}/Portfolio/artist/${artistId}`,
+      getPublicFetchConfig({ revalidate: 300, tags: [`artist-portfolio-${artistId}`] }),
+    );
     if (!res.ok) return [];
     return res.json();
   } catch {
@@ -84,7 +88,10 @@ export async function getArtistPortfolioItems(artistId: string): Promise<Portfol
 
 export async function getArtistExhibitions(artistId: string): Promise<PublicExhibition[]> {
   try {
-    const res = await fetch(`${API_BASE_URL}/Exhibitions/artist/${artistId}`, { cache: "no-store" });
+    const res = await fetch(
+      `${PUBLIC_API_BASE_URL}/Exhibitions/artist/${artistId}`,
+      getPublicFetchConfig({ revalidate: 300, tags: [`artist-exhibitions-${artistId}`] }),
+    );
     if (!res.ok) return [];
     return res.json();
   } catch {

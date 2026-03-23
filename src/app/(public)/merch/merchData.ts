@@ -1,3 +1,5 @@
+import { getPublicFetchConfig, PUBLIC_API_BASE_URL } from "@/lib/publicApi";
+
 export type PublicMerchItem = {
   id: string;
   title: string;
@@ -25,11 +27,6 @@ export type PublicMerchItem = {
   updatedAt?: string | null;
 };
 
-const API_BASE_URL =
-  process.env.API_INTERNAL_URL ||
-  process.env.NEXT_PUBLIC_API_URL ||
-  "http://localhost:5203/api";
-
 function buildQuery(params?: { channel?: string; itemType?: string }) {
   const searchParams = new URLSearchParams();
   if (params?.channel) searchParams.set("channel", params.channel);
@@ -40,7 +37,10 @@ function buildQuery(params?: { channel?: string; itemType?: string }) {
 
 export async function getPublicMerch(params?: { channel?: string; itemType?: string }): Promise<PublicMerchItem[]> {
   try {
-    const res = await fetch(`${API_BASE_URL}/Merch${buildQuery(params)}`, { cache: "no-store" });
+    const res = await fetch(
+      `${PUBLIC_API_BASE_URL}/Merch${buildQuery(params)}`,
+      getPublicFetchConfig({ revalidate: 300, tags: ["public-merch"] }),
+    );
     if (!res.ok) return [];
     return res.json();
   } catch {
@@ -50,7 +50,10 @@ export async function getPublicMerch(params?: { channel?: string; itemType?: str
 
 export async function getPublicMerchBySlug(slug: string): Promise<PublicMerchItem | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/Merch/slug/${slug}`, { cache: "no-store" });
+    const res = await fetch(
+      `${PUBLIC_API_BASE_URL}/Merch/slug/${slug}`,
+      getPublicFetchConfig({ revalidate: 300, tags: [`merch-${slug}`, "public-merch"] }),
+    );
     if (!res.ok) return null;
     return res.json();
   } catch {

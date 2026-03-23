@@ -86,12 +86,12 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
   });
 
   return (
-    <div className="bg-[var(--color-parchment)] pt-28">
+    <div className="min-h-screen bg-[var(--color-parchment)] pt-28">
       <div className="px-6 pb-20 md:px-12">
         <div className="mx-auto grid max-w-[1280px] grid-cols-1 gap-8 lg:grid-cols-[minmax(300px,380px)_minmax(0,1fr)] lg:gap-14 xl:grid-cols-[minmax(360px,430px)_minmax(0,1fr)]">
           <Reveal>
             <div className="lg:sticky lg:top-28">
-              <div className="overflow-hidden rounded-[34px] border border-[var(--color-rule)] bg-[var(--color-bone)] shadow-[0_20px_48px_rgba(27,20,14,0.08)]">
+              <div className="overflow-hidden rounded-[34px] border border-[var(--color-rule)] bg-[var(--color-cream)]">
                 <div className="aspect-[4/5]">
                   {artist.profileImageUrl ? (
                     <img
@@ -112,7 +112,7 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
           </Reveal>
 
           <Reveal>
-            <div className="rounded-[34px] border border-[var(--color-rule)] bg-[rgba(255,253,250,0.78)] p-7 shadow-[0_20px_48px_rgba(27,20,14,0.05)] md:p-10 lg:p-12">
+            <div className="rounded-[34px] border border-[var(--color-rule)] bg-[var(--color-cream)] p-7 md:p-10 lg:p-12">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
                   Public Artist Profile
@@ -164,65 +164,71 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
       </div>
 
       {/* SELECTED WORKS */}
-      <div className="py-24 px-6 md:px-12 bg-[var(--color-linen)]">
-        <Reveal>
-          <SectionLabel>Selected Works</SectionLabel>
-        </Reveal>
-        {visibleArtworks.length === 0 ? (
-          <div className="mt-10 font-mono text-[11px] tracking-[0.1em] uppercase text-[var(--color-dust)]">
-            No public artworks yet.
-          </div>
-        ) : (
-          <ArtworkPreviewGrid artworks={previewArtworks} />
-        )}
-        {usingPortfolio ? (
-          <p className="mt-6 text-xs font-mono uppercase tracking-[0.1em] text-[var(--color-dust)]">
-            Curated portfolio
-          </p>
-        ) : null}
-        {showViewAllWorksLink ? (
-          <div className="mt-8">
-            <Link
-              href={`/artists/${artist.slug}/works`}
-              className="inline-flex items-center justify-center border border-[var(--color-near-black)] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-300 hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)]"
-            >
-              View All Works
-            </Link>
-          </div>
-        ) : null}
+      <div className="border-t border-[var(--color-rule)] py-24">
+        <div className="mx-auto max-w-[1280px] px-6 md:px-12">
+          <Reveal>
+            <SectionLabel>Selected Works</SectionLabel>
+          </Reveal>
+          {visibleArtworks.length === 0 ? (
+            <div className="mt-10 font-mono text-[11px] tracking-[0.1em] uppercase text-[var(--color-dust)]">
+              No public artworks yet.
+            </div>
+          ) : (
+            <ArtworkPreviewGrid artworks={previewArtworks} />
+          )}
+          {usingPortfolio ? (
+            <p className="mt-6 text-xs font-mono uppercase tracking-[0.1em] text-[var(--color-dust)]">
+              Curated portfolio
+            </p>
+          ) : null}
+          {showViewAllWorksLink ? (
+            <div className="mt-8">
+              <Link
+                href={`/artists/${artist.slug}/works`}
+                className="inline-flex items-center justify-center border border-[var(--color-near-black)] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-300 hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)]"
+              >
+                View All Works
+              </Link>
+            </div>
+          ) : null}
+        </div>
       </div>
 
       {/* UPCOMING SHOWS */}
-      <div className="py-20 px-6 md:px-12 max-w-[900px]">
-        <Reveal>
-          <SectionLabel>Upcoming Shows</SectionLabel>
-        </Reveal>
-        {exhibitions.length === 0 ? (
-          <div className="mt-10 font-mono text-[11px] tracking-[0.1em] uppercase text-[var(--color-dust)]">
-            No upcoming shows listed yet.
+      <div className="border-t border-[var(--color-rule)] py-20">
+        <div className="mx-auto max-w-[1280px] px-6 md:px-12">
+          <div className="max-w-[900px]">
+            <Reveal>
+              <SectionLabel>Upcoming Shows</SectionLabel>
+            </Reveal>
+            {exhibitions.length === 0 ? (
+              <div className="mt-10 font-mono text-[11px] tracking-[0.1em] uppercase text-[var(--color-dust)]">
+                No upcoming shows listed yet.
+              </div>
+            ) : (
+              <div className="mt-12">
+                {exhibitions.map((exhibition, index) => {
+                  const { date, day } = formatExhibitionDate(exhibition.startDate);
+                  return (
+                    <EventRow
+                      key={exhibition.id}
+                      slug={exhibition.slug}
+                      hrefPrefix="/exhibitions"
+                      date={date}
+                      day={day}
+                      type="Studio 201 Exhibition"
+                      title={exhibition.title}
+                      subtitle=""
+                      venue="Studio 201"
+                      time=""
+                      delay={(index % 3) as 0 | 1 | 2}
+                    />
+                  );
+                })}
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="mt-12">
-            {exhibitions.map((exhibition, index) => {
-              const { date, day } = formatExhibitionDate(exhibition.startDate);
-              return (
-                <EventRow
-                  key={exhibition.id}
-                  slug={exhibition.slug}
-                  hrefPrefix="/exhibitions"
-                  date={date}
-                  day={day}
-                  type="Studio 201 Exhibition"
-                  title={exhibition.title}
-                  subtitle=""
-                  venue="Studio 201"
-                  time=""
-                  delay={(index % 3) as 0 | 1 | 2}
-                />
-              );
-            })}
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );

@@ -2,13 +2,11 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import clsx from "clsx";
 import { useScroll } from "@/hooks/useScroll";
-import { Menu, X } from "lucide-react";
 import { LogoMark } from "@/components/ui/LogoMark";
 import { createClient } from "@/lib/supabase/client";
-import { useAuth } from "@/providers/AuthProvider";
 
 export function PublicHeader() {
   const scrolled = useScroll(60);
@@ -17,12 +15,41 @@ export function PublicHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const [supabase] = useState(() => createClient());
-  const { session, loading } = useAuth();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
   const isHero = pathname === "/" || pathname.startsWith("/exhibitions");
   const keepTransparent = pathname === "/exhibitions";
-  const isAuthenticated = Boolean(session?.user);
   const showLogin = !loading && !isAuthenticated && pathname !== "/login";
   const showLogout = !loading && isAuthenticated;
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!mounted) return;
+      setIsAuthenticated(Boolean(session?.user));
+      setLoading(false);
+    };
+
+    void loadSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!mounted) return;
+      setIsAuthenticated(Boolean(session?.user));
+      setLoading(false);
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [supabase]);
 
   const navClass = clsx(
     "fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-5 md:px-12 md:py-6 transition-all duration-400 ease-[cubic-bezier(0.25,0,0,1)]",
@@ -79,6 +106,7 @@ export function PublicHeader() {
       router.refresh();
     } catch (error) {
       console.error("Failed to sign out from public header", error);
+    } finally {
       setSigningOut(false);
     }
   };

@@ -1,74 +1,45 @@
-'use client';
-
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Reveal } from "@/components/animation/Reveal";
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { exhibitionService, Exhibition } from "@/features/exhibitions/services/exhibitionService";
-import { artworkService, PublicArtworkDto } from "@/features/artworks/services/artworkService";
-import { artistService, PublicUserProfile } from "@/features/artists/services/artistService";
-import { PublicPageSkeleton } from "@/components/ui/SkeletonPage";
-import { ArtworkLightbox } from "@/features/artworks/components/ArtworkLightbox";
+import type { Exhibition } from "@/features/exhibitions/services/exhibitionService";
+import type { PublicUserProfile } from "@/features/artists/services/artistService";
+import type { PublicArtworkDto } from "@/features/artworks/services/artworkService";
+import { ArtworkPreviewGrid } from "@/features/artworks/components/ArtworkPreviewGrid";
+import { getPublicCollection, getPublicResource } from "@/lib/publicApi";
 
-export default function ExhibitionResultPage() {
-  const params = useParams();
-  const slug = params.slug as string;
+export default async function ExhibitionResultPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
 
-  const [exhibition, setExhibition] = useState<Exhibition | null>(null);
-  const [artworks, setArtworks] = useState<PublicArtworkDto[]>([]);
-  const [artists, setArtists] = useState<PublicUserProfile[]>([]);
-  const [artistLookup, setArtistLookup] = useState<Record<string, PublicUserProfile>>({});
-  const [loading, setLoading] = useState(true);
-  const [selectedArtworkIndex, setSelectedArtworkIndex] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (!slug) return;
-
-    const load = async () => {
-      setLoading(true);
-      setArtworks([]);
-      setArtists([]);
-      setArtistLookup({});
-      try {
-        const data = await exhibitionService.getExhibitionBySlug(slug);
-        setExhibition(data);
-        if (data && data.id) {
-          const fetchedArtworks = await artworkService.getApprovedArtworksByExhibition(data.id);
-          setArtworks(fetchedArtworks);
-
-          if (fetchedArtworks.length > 0) {
-            const allArtists = await artistService.getArtists().catch(() => []);
-            const lookup = Object.fromEntries(allArtists.map((artist) => [artist.id, artist]));
-            const uniqueArtistIds = Array.from(new Set(fetchedArtworks.map((artwork) => artwork.artistId)));
-            const exhibitionArtists = uniqueArtistIds
-              .map((artistId) => lookup[artistId])
-              .filter((artist): artist is PublicUserProfile => Boolean(artist));
-            setArtistLookup(lookup);
-            setArtists(exhibitionArtists);
-          } else {
-            setArtists([]);
-            setArtistLookup({});
-          }
-        }
-      } catch (e) {
-        console.error("Failed to load exhibition:", e);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    load();
-  }, [slug]);
-
-  if (loading) {
-    return <PublicPageSkeleton tone="dark" />;
-  }
+  const exhibition = await getPublicResource<Exhibition>(`/Exhibitions/slug/${slug}`, {
+    revalidate: 60,
+    tags: [`exhibition-${slug}`, "public-exhibitions"],
+  });
 
   if (!exhibition) {
     return <div className="min-h-screen flex items-center justify-center font-dm-mono text-gray-500 uppercase tracking-widest text-sm bg-[var(--color-charcoal)]">Exhibition Not Found</div>;
   }
+
+  const [artworks, allArtists] = await Promise.all([
+    getPublicCollection<PublicArtworkDto>(`/ArtworkSubmissions/public/exhibition/${exhibition.id}`, {
+      revalidate: 60,
+      tags: [`exhibition-artworks-${exhibition.id}`],
+    }),
+    getPublicCollection<PublicUserProfile>("/Profile/artists", {
+      revalidate: 300,
+      tags: ["public-artists"],
+    }),
+  ]);
+
+  const artistLookup = Object.fromEntries(allArtists.map((artist) => [artist.id, artist]));
+  const uniqueArtistIds = Array.from(new Set(artworks.map((artwork) => artwork.artistId)));
+  const artists = uniqueArtistIds
+    .map((artistId) => artistLookup[artistId])
+    .filter((artist): artist is PublicUserProfile => Boolean(artist));
 
   // Formatting helpers
   const getDurationString = (start?: string, end?: string) => {
@@ -165,26 +136,17 @@ export default function ExhibitionResultPage() {
           </Reveal>
 
           {galleryArtworks.length > 0 ? (
-            <div className="grid grid-cols-1 gap-x-14 gap-y-18 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-18 lg:gap-y-24">
-              {galleryArtworks.map((artwork, index) => (
-                <Reveal key={artwork.id} delay={((index % 3) + 1) as 1 | 2 | 3}>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedArtworkIndex(index)}
-                    className="group block w-full cursor-zoom-in border-none bg-transparent p-0 text-left"
-                    aria-label={`View ${artwork.title}`}
-                  >
-                    <div className="flex min-h-[220px] items-center justify-center sm:min-h-[260px] md:min-h-[320px]">
-                      <img
-                        src={artwork.mediaAssetUrl || undefined}
-                        alt={artwork.title}
-                        className="block h-auto max-h-[420px] w-full object-contain transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.015]"
-                      />
-                    </div>
-                  </button>
-                </Reveal>
-              ))}
-            </div>
+            <ArtworkPreviewGrid
+              artworks={galleryArtworks.map((artwork) => ({
+                id: artwork.id,
+                title: artwork.title,
+                imageUrl: artwork.mediaAssetUrl as string,
+                artistName: artistLookup[artwork.artistId]?.fullName,
+                category: artwork.category,
+                artType: artwork.artType,
+                description: artwork.description,
+              }))}
+            />
           ) : (
             <div className="py-12 text-center font-mono text-xs uppercase tracking-[0.16em] text-[var(--color-dust)]">
               No artworks have been submitted for this exhibition yet.
@@ -221,22 +183,6 @@ export default function ExhibitionResultPage() {
           )}
         </Reveal>
       </div>
-
-      {selectedArtworkIndex !== null ? (
-        <ArtworkLightbox
-          artworks={galleryArtworks.map((artwork) => ({
-            id: artwork.id,
-            imageUrl: artwork.mediaAssetUrl as string,
-            title: artwork.title,
-            artistName: artistLookup[artwork.artistId]?.fullName,
-            category: artwork.category,
-            artType: artwork.artType,
-            description: artwork.description,
-          }))}
-          initialIndex={selectedArtworkIndex}
-          onClose={() => setSelectedArtworkIndex(null)}
-        />
-      ) : null}
     </div>
   );
 }
