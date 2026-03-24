@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { StudioImagePlaceholder } from "@/components/ui/StudioImagePlaceholder";
 import { Reveal } from "@/components/animation/Reveal";
+import { getCatalogItemHref } from "@/features/merch/utils/publicCatalog";
 
 interface MerchCardProps {
   slug: string;
@@ -12,65 +13,51 @@ interface MerchCardProps {
   channel: "merch" | "backroom";
   image?: string | null;
   delay?: 1 | 2 | 3 | 4;
-}
-
-function formatItemType(value: string) {
-  return value
-    .split("_")
-    .join(" ")
-    .replace(/\b\w/g, (char) => char.toUpperCase());
+  hrefOverride?: string;
+  channelLabel?: string;
 }
 
 export function MerchCard({
   slug,
   title,
-  itemType,
-  artistName,
-  shortNote,
   priceLabel,
   channel,
   image,
   delay = 1,
+  hrefOverride,
+  channelLabel,
 }: MerchCardProps) {
+  const href = hrefOverride || getCatalogItemHref(slug, channel);
+
   return (
     <Reveal delay={delay}>
-      <Link href={`/merch/${slug}`} className="group block h-full">
-        <div className="overflow-hidden border border-[var(--color-rule)] bg-white transition-colors duration-300 group-hover:bg-[var(--color-bone)]/30">
-          <div className="flex h-[280px] items-center justify-center overflow-hidden bg-[var(--color-bone)] p-6 md:h-[300px] md:p-8">
+      <Link href={href} className="group block h-full">
+        <article className="flex h-full flex-col transition-transform duration-200 group-hover:-translate-y-1">
+          <div className="flex aspect-square items-center justify-center overflow-hidden bg-white p-1 md:p-2">
             {image ? (
               <img
                 src={image}
                 alt={title}
-                className="block max-h-[220px] w-auto max-w-full object-contain transition-transform duration-500 ease-out group-hover:scale-[1.02] md:max-h-[240px]"
+                className="block h-full w-full object-contain transition-transform duration-500 ease-out group-hover:scale-[1.02]"
               />
             ) : (
               <StudioImagePlaceholder className="h-full w-full" markClassName="w-12" />
             )}
           </div>
-          <div className="space-y-4 p-5">
-            <div className="flex items-center justify-between gap-3 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
-              <span>{formatItemType(itemType)}</span>
-              <span>{channel === "backroom" ? "Backroom" : "Merch"}</span>
-            </div>
-            <div>
-              <h3 className="font-display text-[26px] leading-[0.98] tracking-[-0.03em] text-[var(--color-near-black)] md:text-[28px]">
-                {title}
-              </h3>
-              {artistName ? (
-                <p className="mt-2 text-sm text-[var(--color-warm-slate)]">{artistName}</p>
-              ) : null}
-            </div>
-            {shortNote ? (
-              <p className="text-sm leading-7 text-[var(--color-warm-slate)]">{shortNote}</p>
+          <div className="px-1 pb-1 pt-3">
+            {channelLabel ? (
+              <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--color-dust)]">
+                {channelLabel}
+              </div>
             ) : null}
-            <div className="flex items-center justify-between gap-4 border-t border-[var(--color-rule)] pt-4 font-mono text-[10px] uppercase tracking-[0.14em]">
-              <span className="text-[var(--color-near-black)]">{priceLabel || "Inquiry only"}</span>
-              <span className="text-[var(--color-dust)] transition-colors duration-300 group-hover:text-[var(--color-near-black)]">
-                Open item
-              </span>
-            </div>
+            <h3 className="mt-0.5 font-body text-[15px] font-semibold leading-[1.28] tracking-[0.01em] text-[var(--color-near-black)] md:text-[16px]">
+              {title}
+            </h3>
+            <p className="mt-0.5 text-[14px] leading-6 text-[var(--color-near-black)]">
+              {priceLabel || "Inquiry only"}
+            </p>
           </div>
-        </div>
+        </article>
       </Link>
     </Reveal>
   );

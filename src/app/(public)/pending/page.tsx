@@ -3,10 +3,14 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { SectionLabel } from "@/components/ui/SectionLabel";
+import { PublicSurface } from "@/components/ui/PublicPagePrimitives";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/providers/AuthProvider";
 import { authService } from "@/features/auth/services/authService";
+
+const AUTO_REFRESH_MS = 30000;
 
 export default function PendingApprovalPage() {
   const router = useRouter();
@@ -38,7 +42,7 @@ export default function PendingApprovalPage() {
 
       return false;
     },
-    [router, supabase]
+    [router, supabase],
   );
 
   const checkLatestStatus = useCallback(async () => {
@@ -51,7 +55,7 @@ export default function PendingApprovalPage() {
       const latestProfile = await authService.getProfile(session.access_token);
       const didRoute = await routeFromProfile(latestProfile.accountStatus, latestProfile.role);
       if (!didRoute && latestProfile.accountStatus?.toLowerCase() === "pending") {
-        setStatusMessage("Still pending review. This page will update automatically once approval is complete.");
+        setStatusMessage("Still pending review. The page checks again automatically while this tab stays open.");
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : "Could not refresh approval status.";
@@ -81,11 +85,15 @@ export default function PendingApprovalPage() {
     if (!session?.access_token) return;
 
     const intervalId = window.setInterval(() => {
-      void checkLatestStatus();
-    }, 10000);
+      if (document.visibilityState === "visible") {
+        void checkLatestStatus();
+      }
+    }, AUTO_REFRESH_MS);
 
     const handleFocus = () => {
-      void checkLatestStatus();
+      if (document.visibilityState === "visible") {
+        void checkLatestStatus();
+      }
     };
 
     window.addEventListener("focus", handleFocus);
@@ -99,42 +107,54 @@ export default function PendingApprovalPage() {
   }, [checkLatestStatus, session?.access_token]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--color-parchment)] px-6">
-      <div className="max-w-lg w-full bg-white border border-[var(--color-rule)] p-10 text-center">
-        <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[var(--color-sienna)] mb-4">
-          Application Received
-        </div>
-        <h1 className="font-display text-3xl mb-4 text-[var(--color-near-black)]">
-          Your artist application is pending approval
-        </h1>
-        <p className="font-body text-sm text-[var(--color-warm-slate)] leading-[1.75] mb-8">
-          Studio 201 reviews artist applications before granting access to the artist portal.
-          You will receive an update once the curatorial team completes the review.
-        </p>
-        <div className="mb-8 space-y-3">
-          <Button onClick={() => void checkLatestStatus()} disabled={refreshing}>
-            {refreshing ? "Checking Status..." : "Check Approval Status"}
-          </Button>
-          <p className="font-body text-xs text-[var(--color-dust)] leading-[1.7]">
-            This page checks again automatically while you wait.
-          </p>
-          {statusMessage ? (
-            <p className="font-body text-xs text-[var(--color-warm-slate)] leading-[1.7]">
-              {statusMessage}
-            </p>
-          ) : null}
-        </div>
-        <div className="flex items-center justify-center gap-4">
-          <Link
-            href="/"
-            className="inline-block font-body text-xs tracking-[0.08em] uppercase px-7 py-3 border border-[var(--color-near-black)] text-[var(--color-near-black)] hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)] transition-colors duration-300 ease-[cubic-bezier(0.25,0,0,1)]"
-          >
-            Return Home
-          </Link>
-          <Button onClick={handleSignOut}>
-            Sign Out
-          </Button>
-        </div>
+    <div className="min-h-screen bg-[linear-gradient(180deg,#faf6ef_0%,var(--color-parchment)_36%,var(--color-bone)_100%)] pt-28">
+      <div className="mx-auto max-w-[860px] px-6 pb-20 md:px-12 md:pb-24">
+        <PublicSurface className="overflow-hidden">
+          <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_240px]">
+            <div className="p-8 md:p-10">
+              <SectionLabel>Application Status</SectionLabel>
+              <h1 className="mt-6 max-w-[13ch] font-display text-[clamp(40px,6vw,72px)] leading-[0.92] tracking-[-0.05em] text-[var(--color-near-black)]">
+                Your artist application is pending review.
+              </h1>
+              <p className="mt-6 max-w-[46ch] text-sm leading-8 text-[var(--color-warm-slate)]">
+                Studio 201 reviews artist access before opening the portal. You can return here anytime to check the
+                latest approval status.
+              </p>
+
+              {statusMessage ? (
+                <div className="mt-6 rounded-[18px] border border-[var(--color-rule)] bg-[rgba(250,248,244,0.78)] px-4 py-3 text-sm text-[var(--color-warm-slate)]">
+                  {statusMessage}
+                </div>
+              ) : null}
+
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Button onClick={() => void checkLatestStatus()} disabled={refreshing}>
+                  {refreshing ? "Checking Status..." : "Check Approval Status"}
+                </Button>
+                <Button onClick={handleSignOut} variant="outline">
+                  Sign Out
+                </Button>
+              </div>
+
+              <div className="mt-6 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+                Automatic refresh every 30 seconds while this tab is visible
+              </div>
+            </div>
+
+            <div className="border-t border-[var(--color-rule)] bg-[var(--color-bone)] px-8 py-8 lg:border-l lg:border-t-0">
+              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Next steps</div>
+              <div className="mt-4 space-y-4 text-sm leading-7 text-[var(--color-warm-slate)]">
+                <p>Approval routes you directly into the artist workspace.</p>
+                <p>Rejected applications are signed out and returned to the public login page.</p>
+                <p>
+                  <Link href="/" className="text-[var(--color-sienna)] transition-colors duration-200 hover:text-[var(--color-near-black)]">
+                    Return to the public site
+                  </Link>
+                </p>
+              </div>
+            </div>
+          </div>
+        </PublicSurface>
       </div>
     </div>
   );

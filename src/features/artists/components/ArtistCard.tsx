@@ -7,31 +7,39 @@ interface ArtistCardProps {
   image?: string | null;
   name: string;
   medium?: string | null;
+  note?: string | null;
   delay?: 0 | 1 | 2 | 3 | 4 | 5;
 }
 
-export function ArtistCard({ slug, image, name, medium, delay = 0 }: ArtistCardProps) {
+export function ArtistCard({ slug, image, name, medium, note, delay = 0 }: ArtistCardProps) {
   return (
     <Reveal delay={delay} className="group cursor-pointer">
-      <Link href={`/artists/${slug}`}>
-        <div className="aspect-[2/3] overflow-hidden mb-5">
-          {image ? (
-            <img
-              src={image}
-              alt={name}
-              className="w-full h-full object-cover transition-filter duration-400 ease-out group-hover:brightness-90"
-            />
-          ) : (
-            <StudioImagePlaceholder className="w-full h-full" markClassName="w-18 md:w-20" />
-          )}
-        </div>
-        <div className="font-display text-lg text-[var(--color-near-black)] mb-1.5 relative inline-block">
-          {name}
-          <span className="absolute bottom-[-3px] left-0 w-full h-[1px] bg-[var(--color-sienna)] scale-x-0 origin-left transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-x-100" />
-        </div>
-        {medium ? (
-          <div className="font-sub italic text-[13px] text-[var(--color-warm-slate)]">{medium}</div>
-        ) : null}
+      <Link href={`/artists/${slug}`} className="block h-full">
+        <article className="flex h-full flex-col transition-transform duration-200 group-hover:-translate-y-1">
+          <div className="aspect-[4/5] overflow-hidden bg-[var(--color-bone)]">
+            {image ? (
+              <img
+                src={image}
+                alt={name}
+                className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+              />
+            ) : (
+              <StudioImagePlaceholder className="h-full w-full" markClassName="w-18 md:w-20" />
+            )}
+          </div>
+
+          <div className="px-1 pb-1 pt-4">
+            <div className="font-body text-[17px] font-semibold leading-tight tracking-[0.01em] text-[var(--color-near-black)]">
+              {name}
+            </div>
+            {medium ? (
+              <div className="mt-1 font-sub text-[14px] italic text-[var(--color-warm-slate)]">{medium}</div>
+            ) : null}
+            {note ? (
+              <p className="mt-2 text-[13px] leading-6 text-[var(--color-warm-slate)]">{note}</p>
+            ) : null}
+          </div>
+        </article>
       </Link>
     </Reveal>
   );

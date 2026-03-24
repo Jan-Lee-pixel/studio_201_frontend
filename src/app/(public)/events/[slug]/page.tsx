@@ -1,8 +1,10 @@
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { Reveal } from "@/components/animation/Reveal";
 import { SectionLabel } from "@/components/ui/SectionLabel";
+import { PublicActionLink, PublicSurface } from "@/components/ui/PublicPagePrimitives";
 import type { EventDto } from "@/features/events/services/eventService";
+import { formatEventDateRange } from "@/features/events/utils/publicEventPresentation";
 import { getPublicFetchConfig, PUBLIC_API_BASE_URL } from "@/lib/publicApi";
 
 async function getEvent(slug: string): Promise<EventDto | null> {
@@ -18,77 +20,135 @@ async function getEvent(slug: string): Promise<EventDto | null> {
   }
 }
 
-const formatDateRange = (start?: string, end?: string) => {
-  if (!start && !end) return "Date TBA";
-  if (start && !end) {
-    return new Date(start).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const event = await getEvent(slug);
+
+  if (!event) {
+    return { title: "Event | Studio 201" };
   }
-  const startStr = start ? new Date(start).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
-  const endStr = end ? new Date(end).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
-  return `${startStr} – ${endStr}`.trim();
-};
+
+  return {
+    title: `${event.title} | Studio 201`,
+    description: event.subtitle || event.description || `Event details for ${event.title} at Studio 201.`,
+  };
+}
 
 export default async function EventPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const event = await getEvent(slug);
 
   if (!event) {
-    return (
-      <div className="min-h-screen flex items-center justify-center font-dm-mono text-gray-500 uppercase tracking-widest text-sm bg-[var(--color-charcoal)]">
-        Event Not Found
-      </div>
-    );
+    notFound();
   }
 
+  const typeLabel = event.type || "Event";
+  const eventDate = formatEventDateRange(event.startDate, event.endDate);
+
   return (
-    <div className="pt-32 min-h-[80vh] bg-[var(--color-parchment)]">
-      <div className="px-6 md:px-12 max-w-[1400px] mx-auto">
-        <Reveal>
-          <Link
-            href="/events"
-            className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.1em] text-[var(--color-warm-slate)] hover:text-[var(--color-sienna)] transition-colors mb-10 uppercase"
-          >
-            <ArrowLeft className="w-3 h-3" />
-            Back to Events
-          </Link>
-        </Reveal>
-
-        <Reveal delay={1}>
-          <div className="mb-12 border-b border-[var(--color-rule)] pb-12">
-            <SectionLabel>Event Details</SectionLabel>
-            <h1 className="font-display text-[clamp(32px,5vw,56px)] font-normal leading-[1.1] tracking-[-0.02em] text-[var(--color-near-black)] mt-6">
-              {event.title}
-            </h1>
-            {event.subtitle ? (
-              <p className="font-sub italic text-lg text-[var(--color-warm-slate)] mt-4">
-                {event.subtitle}
-              </p>
-            ) : null}
-
-            <div className="mt-6 font-mono text-[11px] tracking-[0.08em] uppercase text-[var(--color-dust)]">
-              {event.type || "Event"} · {formatDateRange(event.startDate, event.endDate)}
-            </div>
-            <div className="mt-3 text-[var(--color-warm-slate)]">
-              {event.venue || "Studio 201"}{event.timeLabel ? ` · ${event.timeLabel}` : ""}
-            </div>
-
-            <p className="font-body text-base mt-8 text-[var(--color-warm-slate)] max-w-2xl">
-              {event.description || "Event details will appear here once they are published."}
-            </p>
-
-            {event.hasDocumentation && (
-              <div className="mt-12">
-                <Link
-                  href={`/events/${slug}/documentation`}
-                  className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.1em] uppercase text-[var(--color-cream)] bg-[var(--color-near-black)] px-6 py-4 hover:bg-[var(--color-sienna)] transition-colors duration-300"
-                >
-                  View Event Photos
-                </Link>
-              </div>
-            )}
+    <div className="min-h-screen bg-[var(--color-parchment)] pt-28">
+      <div className="border-b border-[var(--color-rule)] px-6 py-5 md:px-12">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <PublicActionLink href="/events" tone="ghost">
+            Back to events
+          </PublicActionLink>
+          <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+            {event.isExternal ? "External program" : "Studio 201 program"}
           </div>
-        </Reveal>
+        </div>
       </div>
+
+      <section className="px-6 py-16 md:px-12 md:py-20">
+        <div className="mx-auto grid max-w-[1220px] gap-12 lg:grid-cols-[minmax(320px,460px)_minmax(0,1fr)]">
+          <Reveal>
+            <PublicSurface className="overflow-hidden">
+              {event.coverImageUrl ? (
+                <img src={event.coverImageUrl} alt={event.title} className="h-full min-h-[360px] w-full object-cover" />
+              ) : (
+                <div className="min-h-[360px] bg-[radial-gradient(circle_at_25%_18%,rgba(243,217,186,0.58),transparent_28%),linear-gradient(180deg,#8c6953_0%,#3f3836_100%)]" />
+              )}
+            </PublicSurface>
+          </Reveal>
+
+          <Reveal delay={1}>
+            <div className="space-y-10">
+              <div>
+                <SectionLabel>Event Details</SectionLabel>
+                <div className="mt-6 flex flex-wrap items-center gap-3 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+                  <span>{typeLabel}</span>
+                  <span className="h-1 w-1 rounded-full bg-[var(--color-rule)]" />
+                  <span>{event.isExternal ? "External" : "Studio 201"}</span>
+                </div>
+              </div>
+
+              <div>
+                <h1 className="font-display text-[clamp(44px,7vw,92px)] leading-[0.94] tracking-[-0.05em] text-[var(--color-near-black)]">
+                  {event.title}
+                </h1>
+                {event.subtitle ? (
+                  <p className="mt-5 max-w-[44ch] font-sub text-[clamp(22px,3vw,30px)] italic font-light leading-[1.5] text-[var(--color-warm-slate)]">
+                    {event.subtitle}
+                  </p>
+                ) : null}
+              </div>
+
+              <div className="border-y border-[var(--color-rule)]">
+                <div className="grid gap-0 md:grid-cols-2">
+                  <div className="border-b border-[var(--color-rule)] px-0 py-5 md:border-r">
+                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Dates</div>
+                    <div className="mt-2 text-sm text-[var(--color-near-black)]">{eventDate}</div>
+                  </div>
+                  <div className="border-b border-[var(--color-rule)] px-0 py-5 md:pl-8">
+                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Venue</div>
+                    <div className="mt-2 text-sm text-[var(--color-near-black)]">{event.venue || "Studio 201"}</div>
+                  </div>
+                  <div className="border-b border-[var(--color-rule)] px-0 py-5 md:border-b-0 md:border-r">
+                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Time</div>
+                    <div className="mt-2 text-sm text-[var(--color-near-black)]">{event.timeLabel || "Schedule announced with the program"}</div>
+                  </div>
+                  <div className="px-0 py-5 md:pl-8">
+                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Documentation</div>
+                    <div className="mt-2 text-sm text-[var(--color-near-black)]">
+                      {event.hasDocumentation ? "Available" : "Not published yet"}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="max-w-[720px] whitespace-pre-line text-sm leading-8 text-[var(--color-warm-slate)]">
+                {event.description || "Event details will appear here once they are published."}
+              </div>
+
+              <PublicSurface tone="muted">
+                <div className="grid gap-6 p-6 md:grid-cols-[minmax(0,1fr)_220px] md:items-center md:p-8">
+                  <div>
+                    <div className="font-display text-[30px] leading-[1.08] tracking-[-0.03em] text-[var(--color-near-black)]">
+                      Follow this event in the wider calendar.
+                    </div>
+                    <p className="mt-3 max-w-[48ch] text-sm leading-7 text-[var(--color-warm-slate)]">
+                      Return to the full events page or open documentation when photographs or video are available.
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-3 md:items-end">
+                    {event.hasDocumentation ? (
+                      <PublicActionLink href={`/events/${slug}/documentation`} tone="dark">
+                        View documentation
+                      </PublicActionLink>
+                    ) : null}
+                    <PublicActionLink href="/events" tone="ghost">
+                      Return to calendar
+                    </PublicActionLink>
+                  </div>
+                </div>
+              </PublicSurface>
+            </div>
+          </Reveal>
+        </div>
+      </section>
     </div>
   );
 }

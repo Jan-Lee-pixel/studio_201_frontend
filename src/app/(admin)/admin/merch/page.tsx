@@ -19,6 +19,14 @@ import {
 import { userService } from "@/features/admin/services/userService";
 import type { UserProfile } from "@/features/auth/services/authService";
 import { StudioImagePlaceholder } from "@/components/ui/StudioImagePlaceholder";
+import { getCatalogItemHref } from "@/features/merch/utils/publicCatalog";
+import {
+  WorkspaceCard,
+  WorkspaceEmptyState,
+  WorkspacePageHeader,
+  WorkspaceSectionTitle,
+  WorkspaceStatusPill,
+} from "@/components/ui/WorkspacePrimitives";
 
 type RowDraft = {
   channel: MerchChannel;
@@ -93,28 +101,44 @@ export default function AdminMerchPage() {
   const pendingItems = items.filter((item) => item.status === "pending");
   const approvedItems = items.filter((item) => item.status === "approved");
   const catalogItems = items.filter((item) => item.status !== "pending" && item.status !== "approved");
+  const publishedItems = items.filter((item) => item.status === "published");
+  const featuredItems = items.filter((item) => item.isFeatured);
 
   if (loading || !token || !authUserId) {
     return <DashboardTableSkeleton rows={5} columns={4} />;
   }
 
   return (
-    <div className="content">
-      <div className="page-header" style={{ marginBottom: "2rem" }}>
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <h1 className="page-title">Merch</h1>
-            <p className="page-subtitle text-gray-400">
-              Curate Studio 201 merch and approve artist-contributed backroom items.
-            </p>
-          </div>
-          <Link href="/merch" className="btn btn-secondary btn-sm">
-            View Public Merch
-          </Link>
-        </div>
+    <div className="content space-y-10">
+      <WorkspacePageHeader
+        eyebrow="Merch Console"
+        title="Curate merch and backroom as one release system."
+        description="Review submissions, create releases, and publish items to merch or backroom."
+        actions={
+          <>
+            <Link href="/merch" className="btn btn-secondary">
+              Public merch
+            </Link>
+            <Link href="/backroom" className="btn btn-secondary">
+              Backroom
+            </Link>
+          </>
+        }
+      />
+
+      <div className="flex flex-wrap gap-3">
+        <WorkspaceStatusPill tone="warning">{pendingItems.length} pending</WorkspaceStatusPill>
+        <WorkspaceStatusPill tone="accent">{approvedItems.length} approved</WorkspaceStatusPill>
+        <WorkspaceStatusPill tone="success">{publishedItems.length} published</WorkspaceStatusPill>
+        <WorkspaceStatusPill tone="accent">{featuredItems.length} featured</WorkspaceStatusPill>
       </div>
 
-      <section className="mb-10">
+      <WorkspaceCard className="p-6 md:p-8">
+        <WorkspaceSectionTitle
+          eyebrow="Create"
+          title="Create a new release"
+          description="Add a merch or backroom item."
+        />
         <MerchItemForm
           token={token}
           authUserId={authUserId}
@@ -125,26 +149,24 @@ export default function AdminMerchPage() {
             void loadData();
           }}
         />
-      </section>
+      </WorkspaceCard>
 
-      <section className="border border-[var(--color-rule)] bg-white p-6 mb-10">
-        <div className="mb-5 flex items-center justify-between gap-4">
-          <div>
-            <h2 className="font-display text-2xl text-[var(--color-near-black)]">Pending backroom review</h2>
-            <p className="mt-2 text-sm text-[var(--color-warm-slate)]">
-              Artist-submitted backroom items land here first. Approve them for the release queue, publish them directly, or hide them from the public catalog.
-            </p>
-          </div>
-        </div>
+      <WorkspaceCard className="p-6 md:p-8">
+        <WorkspaceSectionTitle
+          eyebrow="Review Queue"
+          title="Pending backroom review"
+          description="Approve, publish, or hide artist-submitted items."
+        />
 
         {pendingItems.length === 0 ? (
-          <div className="font-mono text-[11px] uppercase tracking-[0.1em] text-[var(--color-dust)]">
-            No pending backroom items.
-          </div>
+          <WorkspaceEmptyState
+            title="No pending backroom items"
+            description="New artist submissions will appear here once they enter review."
+          />
         ) : (
           <div className="space-y-4">
             {pendingItems.map((item) => (
-              <div key={item.id} className="flex flex-col gap-4 border border-[var(--color-rule)] bg-[var(--color-bone)] p-5 lg:flex-row lg:items-center lg:justify-between">
+              <div key={item.id} className="flex flex-col gap-4 rounded-[20px] border border-[var(--color-rule)] bg-[rgba(250,248,244,0.78)] p-5 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex items-center gap-4">
                   <div className="h-20 w-20 overflow-hidden rounded border border-[var(--color-rule)] bg-white">
                     {item.primaryImageUrl ? (
@@ -154,7 +176,10 @@ export default function AdminMerchPage() {
                     )}
                   </div>
                   <div>
-                    <div className="font-display text-[28px] leading-none text-[var(--color-near-black)]">{item.title}</div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <div className="font-display text-[28px] leading-none text-[var(--color-near-black)]">{item.title}</div>
+                      <WorkspaceStatusPill tone="warning">Pending</WorkspaceStatusPill>
+                    </div>
                     <div className="mt-2 text-sm text-[var(--color-warm-slate)]">
                       {[item.artistName, item.itemType, item.priceLabel].filter(Boolean).join(" · ")}
                     </div>
@@ -239,28 +264,26 @@ export default function AdminMerchPage() {
             ))}
           </div>
         )}
-      </section>
+      </WorkspaceCard>
 
-      <section className="border border-[var(--color-rule)] bg-white p-6 mb-10">
-        <div className="mb-5 flex items-center justify-between gap-4">
-          <div>
-            <h2 className="font-display text-2xl text-[var(--color-near-black)]">Approved and ready to publish</h2>
-            <p className="mt-2 text-sm text-[var(--color-warm-slate)]">
-              Approved items are not public yet. Publish them to the merch page or backroom when you are ready.
-            </p>
-          </div>
-        </div>
+      <WorkspaceCard className="p-6 md:p-8">
+        <WorkspaceSectionTitle
+          eyebrow="Release Queue"
+          title="Approved and ready to publish"
+          description="Approved items are not public yet. Publish them to merch or backroom when you are ready."
+        />
 
         {approvedItems.length === 0 ? (
-          <div className="font-mono text-[11px] uppercase tracking-[0.1em] text-[var(--color-dust)]">
-            No approved items waiting for release.
-          </div>
+          <WorkspaceEmptyState
+            title="Nothing is waiting for release"
+            description="Approved items will appear here until they are moved into a public channel."
+          />
         ) : (
           <div className="space-y-4">
             {approvedItems.map((item) => (
               <div
                 key={item.id}
-                className="flex flex-col gap-4 border border-[var(--color-rule)] bg-[var(--color-bone)] p-5 lg:flex-row lg:items-center lg:justify-between"
+                className="flex flex-col gap-4 rounded-[20px] border border-[var(--color-rule)] bg-[rgba(250,248,244,0.78)] p-5 lg:flex-row lg:items-center lg:justify-between"
               >
                 <div className="flex items-center gap-4">
                   <div className="h-20 w-20 overflow-hidden rounded border border-[var(--color-rule)] bg-white">
@@ -271,7 +294,10 @@ export default function AdminMerchPage() {
                     )}
                   </div>
                   <div>
-                    <div className="font-display text-[28px] leading-none text-[var(--color-near-black)]">{item.title}</div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <div className="font-display text-[28px] leading-none text-[var(--color-near-black)]">{item.title}</div>
+                      <WorkspaceStatusPill tone="accent">Approved</WorkspaceStatusPill>
+                    </div>
                     <div className="mt-2 text-sm text-[var(--color-warm-slate)]">
                       {[item.artistName, item.itemType, item.channel].filter(Boolean).join(" · ")}
                     </div>
@@ -331,34 +357,39 @@ export default function AdminMerchPage() {
             ))}
           </div>
         )}
-      </section>
+      </WorkspaceCard>
 
-      <section className="border border-[var(--color-rule)] bg-white p-6">
-        <div className="mb-5 flex items-center justify-between gap-4">
-          <div>
-            <h2 className="font-display text-2xl text-[var(--color-near-black)]">Merch catalog</h2>
-            <p className="mt-2 text-sm text-[var(--color-warm-slate)]">
-              Update public status, feature placement, and ordering for live merch and staged catalog items.
-            </p>
-          </div>
-          <button className="btn btn-secondary btn-sm" onClick={() => void loadData()}>
-            Refresh
+      <WorkspaceCard className="p-6 md:p-8">
+        <div className="mb-6 flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+          <WorkspaceSectionTitle
+            className="mb-0"
+            eyebrow="Catalog"
+            title="Live merch and staged releases"
+            description="Update public status, feature placement, and ordering for live merch and staged catalog items."
+          />
+          <button className="btn btn-secondary" onClick={() => void loadData()}>
+            Refresh catalog
           </button>
         </div>
 
-        {error ? <div className="mb-4 text-sm text-red-600">{error}</div> : null}
+        {error ? (
+          <div className="mb-5 rounded-[18px] border border-[rgba(181,96,58,0.22)] bg-[rgba(181,96,58,0.08)] px-4 py-3 text-sm text-[#9f4c2d]">
+            {error}
+          </div>
+        ) : null}
 
         {loadingData ? (
           <DashboardTableSkeleton rows={6} columns={5} />
         ) : catalogItems.length === 0 ? (
-          <div className="py-10 font-mono text-[11px] uppercase tracking-[0.1em] text-[var(--color-dust)]">
-            No live or staged merch items yet.
-          </div>
+          <WorkspaceEmptyState
+            title="No live or staged merch items yet"
+            description="Once releases move out of review, they will appear here for catalog management."
+          />
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto rounded-[20px] border border-[var(--color-rule)]">
             <table className="w-full text-left font-body text-sm">
-              <thead>
-                <tr className="border-b border-gray-200 text-gray-400 font-mono text-xs uppercase tracking-widest">
+              <thead className="bg-[var(--color-bone)]">
+                <tr className="border-b border-[var(--color-rule)] font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
                   <th className="pb-3 pr-4 font-normal">Item</th>
                   <th className="pb-3 px-4 font-normal">Artist</th>
                   <th className="pb-3 px-4 font-normal">Channel</th>
@@ -376,7 +407,7 @@ export default function AdminMerchPage() {
                   if (!draft) return null;
 
                   return (
-                    <tr key={item.id} className="border-b border-gray-100 last:border-0">
+                    <tr key={item.id} className="border-b border-[var(--color-rule)] bg-white last:border-0">
                       <td className="py-4 pr-4">
                         <div className="flex items-center gap-3">
                           <div className="h-14 w-14 overflow-hidden rounded border border-[var(--color-rule)] bg-white">
@@ -402,7 +433,7 @@ export default function AdminMerchPage() {
                               [item.id]: { ...prev[item.id], channel: event.target.value as MerchChannel },
                             }))
                           }
-                          className="rounded border border-[var(--color-rule)] bg-white px-2 py-2 text-sm"
+                          className="rounded-[14px] border border-[var(--color-rule)] bg-[rgba(250,248,244,0.72)] px-3 py-2 text-sm"
                         >
                           {MERCH_CHANNEL_OPTIONS.map((option) => (
                             <option key={option.value} value={option.value}>
@@ -420,7 +451,7 @@ export default function AdminMerchPage() {
                               [item.id]: { ...prev[item.id], status: event.target.value as MerchStatus },
                             }))
                           }
-                          className="rounded border border-[var(--color-rule)] bg-white px-2 py-2 text-sm"
+                          className="rounded-[14px] border border-[var(--color-rule)] bg-[rgba(250,248,244,0.72)] px-3 py-2 text-sm"
                         >
                           {MERCH_STATUS_OPTIONS.map((option) => (
                             <option key={option.value} value={option.value}>
@@ -438,7 +469,7 @@ export default function AdminMerchPage() {
                               [item.id]: { ...prev[item.id], visibility: event.target.value as MerchVisibility },
                             }))
                           }
-                          className="rounded border border-[var(--color-rule)] bg-white px-2 py-2 text-sm"
+                          className="rounded-[14px] border border-[var(--color-rule)] bg-[rgba(250,248,244,0.72)] px-3 py-2 text-sm"
                         >
                           {MERCH_VISIBILITY_OPTIONS.map((option) => (
                             <option key={option.value} value={option.value}>
@@ -473,7 +504,7 @@ export default function AdminMerchPage() {
                           }
                           inputMode="numeric"
                           placeholder="Auto"
-                          className="w-20 rounded border border-[var(--color-rule)] bg-white px-2 py-2 text-sm"
+                          className="w-20 rounded-[14px] border border-[var(--color-rule)] bg-[rgba(250,248,244,0.72)] px-3 py-2 text-sm"
                         />
                       </td>
                       <td className="py-4 px-4">
@@ -485,7 +516,7 @@ export default function AdminMerchPage() {
                               [item.id]: { ...prev[item.id], inquiryEmail: event.target.value },
                             }))
                           }
-                          className="w-48 rounded border border-[var(--color-rule)] bg-white px-2 py-2 text-sm"
+                          className="w-48 rounded-[14px] border border-[var(--color-rule)] bg-[rgba(250,248,244,0.72)] px-3 py-2 text-sm"
                           placeholder="studio@example.com"
                         />
                       </td>
@@ -555,7 +586,7 @@ export default function AdminMerchPage() {
                             Delete
                           </button>
                           {item.status === "published" ? (
-                            <Link href={`/merch/${item.slug}`} className="btn btn-secondary btn-sm">
+                            <Link href={getCatalogItemHref(item.slug, item.channel)} className="btn btn-secondary btn-sm">
                               View
                             </Link>
                           ) : null}
@@ -568,7 +599,7 @@ export default function AdminMerchPage() {
             </table>
           </div>
         )}
-      </section>
+      </WorkspaceCard>
 
       <EditorialModal
         open={Boolean(editingItem)}

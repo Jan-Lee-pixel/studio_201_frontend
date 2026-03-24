@@ -1,0 +1,215 @@
+import clsx from "clsx";
+import Link from "next/link";
+import type { HTMLAttributes, ReactNode } from "react";
+import { SectionLabel } from "@/components/ui/SectionLabel";
+
+type PublicSurfaceTone = "default" | "muted" | "charcoal";
+type PublicActionTone = "dark" | "light" | "ghost" | "inverse";
+
+export function PublicSurface({
+  children,
+  className,
+  tone = "default",
+  ...props
+}: HTMLAttributes<HTMLDivElement> & {
+  tone?: PublicSurfaceTone;
+}) {
+  return (
+    <div
+      className={clsx(
+        "overflow-hidden rounded-[28px] border",
+        {
+          "border-[var(--color-rule)] bg-[rgba(255,255,255,0.86)] shadow-[0_18px_42px_rgba(33,28,24,0.05)]":
+            tone === "default",
+          "border-[var(--color-rule)] bg-[rgba(250,248,244,0.76)] shadow-[0_16px_38px_rgba(33,28,24,0.04)]":
+            tone === "muted",
+          "border-[rgba(255,255,255,0.08)] bg-[linear-gradient(180deg,rgba(33,28,24,0.98),rgba(24,20,17,0.96))] text-[var(--color-cream)] shadow-[0_22px_52px_rgba(19,16,14,0.2)]":
+            tone === "charcoal",
+        },
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+}
+
+export function PublicActionLink({
+  href,
+  children,
+  className,
+  tone = "dark",
+}: {
+  href: string;
+  children: ReactNode;
+  className?: string;
+  tone?: PublicActionTone;
+}) {
+  return (
+    <Link
+      href={href}
+      className={clsx(
+        "inline-flex min-h-[48px] items-center justify-center rounded-full px-5 text-sm tracking-[0.04em] transition-colors duration-200",
+        {
+          "bg-[var(--color-near-black)] text-[var(--color-cream)] hover:bg-[var(--color-charcoal)]":
+            tone === "dark",
+          "border border-[var(--color-rule)] bg-white/80 text-[var(--color-near-black)] hover:bg-white":
+            tone === "light",
+          "border border-[var(--color-rule)] bg-[var(--color-bone)] text-[var(--color-near-black)] hover:bg-white":
+            tone === "ghost",
+          "border border-[rgba(240,237,229,0.18)] text-[var(--color-cream)] hover:bg-[rgba(240,237,229,0.08)]":
+            tone === "inverse",
+        },
+        className,
+      )}
+    >
+      {children}
+    </Link>
+  );
+}
+
+export function PublicStatTile({
+  label,
+  value,
+  note,
+  inverse = false,
+}: {
+  label: ReactNode;
+  value: ReactNode;
+  note: ReactNode;
+  inverse?: boolean;
+}) {
+  return (
+    <div
+      className={clsx("rounded-[22px] border p-5", {
+        "border-[var(--color-rule)] bg-[rgba(250,248,244,0.74)] shadow-[0_14px_34px_rgba(33,28,24,0.04)]":
+          !inverse,
+        "border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.04)]": inverse,
+      })}
+    >
+      <div
+        className={clsx("font-mono text-[10px] uppercase tracking-[0.14em]", {
+          "text-[var(--color-dust)]": !inverse,
+          "text-[rgba(240,237,229,0.52)]": inverse,
+        })}
+      >
+        {label}
+      </div>
+      <div
+        className={clsx("mt-4 font-display text-[30px] leading-[0.9] tracking-[-0.05em]", {
+          "text-[var(--color-near-black)]": !inverse,
+          "text-[var(--color-cream)]": inverse,
+        })}
+      >
+        {value}
+      </div>
+      <p
+        className={clsx("mt-3 text-xs leading-6", {
+          "text-[var(--color-warm-slate)]": !inverse,
+          "text-[rgba(240,237,229,0.68)]": inverse,
+        })}
+      >
+        {note}
+      </p>
+    </div>
+  );
+}
+
+export function PublicEmptyState({
+  title,
+  description,
+  action,
+  className,
+}: {
+  title: ReactNode;
+  description: ReactNode;
+  action?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={clsx(
+        "rounded-[26px] border border-dashed border-[var(--color-rule)] bg-[rgba(255,255,255,0.72)] px-6 py-12 text-center",
+        className,
+      )}
+    >
+      <div className="font-display text-[32px] leading-none tracking-[-0.04em] text-[var(--color-near-black)]">
+        {title}
+      </div>
+      <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-[var(--color-warm-slate)]">{description}</p>
+      {action ? <div className="mt-6 flex justify-center">{action}</div> : null}
+    </div>
+  );
+}
+
+export function PublicSectionIntro({
+  title,
+  description,
+  className,
+}: {
+  title: ReactNode;
+  description: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={clsx("max-w-[480px]", className)}>
+      <h2 className="font-display text-[clamp(34px,4vw,56px)] leading-[0.92] tracking-[-0.05em] text-[var(--color-near-black)]">
+        {title}
+      </h2>
+      <p className="mt-5 text-sm leading-7 text-[var(--color-warm-slate)]">{description}</p>
+    </div>
+  );
+}
+
+export function PublicPageHeader({
+  section,
+  title,
+  description,
+  stats,
+  children,
+  className,
+}: {
+  section: ReactNode;
+  title: ReactNode;
+  description?: ReactNode;
+  stats?: Array<{
+    label: ReactNode;
+    value: ReactNode;
+  }>;
+  children?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <section className={clsx("px-6 pb-6 pt-28 md:px-12 md:pb-8 md:pt-32", className)}>
+      <div className="mx-auto max-w-[1440px] border-b border-[var(--color-rule)] pb-6 md:pb-8">
+        <SectionLabel className="mb-4">{section}</SectionLabel>
+        <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+          <div className="max-w-[760px]">
+            <h1 className="font-display text-[clamp(36px,4.6vw,62px)] leading-[0.92] tracking-[-0.05em] text-[var(--color-near-black)]">
+              {title}
+            </h1>
+            {description ? (
+              <p className="mt-3 max-w-[60ch] text-[14px] leading-7 text-[var(--color-warm-slate)] md:text-[15px]">
+                {description}
+              </p>
+            ) : null}
+          </div>
+          {stats?.length ? (
+            <dl className="grid gap-x-8 gap-y-4 sm:grid-cols-2 xl:text-right">
+              {stats.map((stat, index) => (
+                <div key={index}>
+                  <dt className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+                    {stat.label}
+                  </dt>
+                  <dd className="mt-2 text-sm text-[var(--color-near-black)]">{stat.value}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
+        </div>
+        {children ? <div className="mt-5 border-t border-[var(--color-rule)] pt-5">{children}</div> : null}
+      </div>
+    </section>
+  );
+}

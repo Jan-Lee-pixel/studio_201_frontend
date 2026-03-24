@@ -1,58 +1,124 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { MOCK_EDITIONS } from '@/features/editions/types';
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+import { useAuth } from "@/providers/AuthProvider";
+import { DashboardTableSkeleton } from "@/components/ui/SkeletonPage";
+import { merchService, type MerchItem } from "@/features/merch/services/merchService";
+import {
+  WorkspaceCard,
+  WorkspaceEmptyState,
+  WorkspacePageHeader,
+  WorkspaceStatusPill,
+} from "@/components/ui/WorkspacePrimitives";
+import { formatCatalogItemType, getCatalogItemHref } from "@/features/merch/utils/publicCatalog";
 
 export default function AdminEditionsPage() {
+  const { session, loading } = useAuth();
+  const [items, setItems] = useState<MerchItem[]>([]);
+  const [loadingItems, setLoadingItems] = useState(true);
+
+  useEffect(() => {
+    if (!session?.access_token) return;
+
+    const loadItems = async () => {
+      try {
+        const data = await merchService.getAdminMerch(session.access_token);
+        setItems(data.filter((item) => item.itemType === "edition"));
+      } catch (error) {
+        console.error("Failed to load admin editions", error);
+      } finally {
+        setLoadingItems(false);
+      }
+    };
+
+    void loadItems();
+  }, [session?.access_token]);
+
+  const featuredCount = useMemo(() => items.filter((item) => item.isFeatured).length, [items]);
+
+  if (loading || loadingItems || !session?.access_token) {
+    return <DashboardTableSkeleton rows={4} columns={4} />;
+  }
+
   return (
     <div className="content">
-      <div className="page-header" style={{ marginBottom: '2rem' }}>
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-          <div>
-            <h1 className="page-title">Editions</h1>
-            <p className="page-subtitle text-gray-400">Review the current editions catalog shown on the public site.</p>
-          </div>
+      <WorkspacePageHeader
+        eyebrow="Editions"
+        title="Track published edition items."
+        description="Editions now follow the real merch catalog instead of a mock-only public collection."
+        actions={
           <Link href="/editions" className="btn btn-secondary btn-sm">
             View Public Editions
           </Link>
-        </div>
-      </div>
+        }
+      />
 
-      <div className="border border-[var(--color-rule)] bg-white">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left font-body text-sm">
-            <thead>
-              <tr className="border-b border-gray-200 text-gray-400 font-mono text-xs uppercase tracking-widest">
-                <th className="pb-3 pt-4 px-6 font-normal">Title</th>
-                <th className="pb-3 pt-4 px-6 font-normal">Artist</th>
-                <th className="pb-3 pt-4 px-6 font-normal">Category</th>
-                <th className="pb-3 pt-4 px-6 font-normal">Availability</th>
-              </tr>
-            </thead>
-            <tbody>
-              {MOCK_EDITIONS.map((edition) => (
-                <tr key={edition.id} className="border-b border-gray-100 last:border-0">
-                  <td className="py-4 px-6">
-                    <div className="font-medium text-[var(--color-near-black)]">{edition.title}</div>
-                    {edition.isFeatured && (
-                      <span className="inline-flex mt-2 text-[10px] font-mono uppercase tracking-widest bg-[var(--color-bone)] px-2 py-1">
-                        Featured
-                      </span>
-                    )}
-                  </td>
-                  <td className="py-4 px-6 text-gray-500">{edition.artist}</td>
-                  <td className="py-4 px-6 text-gray-500">{edition.category}</td>
-                  <td className="py-4 px-6">
-                    <span className="inline-flex px-2 py-1 text-xs font-mono uppercase tracking-wider rounded-sm bg-gray-100 text-gray-700">
-                      {edition.availability}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <WorkspaceCard className="overflow-hidden">
+        <div className="flex items-center justify-between border-b border-[var(--color-rule)] bg-[var(--color-bone)] px-6 py-4">
+          <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+            {items.length} edition item{items.length === 1 ? "" : "s"}
+          </div>
+          <WorkspaceStatusPill tone={featuredCount > 0 ? "accent" : "neutral"}>
+            {featuredCount} featured
+          </WorkspaceStatusPill>
         </div>
-      </div>
+
+        {items.length === 0 ? (
+          <div className="p-8">
+            <WorkspaceEmptyState
+              title="No edition items yet"
+              description="Create or publish merch items with the edition type and they will appear here automatically."
+            />
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full border-collapse">
+              <thead>
+                <tr className="border-b border-[var(--color-rule)] bg-white text-left">
+                  <th className="px-6 py-4 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Title</th>
+                  <th className="px-6 py-4 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Artist</th>
+                  <th className="px-6 py-4 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Channel</th>
+                  <th className="px-6 py-4 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Status</th>
+                  <th className="px-6 py-4 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((item) => (
+                  <tr key={item.id} className="border-b border-[var(--color-rule)] last:border-b-0">
+                    <td className="px-6 py-5">
+                      <div className="font-display text-[26px] leading-none tracking-[-0.04em] text-[var(--color-near-black)]">
+                        {item.title}
+                      </div>
+                      <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+                        {formatCatalogItemType(item.itemType)}
+                      </div>
+                    </td>
+                    <td className="px-6 py-5 text-sm text-[var(--color-warm-slate)]">
+                      {item.artistName || "Studio 201"}
+                    </td>
+                    <td className="px-6 py-5">
+                      <WorkspaceStatusPill tone="accent">
+                        {item.channel === "backroom" ? "Backroom" : "Merch"}
+                      </WorkspaceStatusPill>
+                    </td>
+                    <td className="px-6 py-5">
+                      <WorkspaceStatusPill tone={item.status === "published" ? "success" : item.status === "pending" ? "warning" : "neutral"}>
+                        {item.status}
+                      </WorkspaceStatusPill>
+                    </td>
+                    <td className="px-6 py-5">
+                      <Link href={getCatalogItemHref(item.slug, item.channel)} className="btn btn-secondary btn-sm">
+                        View Live
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </WorkspaceCard>
     </div>
   );
 }

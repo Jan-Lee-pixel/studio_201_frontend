@@ -229,13 +229,6 @@ export default function AdminLayout({
             </div>
             <div className="topbar-right">
               <span className="topbar-date">{today}</span>
-              <button className="topbar-icon-btn">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M7 1a5 5 0 015 5c0 3-1.5 4.5-1.5 6H3.5C3.5 10.5 2 9 2 6a5 5 0 015-5z" />
-                  <path d="M5 12h4" />
-                </svg>
-                <span className="notif-dot" style={{ background: 'var(--ochre)' }}></span>
-              </button>
               <Link href="/admin/exhibitions/new" className="btn btn-terracotta btn-sm">+ New Exhibition</Link>
             </div>
           </div>

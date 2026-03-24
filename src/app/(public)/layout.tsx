@@ -1,6 +1,6 @@
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { PublicFooter } from "@/components/layout/PublicFooter";
-import { FeedbackFab } from "@/features/feedback/FeedbackFab";
+import { BackToTopButton } from "@/components/ui/BackToTopButton";
 
 export default function PublicLayout({
   children,
@@ -10,11 +10,9 @@ export default function PublicLayout({
   return (
     <div className="min-h-screen flex flex-col">
       <PublicHeader />
-      <main className="flex-1">
-        {children}
-      </main>
+      <main className="flex-1">{children}</main>
       <PublicFooter />
-      <FeedbackFab />
+      <BackToTopButton />
     </div>
   );
 }

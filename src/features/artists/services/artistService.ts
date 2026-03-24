@@ -16,11 +16,31 @@ export interface PublicUserProfile {
   createdAt: string;
 }
 
+export function sortPublicArtists(artists: PublicUserProfile[]) {
+  return [...artists].sort((left, right) => {
+    const leftRank = left.artistRank ?? Number.MAX_SAFE_INTEGER;
+    const rightRank = right.artistRank ?? Number.MAX_SAFE_INTEGER;
+
+    if (leftRank !== rightRank) {
+      return leftRank - rightRank;
+    }
+
+    const leftTime = left.createdAt ? new Date(left.createdAt).getTime() : 0;
+    const rightTime = right.createdAt ? new Date(right.createdAt).getTime() : 0;
+
+    if (leftTime !== rightTime) {
+      return rightTime - leftTime;
+    }
+
+    return left.fullName.localeCompare(right.fullName);
+  });
+}
+
 export const artistService = {
   getArtists: async (): Promise<PublicUserProfile[]> => {
     const cached = getCached<PublicUserProfile[]>('artists:public');
     if (cached) return cached;
-    const data = await apiClient<PublicUserProfile[]>('/Profile/artists');
+    const data = sortPublicArtists(await apiClient<PublicUserProfile[]>('/Profile/artists'));
     setCached('artists:public', data, 60_000);
     return data;
   },

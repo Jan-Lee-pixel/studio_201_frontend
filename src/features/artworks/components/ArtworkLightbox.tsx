@@ -62,6 +62,10 @@ export function ArtworkLightbox({ artworks, initialIndex, onClose }: ArtworkLigh
   const detailLine = [currentArtwork.artistName, currentArtwork.category, currentArtwork.artType]
     .filter(Boolean)
     .join(" · ");
+  const compactDescription =
+    currentArtwork.description && currentArtwork.description.length > 180
+      ? `${currentArtwork.description.slice(0, 177)}...`
+      : currentArtwork.description;
 
   return createPortal(
     <div
@@ -108,17 +112,17 @@ export function ArtworkLightbox({ artworks, initialIndex, onClose }: ArtworkLigh
         </>
       ) : null}
 
-      <div className="flex min-h-full items-center justify-center px-4 py-20 md:px-12">
-        <div className="w-full max-w-[1100px] overflow-hidden bg-white shadow-2xl">
-          <div className="flex items-center justify-center bg-white px-4 py-4 md:px-8 md:py-8">
+      <div className="flex min-h-full items-center justify-center px-4 py-16 md:px-8">
+        <div className="w-full max-w-[min(92vw,960px)]">
+          <div className="mx-auto flex w-fit max-w-full items-center justify-center rounded-[24px] bg-[rgba(255,255,255,0.96)] p-3 shadow-[0_24px_80px_rgba(0,0,0,0.35)] md:p-4">
             <img
               src={currentArtwork.imageUrl}
               alt={currentArtwork.title}
-              className="block max-h-[72vh] w-auto max-w-full object-contain"
+              className="block max-h-[68vh] w-auto max-w-[min(82vw,760px)] object-contain"
             />
           </div>
 
-          <div className="border-t border-[var(--color-rule)] px-5 py-4 md:px-8 md:py-5">
+          <div className="mx-auto mt-4 max-w-[min(82vw,760px)] rounded-[20px] bg-[rgba(255,255,255,0.96)] px-5 py-4 shadow-[0_18px_42px_rgba(0,0,0,0.18)] md:px-6">
             <div className="font-display text-[clamp(24px,2.6vw,34px)] font-normal tracking-[-0.02em] text-[var(--color-near-black)]">
               {currentArtwork.title}
             </div>
@@ -127,9 +131,9 @@ export function ArtworkLightbox({ artworks, initialIndex, onClose }: ArtworkLigh
                 {detailLine}
               </div>
             ) : null}
-            {currentArtwork.description ? (
-              <p className="mt-3 max-w-3xl text-sm leading-[1.75] text-[var(--color-warm-slate)]">
-                {currentArtwork.description}
+            {compactDescription ? (
+              <p className="mt-3 max-w-3xl text-sm leading-[1.7] text-[var(--color-warm-slate)]">
+                {compactDescription}
               </p>
             ) : null}
           </div>

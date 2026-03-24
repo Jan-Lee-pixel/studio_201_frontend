@@ -148,16 +148,24 @@ export function ArtistWorksGallery({
               {artistName}
             </h1>
             <p className="mt-4 max-w-[680px] text-base leading-[1.75] text-[var(--color-warm-slate)]">
-              Browse the work first. Open any piece to see the details.
+              Browse the public work first. Select any piece to view the details.
             </p>
           </div>
 
-          <Link
-            href={`/artists/${artistSlug}`}
-            className="inline-flex items-center justify-center border border-[var(--color-near-black)] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-300 hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)]"
-          >
-            Back To Artist
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href={`/artists/${artistSlug}`}
+              className="inline-flex min-h-[46px] items-center justify-center rounded-full bg-[var(--color-near-black)] px-6 text-sm tracking-[0.04em] text-[var(--color-cream)] transition-colors duration-200 hover:bg-[var(--color-charcoal)]"
+            >
+              Back to Artist
+            </Link>
+            <Link
+              href="/artists"
+              className="inline-flex min-h-[46px] items-center justify-center rounded-full border border-[var(--color-rule)] bg-white/72 px-6 text-sm tracking-[0.04em] text-[var(--color-near-black)] transition-colors duration-200 hover:bg-white"
+            >
+              Browse Artists
+            </Link>
+          </div>
         </div>
 
         <PublicProfileOwnerActions

@@ -1,11 +1,20 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/providers/AuthProvider';
 import { authService } from '@/features/auth/services/authService';
 import { createClient } from '@/lib/supabase/client';
 import { DashboardContentSkeleton } from '@/components/ui/SkeletonPage';
 import { StudioImagePlaceholder } from '@/components/ui/StudioImagePlaceholder';
+import {
+  WorkspaceCard,
+  WorkspaceEmptyState,
+  WorkspaceField,
+  WorkspaceMetric,
+  WorkspacePageHeader,
+  WorkspaceStatusPill,
+} from '@/components/ui/WorkspacePrimitives';
 
 type ArtistProfileForm = {
   fullName: string;
@@ -35,21 +44,6 @@ function slugify(value: string) {
     .trim()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)+/g, '');
-}
-
-function SaveStatusBadge({ status }: { status: SaveStatus }) {
-  if (status === 'idle') return <div className="save-status" />;
-
-  const content = {
-    saving: { text: 'Saving...', className: 'status-saving' },
-    saved: { text: 'Profile saved', className: 'status-saved' },
-    error: {
-      text: 'We could not save your changes. Please try again.',
-      className: 'status-error',
-    },
-  }[status];
-
-  return <p className={`save-status ${content.className}`}>{content.text}</p>;
 }
 
 export default function ArtistProfilePage() {
@@ -165,7 +159,7 @@ export default function ArtistProfilePage() {
           youtubeUrl: form.youtubeUrl.trim() || null,
           ...(slugTouched ? { slug: form.slug.trim() || undefined } : {}),
         },
-        session.access_token
+        session.access_token,
       );
 
       const savedName = updated.fullName || '';
@@ -229,486 +223,314 @@ export default function ArtistProfilePage() {
   }
 
   if (!session) {
-    return <div className="p-8 text-red-500 font-serif">Unauthorized. Please log in to view this page.</div>;
+    return <div className="p-8 font-serif text-red-500">Unauthorized. Please log in to view this page.</div>;
   }
 
-  return (
-    <>
-      <style jsx>{`
-        .profile-page {
-          max-width: 560px;
-          margin: 0 auto;
-          padding: 2.5rem 1.25rem 4rem;
-          font-family: 'DM Sans', 'Helvetica Neue', sans-serif;
-          color: #111;
-        }
-
-        .page-title {
-          font-size: 22px;
-          font-weight: 600;
-          letter-spacing: -0.4px;
-          margin: 0 0 2rem;
-          color: #111;
-        }
-
-        .section {
-          margin-bottom: 2rem;
-        }
-
-        .section-label {
-          font-size: 11px;
-          font-weight: 600;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          color: #999;
-          margin: 0 0 1rem;
-        }
-
-        .card {
-          background: #fff;
-          border: 1px solid #e8e8e8;
-          border-radius: 12px;
-          padding: 1.25rem;
-        }
-
-        .photo-row {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          margin-bottom: 1.25rem;
-        }
-
-        .avatar-img {
-          width: 56px;
-          height: 56px;
-          border-radius: 50%;
-          object-fit: cover;
-          border: 1px solid #e8e8e8;
-          flex-shrink: 0;
-        }
-
-        .avatar-initials {
-          width: 56px;
-          height: 56px;
-          border-radius: 50%;
-          background: #f0f0f0;
-          border: 1px solid #e0e0e0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 16px;
-          font-weight: 600;
-          color: #666;
-          flex-shrink: 0;
-        }
-
-        .photo-actions {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-
-        .btn-upload {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          font-size: 13px;
-          font-weight: 500;
-          color: #111;
-          background: #f4f4f4;
-          border: 1px solid #e0e0e0;
-          border-radius: 8px;
-          padding: 6px 12px;
-          cursor: pointer;
-          line-height: 1;
-          transition: background 0.15s;
-        }
-
-        .btn-upload:hover:not(:disabled) {
-          background: #ececec;
-        }
-
-        .btn-upload:disabled {
-          opacity: 0.55;
-          cursor: not-allowed;
-        }
-
-        .link-btn {
-          font-size: 12px;
-          color: #888;
-          background: none;
-          border: none;
-          padding: 0;
-          cursor: pointer;
-          text-decoration: underline;
-          text-align: left;
-          font-family: inherit;
-        }
-
-        .link-btn:hover {
-          color: #555;
-        }
-
-        .field {
-          margin-bottom: 1rem;
-        }
-
-        .field:last-child {
-          margin-bottom: 0;
-        }
-
-        .field label {
-          display: block;
-          font-size: 13px;
-          font-weight: 500;
-          color: #333;
-          margin-bottom: 4px;
-        }
-
-        .field .hint {
-          font-size: 12px;
-          color: #aaa;
-          margin-bottom: 6px;
-        }
-
-        .field input,
-        .field textarea {
-          width: 100%;
-          box-sizing: border-box;
-          font-family: inherit;
-          font-size: 14px;
-          color: #111;
-          background: #fafafa;
-          border: 1px solid #e0e0e0;
-          border-radius: 8px;
-          padding: 9px 12px;
-          outline: none;
-          transition: border-color 0.15s, box-shadow 0.15s;
-          resize: none;
-          line-height: 1.5;
-        }
-
-        .field input:focus,
-        .field textarea:focus {
-          border-color: #aaa;
-          box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
-          background: #fff;
-        }
-
-        .field textarea {
-          height: 88px;
-        }
-
-        .divider {
-          border: none;
-          border-top: 1px solid #f0f0f0;
-          margin: 1.5rem 0;
-        }
-
-        .save-area {
-          margin-bottom: 0.5rem;
-        }
-
-        .btn-save {
-          width: 100%;
-          font-family: inherit;
-          font-size: 14px;
-          font-weight: 600;
-          color: #fff;
-          background: #111;
-          border: none;
-          border-radius: 10px;
-          padding: 11px;
-          cursor: pointer;
-          transition: opacity 0.15s, transform 0.1s;
-          letter-spacing: -0.1px;
-        }
-
-        .btn-save:hover:not(:disabled) {
-          opacity: 0.85;
-        }
-
-        .btn-save:active:not(:disabled) {
-          transform: scale(0.99);
-        }
-
-        .btn-save:disabled {
-          opacity: 0.45;
-          cursor: not-allowed;
-        }
-
-        .save-status {
-          font-size: 13px;
-          text-align: center;
-          margin: 8px 0 0;
-          min-height: 20px;
-        }
-
-        .status-saving {
-          color: #aaa;
-        }
-
-        .status-saved {
-          color: #22a069;
-          font-weight: 500;
-        }
-
-        .status-error {
-          color: #c0392b;
-        }
-
-        .optional-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-bottom: 0.5rem;
-        }
-
-        .optional-badge {
-          font-size: 11px;
-          color: #aaa;
-          background: #f5f5f5;
-          border-radius: 6px;
-          padding: 2px 7px;
-          font-weight: 500;
-        }
-
-        .section-helper {
-          font-size: 12px;
-          color: #bbb;
-          margin-bottom: 1rem;
-        }
-
-        .advanced-toggle {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          font-size: 13px;
-          color: #888;
-          cursor: pointer;
-          background: none;
-          border: none;
-          padding: 0;
-          font-family: inherit;
-          margin-bottom: 6px;
-        }
-
-        .advanced-toggle:hover {
-          color: #555;
-        }
-
-        .advanced-toggle .chevron {
-          font-size: 10px;
-          transition: transform 0.2s;
-          display: inline-block;
-        }
-
-        .advanced-toggle .chevron.open {
-          transform: rotate(90deg);
-        }
-
-        .advanced-helper {
-          font-size: 12px;
-          color: #ccc;
-          margin-bottom: 10px;
-        }
-
-        .advanced-block {
-          background: #fafafa;
-          border: 1px solid #efefef;
-          border-radius: 10px;
-          padding: 1rem;
-        }
-
-        .url-input-wrap {
-          margin-top: 8px;
-        }
-
-        input[type='file'] {
-          display: none;
-        }
-      `}</style>
-
+  if (!profile) {
+    return (
       <div className="content">
-        <div className="profile-page">
-          <h1 className="page-title">Your profile</h1>
+        <WorkspaceEmptyState
+          title="Profile data is missing"
+          description="The session is active, but the artist profile could not be loaded. Sign in again before editing."
+        />
+      </div>
+    );
+  }
 
-          <section className="section">
-            <p className="section-label">Basics</p>
-            <div className="card">
-              <div className="photo-row">
-                {localProfilePreview || form.profileImageUrl ? (
-                  <img
-                    src={localProfilePreview || form.profileImageUrl}
-                    alt="Profile photo"
-                    className="avatar-img"
-                  />
-                ) : (
-                  <StudioImagePlaceholder className="avatar-initials" markClassName="w-8" />
-                )}
+  const previewImage = localProfilePreview || form.profileImageUrl;
+  const currentSlug = form.slug || slugify(form.fullName);
+  const publicProfileHref = currentSlug ? `/artists/${currentSlug}` : '/artists';
+  const visibleLinksCount = [form.instagramUrl, form.facebookUrl, form.youtubeUrl].filter(Boolean).length;
+  const readinessCount = [form.fullName.trim(), form.bio.trim(), previewImage].filter(Boolean).length;
+  const isProfileReady = Boolean(form.fullName.trim() && form.bio.trim());
+  const inputClassName =
+    'w-full rounded-[18px] border border-[var(--color-rule)] bg-[var(--color-bone)] px-4 py-3.5 text-sm leading-6 text-[var(--color-near-black)] outline-none transition-colors duration-200 placeholder:text-[var(--color-dust)] focus:border-[var(--color-sienna)] focus:bg-white';
+  const saveTone =
+    saveStatus === 'saved'
+      ? 'success'
+      : saveStatus === 'saving'
+        ? 'warning'
+        : saveStatus === 'error'
+          ? 'danger'
+          : 'neutral';
+  const saveCopy =
+    saveStatus === 'saved'
+      ? 'Profile saved'
+      : saveStatus === 'saving'
+        ? 'Saving changes'
+        : saveStatus === 'error'
+          ? 'We could not save your changes'
+          : isDirty
+            ? 'Unsaved changes'
+            : 'All changes saved';
 
-                <div className="photo-actions">
-                  <button
-                    type="button"
-                    className="btn-upload"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploadingProfileImage}
-                  >
-                    {uploadingProfileImage ? 'Uploading photo...' : 'Upload photo'}
-                  </button>
+  return (
+    <div className="content">
+      <WorkspacePageHeader
+        eyebrow="Artist Profile"
+        title="Shape how visitors meet your practice."
+        description="Update the profile, biography, and public links that power your Studio 201 artist page."
+        actions={
+          <Link
+            href={publicProfileHref}
+            className="inline-flex min-h-[46px] items-center justify-center rounded-full border border-[var(--color-rule)] bg-white px-5 text-xs uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-200 hover:bg-[var(--color-bone)]"
+          >
+            View Public Page
+          </Link>
+        }
+      />
 
-                  {!showUrlInput && (
-                    <button
-                      type="button"
-                      className="link-btn"
-                      onClick={() => setShowUrlInput(true)}
-                    >
-                      Use an image from a website instead
-                    </button>
+      <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
+        <div className="space-y-6">
+          <WorkspaceCard tone="charcoal">
+            <div className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="h-20 w-20 overflow-hidden rounded-full border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.08)]">
+                  {previewImage ? (
+                    <img src={previewImage} alt={form.fullName || 'Profile photo'} className="h-full w-full object-cover" />
+                  ) : (
+                    <StudioImagePlaceholder className="h-full w-full rounded-full" markClassName="w-8" />
                   )}
+                </div>
+                <div className="min-w-0">
+                  <div className="font-display text-[32px] leading-none tracking-[-0.04em] text-[var(--color-cream)]">
+                    {form.fullName || 'Your profile'}
+                  </div>
+                  <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.56)]">
+                    {currentSlug ? `studio201 / artists / ${currentSlug}` : 'Public page not ready'}
+                  </div>
                 </div>
               </div>
 
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  event.currentTarget.value = '';
-                  if (file) {
-                    void handleProfileImageUpload(file);
-                  }
-                }}
-              />
+              <div className="mt-6 grid gap-3">
+                <WorkspaceMetric label="Ready" value={`${readinessCount}/3`} note="Name, bio, and image are the minimum signals for a credible public page." />
+                <WorkspaceMetric label="Links" value={visibleLinksCount} note="Only publish the channels you want visitors to use." />
+              </div>
 
-              {showUrlInput && (
-                <div className="url-input-wrap field">
-                  <label htmlFor="imageUrl">Image URL</label>
-                  <div className="hint">Paste a link to an image from the web.</div>
+              <div className="mt-6">
+                <WorkspaceStatusPill tone={isProfileReady ? 'success' : 'warning'}>
+                  {isProfileReady ? 'Public page has enough core content' : 'Add a bio to complete the profile'}
+                </WorkspaceStatusPill>
+              </div>
+            </div>
+          </WorkspaceCard>
+
+        </div>
+
+        <div className="space-y-6">
+          <WorkspaceCard>
+            <div className="border-b border-[var(--color-rule)] px-6 py-5">
+              <div className="font-display text-[32px] leading-none tracking-[-0.04em] text-[var(--color-near-black)]">
+                Identity
+              </div>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-warm-slate)]">
+                Start with the essentials: image, name, and a short bio.
+              </p>
+            </div>
+
+            <div className="space-y-6 p-6">
+              <WorkspaceField
+                label="Profile image"
+                hint="Upload a square portrait or use an external image URL. This appears on your public artist page."
+              >
+                <div className="rounded-[22px] border border-[var(--color-rule)] bg-[var(--color-bone)] p-4">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                    <div className="h-20 w-20 overflow-hidden rounded-full border border-[var(--color-rule)] bg-white">
+                      {previewImage ? (
+                        <img src={previewImage} alt="Profile preview" className="h-full w-full object-cover" />
+                      ) : (
+                        <StudioImagePlaceholder className="h-full w-full rounded-full" markClassName="w-8" />
+                      )}
+                    </div>
+
+                    <div className="flex flex-1 flex-col gap-3">
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-[var(--color-near-black)] px-5 text-xs uppercase tracking-[0.12em] text-[var(--color-cream)] transition-colors duration-200 hover:bg-[var(--color-charcoal)] disabled:cursor-not-allowed disabled:opacity-55"
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={uploadingProfileImage}
+                        >
+                          {uploadingProfileImage ? 'Uploading Photo...' : 'Upload Photo'}
+                        </button>
+                        {!showUrlInput ? (
+                          <button
+                            type="button"
+                            className="inline-flex min-h-[44px] items-center justify-center rounded-full border border-[var(--color-rule)] bg-white px-5 text-xs uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-200 hover:bg-[var(--color-bone)]"
+                            onClick={() => setShowUrlInput(true)}
+                          >
+                            Use Image URL
+                          </button>
+                        ) : null}
+                      </div>
+                      <p className="text-xs leading-5 text-[var(--color-dust)]">
+                        Large uploads are allowed, but compressed images will keep the workspace faster and cheaper to
+                        serve.
+                      </p>
+                    </div>
+                  </div>
+
                   <input
-                    id="imageUrl"
-                    type="url"
-                    placeholder="https://example.com/photo.jpg"
-                    value={form.profileImageUrl}
-                    onChange={(event) => updateField('profileImageUrl', event.target.value)}
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      event.currentTarget.value = '';
+                      if (file) {
+                        void handleProfileImageUpload(file);
+                      }
+                    }}
                   />
+
+                  {showUrlInput ? (
+                    <div className="mt-4">
+                      <input
+                        id="imageUrl"
+                        type="url"
+                        className={inputClassName}
+                        placeholder="https://example.com/photo.jpg"
+                        value={form.profileImageUrl}
+                        onChange={(event) => updateField('profileImageUrl', event.target.value)}
+                      />
+                    </div>
+                  ) : null}
                 </div>
-              )}
+              </WorkspaceField>
 
-              <hr className="divider" />
-
-              <div className="field">
-                <label htmlFor="fullName">Artist name</label>
-                <div className="hint">This is how your name appears publicly.</div>
+              <WorkspaceField label="Artist name" hint="This is how your name appears publicly.">
                 <input
                   id="fullName"
                   type="text"
+                  className={inputClassName}
                   placeholder="Your name"
                   value={form.fullName}
                   onChange={(event) => updateField('fullName', event.target.value)}
                 />
-              </div>
+              </WorkspaceField>
 
-              <div className="field">
-                <label htmlFor="bio">Short bio</label>
+              <WorkspaceField label="Short bio" hint="A few sentences about your work, practice, or current focus.">
                 <textarea
                   id="bio"
+                  className={`${inputClassName} min-h-[140px] resize-y`}
                   placeholder="A few sentences about your work."
                   value={form.bio}
                   onChange={(event) => updateField('bio', event.target.value)}
                 />
-              </div>
-
-              <div className="save-area">
-                <button
-                  type="button"
-                  className="btn-save"
-                  onClick={() => void handleSave()}
-                  disabled={!isDirty || saveStatus === 'saving' || uploadingProfileImage}
-                >
-                  {saveStatus === 'saving' ? 'Saving...' : 'Save profile'}
-                </button>
-                <SaveStatusBadge status={saveStatus} />
-              </div>
+              </WorkspaceField>
             </div>
-          </section>
+          </WorkspaceCard>
 
-          <section className="section">
-            <div className="optional-header">
-              <p className="section-label" style={{ margin: 0 }}>
-                Links
+          <WorkspaceCard>
+            <div className="border-b border-[var(--color-rule)] px-6 py-5">
+              <div className="font-display text-[32px] leading-none tracking-[-0.04em] text-[var(--color-near-black)]">
+                Public Links
+              </div>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-warm-slate)]">
+                Add only the channels you want visitors to see. Empty fields stay hidden from the public page.
               </p>
-              <span className="optional-badge">Optional</span>
             </div>
-            <p className="section-helper">Add only the links you want visitors to see.</p>
-
-            <div className="card">
-              <div className="field">
-                <label htmlFor="instagram">Instagram</label>
+            <div className="space-y-5 p-6">
+              <WorkspaceField label="Instagram" optional="Optional">
                 <input
                   id="instagram"
                   type="url"
+                  className={inputClassName}
                   placeholder="https://instagram.com/yourname"
                   value={form.instagramUrl}
                   onChange={(event) => updateField('instagramUrl', event.target.value)}
                 />
-              </div>
+              </WorkspaceField>
 
-              <div className="field">
-                <label htmlFor="facebook">Facebook</label>
+              <WorkspaceField label="Facebook" optional="Optional">
                 <input
                   id="facebook"
                   type="url"
+                  className={inputClassName}
                   placeholder="https://facebook.com/yourpage"
                   value={form.facebookUrl}
                   onChange={(event) => updateField('facebookUrl', event.target.value)}
                 />
-              </div>
+              </WorkspaceField>
 
-              <div className="field">
-                <label htmlFor="youtube">YouTube</label>
+              <WorkspaceField label="YouTube" optional="Optional">
                 <input
                   id="youtube"
                   type="url"
+                  className={inputClassName}
                   placeholder="https://youtube.com/@yourchannel"
                   value={form.youtubeUrl}
                   onChange={(event) => updateField('youtubeUrl', event.target.value)}
                 />
-              </div>
+              </WorkspaceField>
             </div>
-          </section>
+          </WorkspaceCard>
 
-          <section className="section">
-            <button
-              type="button"
-              className="advanced-toggle"
-              onClick={() => setShowAdvanced((current) => !current)}
-              aria-expanded={showAdvanced}
-            >
-              <span className={`chevron ${showAdvanced ? 'open' : ''}`}>▶</span>
-              Change public page link
-            </button>
-            <p className="advanced-helper">Optional. Most artists can ignore this.</p>
-
-            {showAdvanced && (
-              <div className="advanced-block">
-                <div className="field">
-                  <label htmlFor="slug">Public page link</label>
-                  <div className="hint">Your public page will appear at your chosen address.</div>
-                  <input
-                    id="slug"
-                    type="text"
-                    placeholder="your-name"
-                    value={form.slug}
-                    onChange={(event) => handleSlugChange(event.target.value)}
-                  />
+          <WorkspaceCard tone="muted">
+            <div className="p-6">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <div className="font-display text-[28px] leading-none tracking-[-0.04em] text-[var(--color-near-black)]">
+                    Public Page Link
+                  </div>
+                  <p className="mt-3 max-w-xl text-sm leading-6 text-[var(--color-warm-slate)]">
+                    Most artists can keep the automatic link. Only change this if you want a different public slug.
+                  </p>
                 </div>
+                <button
+                  type="button"
+                  className="inline-flex min-h-[42px] items-center justify-center rounded-full border border-[var(--color-rule)] bg-white px-4 text-xs uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-200 hover:bg-[var(--color-bone)]"
+                  onClick={() => setShowAdvanced((current) => !current)}
+                  aria-expanded={showAdvanced}
+                >
+                  {showAdvanced ? 'Hide Advanced' : 'Edit Link'}
+                </button>
               </div>
-            )}
-          </section>
+
+              {showAdvanced ? (
+                <div className="mt-5">
+                  <WorkspaceField
+                    label="Public slug"
+                    hint="Studio 201 will use this at the end of your public URL. It updates automatically until you change it yourself."
+                  >
+                    <input
+                      id="slug"
+                      type="text"
+                      className={inputClassName}
+                      placeholder="your-name"
+                      value={form.slug}
+                      onChange={(event) => handleSlugChange(event.target.value)}
+                    />
+                  </WorkspaceField>
+                </div>
+              ) : null}
+            </div>
+          </WorkspaceCard>
+
+          <div className="sticky bottom-4 z-10">
+            <WorkspaceCard className="border-[rgba(26,24,20,0.14)] bg-[rgba(255,255,255,0.92)] backdrop-blur-md">
+              <div className="flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
+                <div className="flex flex-col gap-2">
+                  <WorkspaceStatusPill tone={saveTone}>{saveCopy}</WorkspaceStatusPill>
+                  <p className="text-xs leading-5 text-[var(--color-dust)]">
+                    Saving updates your public artist page data without changing the underlying workflow.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="inline-flex min-h-[48px] items-center justify-center rounded-full bg-[var(--color-near-black)] px-6 text-xs uppercase tracking-[0.12em] text-[var(--color-cream)] transition-colors duration-200 hover:bg-[var(--color-charcoal)] disabled:cursor-not-allowed disabled:opacity-45"
+                  onClick={() => void handleSave()}
+                  disabled={!isDirty || saveStatus === 'saving' || uploadingProfileImage}
+                >
+                  {saveStatus === 'saving' ? 'Saving...' : 'Save Profile'}
+                </button>
+              </div>
+            </WorkspaceCard>
+          </div>
         </div>
       </div>
-    </>
+
+    </div>
   );
 }

@@ -17,74 +17,101 @@ interface EventRowProps {
   venue: string;
   time: string;
   isExternal?: boolean;
+  isPast?: boolean;
   hasDocumentation?: boolean;
   delay?: 0 | 1 | 2 | 3 | 4 | 5;
 }
 
 
-export function EventRow({ slug, hrefPrefix, href, date, day, type, title, subtitle, venue, time, isExternal, hasDocumentation, delay = 0 }: EventRowProps) {
+export function EventRow({
+  slug,
+  hrefPrefix,
+  href,
+  date,
+  day,
+  type,
+  title,
+  subtitle,
+  venue,
+  time,
+  isExternal,
+  isPast,
+  hasDocumentation,
+  delay = 0,
+}: EventRowProps) {
   const router = useRouter();
+  const destination = href || (slug ? `${hrefPrefix ?? "/events"}/${slug}` : hrefPrefix ?? "/events");
 
   const handleRowClick = () => {
-    if (href) {
-      router.push(href);
-      return;
-    }
-    const prefix = hrefPrefix ?? "/events";
-    router.push(slug ? `${prefix}/${slug}` : prefix);
+    router.push(destination);
   };
 
   return (
     <Reveal delay={delay}>
-      <div
+      <article
         onClick={handleRowClick}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            handleRowClick();
+          }
+        }}
+        tabIndex={0}
+        role="link"
         className={clsx(
-          "grid grid-cols-1 md:grid-cols-[160px_1fr_auto] gap-3 md:gap-10 py-8 border-t border-[var(--color-rule)] hover:bg-[rgba(240,237,229,0.2)] transition-colors duration-200 cursor-pointer group last:border-b",
-          { "pl-8": isExternal }
+          "grid grid-cols-1 gap-4 border-t border-[var(--color-rule)] py-5 transition-colors duration-200 cursor-pointer group outline-none first:border-t-0 hover:bg-[rgba(240,237,229,0.18)] focus-visible:bg-[rgba(240,237,229,0.18)] md:grid-cols-[132px_minmax(0,1fr)_132px] md:gap-6",
+          { "md:pl-6": isExternal }
         )}
       >
         <div className="flex flex-col gap-1">
           <div className="font-mono text-[13px] text-[var(--color-near-black)]">{date}</div>
-          <div className="font-mono text-[10px] text-[var(--color-dust)] tracking-[0.06em]">{day}</div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--color-dust)]">{day}</div>
         </div>
 
         <div>
           <div
             className={clsx(
-              "font-mono text-[9px] tracking-[0.12em] uppercase mb-2.5",
+              "mb-2.5 font-mono text-[10px] tracking-[0.14em] uppercase",
               isExternal ? "text-[var(--color-dust)]" : "text-[var(--color-sienna)]"
             )}
           >
             {type}
+            {isPast ? " · Archive" : ""}
           </div>
           <div
             className={clsx(
-              "font-display text-[22px] font-normal tracking-[-0.01em] mb-1.5 transition-colors duration-200 group-hover:text-[var(--color-sienna)]",
-              isExternal ? "font-body text-lg font-medium text-[var(--color-warm-slate)]" : "text-[var(--color-near-black)]"
+              "mb-2 font-display text-[clamp(22px,2.2vw,30px)] font-normal leading-[1] tracking-[-0.03em] transition-colors duration-200 group-hover:text-[var(--color-sienna)]",
+              isExternal ? "text-[var(--color-warm-slate)]" : "text-[var(--color-near-black)]"
             )}
           >
             {title}
           </div>
-          <div className="font-sub italic text-[15px] text-[var(--color-warm-slate)]">{subtitle}</div>
+          {subtitle ? (
+            <div className="max-w-[52ch] text-[15px] leading-7 text-[var(--color-warm-slate)]">{subtitle}</div>
+          ) : null}
         </div>
 
-        <div className="font-body text-xs text-[var(--color-dust)] text-left md:text-right tracking-[0.03em] flex flex-col md:items-end justify-between">
+        <div className="flex flex-col justify-between gap-4 text-left md:items-end md:text-right">
           <div>
-            {venue}
-            <br />
-            {time}
+            <div className="text-xs tracking-[0.03em] text-[var(--color-dust)]">{venue}</div>
+            {time ? <div className="mt-1 text-xs tracking-[0.03em] text-[var(--color-dust)]">{time}</div> : null}
           </div>
-          {hasDocumentation && slug && (
-            <Link
-              href={`/events/${slug}/documentation`}
-              onClick={(e) => e.stopPropagation()} // Prevent triggering the row link
-              className="mt-4 md:mt-0 inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.1em] uppercase text-[var(--color-near-black)] bg-[var(--color-bone)] border border-[var(--color-rule)] px-3 py-1.5 hover:bg-[var(--color-sienna)] hover:text-[var(--color-cream)] hover:border-[var(--color-sienna)] transition-colors duration-300"
-            >
-              View Documentation →
-            </Link>
-          )}
+          <div className="flex flex-wrap items-center gap-2 md:justify-end">
+            {hasDocumentation && slug ? (
+              <Link
+                href={`/events/${slug}/documentation`}
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex min-h-[32px] items-center rounded-full border border-[var(--color-rule)] bg-[var(--color-bone)] px-3 font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-300 hover:border-[var(--color-near-black)] hover:bg-white"
+              >
+                Documentation
+              </Link>
+            ) : null}
+            <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-sienna)]">
+              View details
+            </span>
+          </div>
         </div>
-      </div>
+      </article>
     </Reveal>
   );
 }

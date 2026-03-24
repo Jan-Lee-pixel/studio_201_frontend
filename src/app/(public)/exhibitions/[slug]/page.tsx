@@ -1,12 +1,31 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/Button";
-import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Reveal } from "@/components/animation/Reveal";
-import type { Exhibition } from "@/features/exhibitions/services/exhibitionService";
+import { SectionLabel } from "@/components/ui/SectionLabel";
+import { ScrollToSectionButton } from "@/components/ui/ScrollToSectionButton";
+import { StudioImagePlaceholder } from "@/components/ui/StudioImagePlaceholder";
 import type { PublicUserProfile } from "@/features/artists/services/artistService";
 import type { PublicArtworkDto } from "@/features/artworks/services/artworkService";
 import { ArtworkPreviewGrid } from "@/features/artworks/components/ArtworkPreviewGrid";
+import { ExhibitionCoverFrame } from "@/features/exhibitions/components/ExhibitionCoverFrame";
+import type { Exhibition } from "@/features/exhibitions/services/exhibitionService";
 import { getPublicCollection, getPublicResource } from "@/lib/publicApi";
+
+function formatDateRange(start?: string, end?: string) {
+  if (!start) return "Dates to be announced";
+  const startDate = new Date(start);
+  const endDate = end ? new Date(end) : null;
+  const startLabel = startDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+
+  if (!endDate) return startLabel;
+
+  const endLabel = endDate.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  return `${startLabel} – ${endLabel}`;
+}
 
 export default async function ExhibitionResultPage({
   params,
@@ -21,7 +40,11 @@ export default async function ExhibitionResultPage({
   });
 
   if (!exhibition) {
-    return <div className="min-h-screen flex items-center justify-center font-dm-mono text-gray-500 uppercase tracking-widest text-sm bg-[var(--color-charcoal)]">Exhibition Not Found</div>;
+    return (
+      <div className="min-h-screen bg-[var(--color-parchment)] px-6 pt-32 text-center font-mono text-sm uppercase tracking-[0.16em] text-[var(--color-dust)]">
+        Exhibition not found
+      </div>
+    );
   }
 
   const [artworks, allArtists] = await Promise.all([
@@ -40,101 +63,133 @@ export default async function ExhibitionResultPage({
   const artists = uniqueArtistIds
     .map((artistId) => artistLookup[artistId])
     .filter((artist): artist is PublicUserProfile => Boolean(artist));
-
-  // Formatting helpers
-  const getDurationString = (start?: string, end?: string) => {
-    if (!start) return "Upcoming";
-    const startDate = new Date(start).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-    const endDate = end ? new Date(end).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Ongoing";
-    return `${startDate} – ${endDate}`;
-  };
-
+  const galleryArtworks = artworks.filter((artwork) => Boolean(artwork.mediaAssetUrl));
   const artistNames = artists.map((artist) => artist.fullName);
   const heroArtistLabel =
     artistNames.length > 0
       ? `${artistNames.slice(0, 3).join(" · ")}${artistNames.length > 3 ? ` +${artistNames.length - 3}` : ""}`
       : "Artists to be announced";
-  const galleryArtworks = artworks.filter((artwork) => Boolean(artwork.mediaAssetUrl));
+  const exhibitionDescription = exhibition.description?.trim() || null;
 
   return (
-    <div>
-      {/* HERO */}
-      <section className="relative h-screen overflow-hidden">
-        {exhibition.coverImageUrl ? (
-          <img
-            src={exhibition.coverImageUrl}
-            alt={exhibition.title}
-            className="w-full h-full object-cover brightness-75"
-          />
-        ) : (
-          <div className="w-full h-full bg-[radial-gradient(circle_at_top,rgba(181,96,58,0.35),rgba(23,22,15,0.95))]" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[rgba(23,22,15,0.85)] to-transparent via-transparent via-60%"></div>
-        <div className="absolute bottom-20 left-6 right-6 md:left-12 md:right-12 border-t border-[rgba(240,237,229,0.2)] pt-8">
-          <div className="flex justify-between items-end mb-4">
-            <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--color-sienna)]">
-              Exhibition
+    <div className="bg-[linear-gradient(180deg,#faf6ef_0%,var(--color-parchment)_36%,var(--color-bone)_100%)]">
+      <section>
+        <div className="mx-auto grid max-w-[1440px] gap-10 px-6 pb-20 pt-32 md:px-12 md:pb-24 xl:grid-cols-[minmax(0,0.92fr)_minmax(420px,1.08fr)]">
+          <Reveal className="flex flex-col gap-8 xl:pt-6">
+            <div>
+              <div className="inline-flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--color-sienna)] before:block before:h-px before:w-8 before:bg-current before:content-['']">
+                Exhibition
+              </div>
+              <h1 className="mt-6 max-w-[11ch] font-display text-[clamp(48px,7vw,92px)] leading-[0.86] tracking-[-0.06em] text-[var(--color-near-black)]">
+                {exhibition.title}
+              </h1>
+              <div className="mt-5 font-sub text-[clamp(20px,2.2vw,28px)] italic text-[var(--color-warm-slate)]">
+                {heroArtistLabel}
+              </div>
+
+              <div className="mt-8 flex flex-wrap gap-3">
+                <ScrollToSectionButton
+                  targetId="works"
+                  className="inline-flex min-h-[50px] items-center justify-center rounded-full bg-[var(--color-near-black)] px-6 text-sm tracking-[0.04em] text-[var(--color-cream)] transition-colors duration-200 hover:bg-[var(--color-charcoal)]"
+                >
+                  View Works
+                </ScrollToSectionButton>
+                <Link
+                  href="/exhibitions"
+                  className="inline-flex min-h-[50px] items-center justify-center rounded-full border border-[var(--color-rule)] bg-white/70 px-6 text-sm tracking-[0.04em] text-[var(--color-near-black)] transition-colors duration-200 hover:bg-white"
+                >
+                  Browse Exhibitions
+                </Link>
+              </div>
             </div>
-            <div className="font-mono text-[11px] text-[var(--color-dust)] tracking-[0.06em]">
-              {getDurationString(exhibition.startDate, exhibition.endDate)}
+
+            <div className="mt-2 flex flex-wrap gap-x-8 gap-y-4 border-t border-[var(--color-rule)] pt-6">
+              <div>
+                <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Dates</div>
+                <div className="mt-2 text-sm text-[var(--color-near-black)]">{formatDateRange(exhibition.startDate, exhibition.endDate)}</div>
+              </div>
+              <div>
+                <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Artists</div>
+                <div className="mt-2 text-sm text-[var(--color-near-black)]">{artists.length || "TBA"}</div>
+              </div>
+              <div>
+                <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Works</div>
+                <div className="mt-2 text-sm text-[var(--color-near-black)]">{galleryArtworks.length || "TBA"} published</div>
+              </div>
             </div>
-          </div>
-          <h1 className="font-display text-[clamp(40px,6vw,72px)] font-normal tracking-[-0.02em] leading-[1.05] text-[var(--color-cream)] mb-3">
-            {exhibition.title}
-          </h1>
-          <div className="font-sub italic text-xl text-[var(--color-dust)]">
-            {heroArtistLabel}
-          </div>
+          </Reveal>
+
+          <Reveal className="self-start">
+            <div className="overflow-hidden rounded-[30px] border border-[var(--color-rule)] bg-[rgba(255,255,255,0.82)] p-4 shadow-[0_24px_56px_rgba(33,28,24,0.08)] xl:sticky xl:top-[96px]">
+              <div className="relative overflow-hidden rounded-[24px]">
+                <ExhibitionCoverFrame
+                  image={exhibition.coverImageUrl}
+                  alt={exhibition.title}
+                  className="w-full"
+                  paddingClassName="p-4 md:p-5 xl:p-6"
+                  imageClassName="h-auto w-auto max-h-[min(68vh,680px)] max-w-full"
+                />
+                <div className="absolute inset-[7%] border border-[rgba(255,255,255,0.22)]" />
+              </div>
+            </div>
+          </Reveal>
         </div>
       </section>
 
-      <div className="max-w-[1200px] mx-auto px-6 md:px-12">
-        {/* INTRO */}
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_480px] gap-12 md:gap-30 py-24 border-b border-[var(--color-rule)]">
-          <Reveal className="text-[var(--color-warm-slate)]">
-            <p className="text-base leading-[1.75] mb-5">
-              {exhibition.description || "Exhibition details will be announced soon."}
-            </p>
-            <div className="mt-12">
-              <Link
-                href="/artists"
-                className="relative inline-block font-body font-medium text-sm tracking-[0.02em] text-[var(--color-near-black)] after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-[1px] after:bg-current after:scale-x-0 after:origin-left after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.16,1,0.3,1)] hover:after:scale-x-100"
-              >
-                View our roster of artists →
-              </Link>
-            </div>
-          </Reveal>
-
-          <Reveal delay={2}>
-            <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--color-dust)] mb-4">
-              Artist
-            </div>
-            <div className="font-body text-[15px] text-[var(--color-near-black)] mb-8">
-              {heroArtistLabel}
-            </div>
-
-            <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[var(--color-dust)] mb-4">
-              Duration
-            </div>
-            <div className="font-body text-[15px] text-[var(--color-near-black)] mb-8">
-              {getDurationString(exhibition.startDate, exhibition.endDate)}
-            </div>
-            {artworks.length > 0 ? (
-              <div className="mt-10">
-                <Button>Inquire about works</Button>
+      <section className="bg-[var(--color-parchment)] px-6 py-20 md:px-12 md:py-24">
+        <div className="mx-auto grid max-w-[1440px] gap-10 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
+          <div>
+            <Reveal>
+              <SectionLabel>Curatorial Note</SectionLabel>
+            </Reveal>
+            <Reveal>
+              <div className="mt-8 max-w-[760px]">
+                <p className="font-sub text-[clamp(24px,3vw,34px)] italic leading-[1.55] text-[var(--color-warm-slate)]">
+                  {exhibitionDescription ||
+                    "A curatorial note or exhibition statement will be added here when it is available."}
+                </p>
               </div>
-            ) : null}
+            </Reveal>
+          </div>
+
+          <Reveal>
+            <div className="rounded-[26px] border border-[var(--color-rule)] bg-[rgba(255,255,255,0.84)] p-6 shadow-[0_16px_38px_rgba(33,28,24,0.04)]">
+              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-sienna)]">
+                Exhibition Details
+              </div>
+              <div className="mt-5 space-y-5">
+                <div className="border-t border-[var(--color-rule)] pt-5 first:border-t-0 first:pt-0">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Dates</div>
+                  <div className="mt-2 text-sm leading-7 text-[var(--color-near-black)]">
+                    {formatDateRange(exhibition.startDate, exhibition.endDate)}
+                  </div>
+                </div>
+                <div className="border-t border-[var(--color-rule)] pt-5">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Participating Artists</div>
+                  <div className="mt-2 text-sm leading-7 text-[var(--color-near-black)]">{heroArtistLabel}</div>
+                </div>
+                <div className="border-t border-[var(--color-rule)] pt-5">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Works Published</div>
+                  <div className="mt-2 text-sm leading-7 text-[var(--color-near-black)]">
+                    {galleryArtworks.length > 0
+                      ? `${galleryArtworks.length} work${galleryArtworks.length === 1 ? "" : "s"} currently visible`
+                      : "No works have been published yet"}
+                  </div>
+                </div>
+              </div>
+            </div>
           </Reveal>
         </div>
+      </section>
 
-        {/* ARTWORKS */}
-        <div className="py-20 md:py-24">
+      <section
+        id="works"
+        className="scroll-mt-24 border-t border-[var(--color-rule)] bg-[var(--color-bone)] px-6 py-20 md:scroll-mt-28 md:px-12 md:py-24"
+      >
+        <div className="mx-auto max-w-[1440px]">
           <Reveal>
-            <h2 className="mb-12 font-display text-[28px] font-normal tracking-[-0.01em] text-[var(--color-near-black)]">
-              Works in Exhibition
-            </h2>
+            <SectionLabel>Works in Exhibition</SectionLabel>
           </Reveal>
-
           {galleryArtworks.length > 0 ? (
             <ArtworkPreviewGrid
               artworks={galleryArtworks.map((artwork) => ({
@@ -148,41 +203,75 @@ export default async function ExhibitionResultPage({
               }))}
             />
           ) : (
-            <div className="py-12 text-center font-mono text-xs uppercase tracking-[0.16em] text-[var(--color-dust)]">
-              No artworks have been submitted for this exhibition yet.
+            <div className="mt-10 rounded-[26px] border border-dashed border-[var(--color-rule)] bg-[rgba(255,255,255,0.7)] px-6 py-12 text-center">
+              <div className="font-display text-[32px] leading-none tracking-[-0.04em] text-[var(--color-near-black)]">
+                Works coming soon
+              </div>
+              <p className="mx-auto mt-3 max-w-lg text-sm leading-7 text-[var(--color-warm-slate)]">
+                No artworks have been published for this exhibition yet.
+              </p>
             </div>
           )}
         </div>
+      </section>
 
-        {/* RELATED ARTISTS */}
-        <Reveal className="py-20 border-t border-[var(--color-rule)]">
-          <SectionLabel>Artists in this Exhibition</SectionLabel>
+      <section className="border-t border-[var(--color-rule)] bg-[var(--color-parchment)] px-6 py-20 md:px-12 md:py-24">
+        <div className="mx-auto max-w-[1440px]">
+          <Reveal>
+            <SectionLabel>Artists in This Exhibition</SectionLabel>
+          </Reveal>
           {artists.length === 0 ? (
-            <div className="mt-8 text-gray-400 font-mono text-xs uppercase tracking-widest">
-              No artists have been published for this exhibition yet.
+            <div className="mt-10 rounded-[26px] border border-dashed border-[var(--color-rule)] bg-[rgba(255,255,255,0.72)] px-6 py-12 text-center">
+              <div className="font-display text-[32px] leading-none tracking-[-0.04em] text-[var(--color-near-black)]">
+                Artists will be announced soon
+              </div>
+              <p className="mx-auto mt-3 max-w-lg text-sm leading-7 text-[var(--color-warm-slate)]">
+                Once artist records are connected to the works in this exhibition, they will appear here.
+              </p>
             </div>
           ) : (
-            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-10">
-              {artists.map((artist) => (
-                <div key={artist.id}>
-                  <div className="font-display text-[22px] font-normal mb-1.5">
-                    {artist.fullName}
-                  </div>
-                  <div className="font-mono text-[10px] text-[var(--color-dust)] tracking-[0.08em] mb-4">
-                    ARTIST
-                  </div>
+            <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {artists.map((artist, index) => (
+                <Reveal key={artist.id} delay={((index % 3) + 1) as 1 | 2 | 3}>
                   <Link
                     href={`/artists/${artist.slug}`}
-                    className="relative inline-block font-body font-medium text-sm tracking-[0.02em] text-[var(--color-near-black)] after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-[1px] after:bg-current after:scale-x-0 after:origin-left after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.16,1,0.3,1)] hover:after:scale-x-100"
+                    className="overflow-hidden rounded-[24px] border border-[var(--color-rule)] bg-white/85 shadow-[0_16px_38px_rgba(33,28,24,0.04)] transition-transform duration-200 hover:-translate-y-1"
                   >
-                    View full profile →
+                    <div className="aspect-[4/3] overflow-hidden bg-[var(--color-bone)]">
+                      {artist.profileImageUrl ? (
+                        <img src={artist.profileImageUrl} alt={artist.fullName} className="h-full w-full object-cover" />
+                      ) : (
+                        <StudioImagePlaceholder className="h-full w-full" markClassName="w-16" label="Studio 201" />
+                      )}
+                    </div>
+                    <div className="p-5">
+                      <div className="font-display text-[30px] leading-[0.92] tracking-[-0.04em] text-[var(--color-near-black)]">
+                        {artist.fullName}
+                      </div>
+                      <p className="mt-3 text-sm leading-6 text-[var(--color-warm-slate)]">
+                        {artist.bio?.trim()
+                          ? `${artist.bio.slice(0, 110)}${artist.bio.length > 110 ? "..." : ""}`
+                          : "View the artist profile for biography, selected works, and related exhibitions."}
+                      </p>
+                    </div>
                   </Link>
-                </div>
+                </Reveal>
               ))}
             </div>
           )}
-        </Reveal>
-      </div>
+
+          <Reveal>
+            <div className="mt-12">
+              <Link
+                href="/exhibitions"
+                className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-[var(--color-near-black)] px-5 text-sm tracking-[0.04em] text-[var(--color-near-black)] transition-colors duration-200 hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)]"
+              >
+                Return to Exhibitions
+              </Link>
+            </div>
+          </Reveal>
+        </div>
+      </section>
     </div>
   );
 }
