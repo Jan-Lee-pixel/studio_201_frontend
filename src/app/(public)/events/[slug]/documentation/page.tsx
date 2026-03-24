@@ -1,7 +1,23 @@
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { notFound } from "next/navigation";
 import { Reveal } from "@/components/animation/Reveal";
+import { SectionLabel } from "@/components/ui/SectionLabel";
+import { PublicActionLink, PublicSurface } from "@/components/ui/PublicPagePrimitives";
 import { ImageGrid } from "@/features/events/components/ImageGrid";
+import type { EventDto } from "@/features/events/services/eventService";
+import { getPublicFetchConfig, PUBLIC_API_BASE_URL } from "@/lib/publicApi";
+
+async function getEvent(slug: string): Promise<EventDto | null> {
+  try {
+    const res = await fetch(
+      `${PUBLIC_API_BASE_URL}/Events/slug/${slug}`,
+      getPublicFetchConfig({ revalidate: 300, tags: [`event-${slug}`, "public-events"] }),
+    );
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
 
 const getEventImages = () => {
   return [] as {
@@ -15,43 +31,63 @@ const getEventImages = () => {
 
 export default async function EventDocumentationPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const event = await getEvent(slug);
 
-  // Extract a readable title from the slug (mock behavior)
-  const readableTitle = slug
-    .split("-")
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+  if (!event) {
+    notFound();
+  }
 
   const images = getEventImages();
 
   return (
-    <div className="pt-32 pb-32 min-h-[80vh] bg-[var(--color-parchment)]">
-      <div className="px-6 md:px-12 max-w-[1400px] mx-auto">
-        <Reveal>
-          <Link
-            href="/events"
-            className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.1em] text-[var(--color-warm-slate)] hover:text-[var(--color-sienna)] transition-colors mb-10 uppercase"
-          >
-            <ArrowLeft className="w-3 h-3" />
-            Back to Events
-          </Link>
-        </Reveal>
-
-        <Reveal delay={1}>
-          <div className="mb-12 border-b border-[var(--color-rule)] pb-12">
-            <div className="font-mono text-[10px] tracking-[0.14em] uppercase text-[var(--color-dust)] mb-3">
-              Event Documentation
-            </div>
-            <h1 className="font-display text-[clamp(32px,5vw,56px)] font-normal leading-[1.1] tracking-[-0.02em] text-[var(--color-near-black)]">
-              {readableTitle}
-            </h1>
+    <div className="min-h-screen bg-[var(--color-parchment)] pt-28">
+      <div className="border-b border-[var(--color-rule)] px-6 py-5 md:px-12">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <PublicActionLink href={`/events/${slug}`} tone="ghost">
+            Back to event
+          </PublicActionLink>
+          <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+            Event documentation
           </div>
-        </Reveal>
-
-        <Reveal delay={2}>
-          <ImageGrid images={images} />
-        </Reveal>
+        </div>
       </div>
+
+      <section className="px-6 py-16 md:px-12 md:py-20">
+        <div className="mx-auto max-w-[1240px] space-y-12">
+          <Reveal>
+            <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-end">
+              <div>
+                <SectionLabel>Documentation</SectionLabel>
+                <h1 className="mt-6 max-w-[12ch] font-display text-[clamp(42px,6vw,82px)] leading-[0.92] tracking-[-0.05em] text-[var(--color-near-black)]">
+                  {event.title}
+                </h1>
+                {event.subtitle ? (
+                  <p className="mt-5 max-w-[42ch] font-sub text-[clamp(20px,2.6vw,28px)] italic font-light leading-[1.5] text-[var(--color-warm-slate)]">
+                    {event.subtitle}
+                  </p>
+                ) : null}
+              </div>
+
+              <PublicSurface tone="muted">
+                <div className="p-6">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+                    Notes
+                  </div>
+                  <p className="mt-3 text-sm leading-7 text-[var(--color-warm-slate)]">
+                    Photographs and video from the event will appear here once they are published.
+                  </p>
+                </div>
+              </PublicSurface>
+            </div>
+          </Reveal>
+
+          <Reveal delay={1}>
+            <PublicSurface className="p-6 md:p-8">
+              <ImageGrid images={images} />
+            </PublicSurface>
+          </Reveal>
+        </div>
+      </section>
     </div>
   );
 }

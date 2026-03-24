@@ -7,21 +7,21 @@ import {
   normalizeCatalogFilter,
   sortCatalogItems,
 } from "@/features/merch/utils/publicCatalog";
-import { getPublicMerch } from "./merchData";
+import { getPublicMerch } from "../merch/merchData";
 
 export const metadata: Metadata = {
-  title: "Merch | Studio 201",
-  description: "Public releases from Studio 201.",
+  title: "Backroom | Studio 201",
+  description: "Rarer and quieter inquiry-first selections from Studio 201.",
 };
 
-export default async function MerchPage({
+export default async function BackroomPage({
   searchParams,
 }: {
   searchParams?: Promise<{ type?: string }>;
 }) {
   const params = searchParams ? await searchParams : undefined;
   const requestedFilter = normalizeCatalogFilter(params?.type);
-  const allItems = sortCatalogItems(await getPublicMerch({ channel: "merch" }));
+  const allItems = sortCatalogItems(await getPublicMerch({ channel: "backroom" }));
 
   const typeFilters = Array.from(
     allItems.reduce((summary, item) => {
@@ -41,18 +41,18 @@ export default async function MerchPage({
   return (
     <div className="bg-[linear-gradient(180deg,#faf6ef_0%,var(--color-parchment)_36%,var(--color-bone)_100%)]">
       <PublicPageHeader
-        section="Merch"
-        title="Merch"
-        description="Public releases, apparel, objects, and printed matter from Studio 201."
+        section="Backroom"
+        title="Backroom"
+        description="One-off objects, quieter releases, and lower-profile items outside the main merch page."
         stats={[
           { label: "Items", value: `${allItems.length} published` },
-          { label: "Scope", value: "Main public catalog" },
+          { label: "Scope", value: "Backroom releases" },
         ]}
       >
         {typeFilters.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             <Link
-              href="/merch"
+              href="/backroom"
               className={`rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors duration-300 ${
                 !activeFilter
                   ? "border-[var(--color-near-black)] bg-[var(--color-near-black)] text-[var(--color-cream)]"
@@ -64,7 +64,7 @@ export default async function MerchPage({
             {typeFilters.map(([type, count]) => (
               <Link
                 key={type}
-                href={`/merch?type=${encodeURIComponent(type)}`}
+                href={`/backroom?type=${encodeURIComponent(type)}`}
                 className={`rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors duration-300 ${
                   activeFilter === type.toLowerCase()
                     ? "border-[var(--color-near-black)] bg-[var(--color-near-black)] text-[var(--color-cream)]"
@@ -82,11 +82,11 @@ export default async function MerchPage({
         <div className="mx-auto max-w-[1440px]">
           {filteredItems.length === 0 ? (
             <PublicEmptyState
-              title={allItems.length === 0 ? "No merch items yet" : `No ${activeFilterLabel.toLowerCase()} items yet`}
+              title={allItems.length === 0 ? "No backroom items yet" : `No ${activeFilterLabel.toLowerCase()} items yet`}
               description={
                 allItems.length === 0
-                  ? "Published merch releases will appear here once they are added to the public catalog."
-                  : `There are no ${activeFilterLabel.toLowerCase()} merch items in the public catalog yet.`
+                  ? "Backroom releases will appear here once they are approved and published."
+                  : `There are no ${activeFilterLabel.toLowerCase()} backroom items in the public catalog yet.`
               }
             />
           ) : (

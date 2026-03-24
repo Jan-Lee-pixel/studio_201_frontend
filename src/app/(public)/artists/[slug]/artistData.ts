@@ -45,6 +45,8 @@ export type PublicExhibition = {
   slug: string;
   startDate?: string | null;
   endDate?: string | null;
+  description?: string | null;
+  coverImageUrl?: string | null;
 };
 
 export async function getArtist(slug: string): Promise<PublicArtist | null> {

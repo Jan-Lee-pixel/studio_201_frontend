@@ -22,11 +22,11 @@ export function MerchGallery({ title, images }: MerchGalleryProps) {
 
   return (
     <>
-      <div className="mx-auto w-full max-w-[520px]">
+      <div className="w-full">
         <div className="overflow-hidden border border-[var(--color-rule)] bg-white">
           <button
             type="button"
-            className="flex min-h-[360px] w-full items-center justify-center bg-[var(--color-bone)] p-8 text-left transition-colors hover:bg-white md:min-h-[520px] md:p-12"
+            className="flex min-h-[380px] w-full items-center justify-center bg-[var(--color-bone)] p-8 text-left transition-colors hover:bg-white md:min-h-[620px] md:p-12"
             onClick={() => {
               if (selectedImage) setIsLightboxOpen(true);
             }}
@@ -36,7 +36,7 @@ export function MerchGallery({ title, images }: MerchGalleryProps) {
               <img
                 src={selectedImage}
                 alt={title}
-                className="block max-h-[300px] w-auto max-w-full object-contain md:max-h-[420px]"
+                className="block max-h-[320px] w-auto max-w-full object-contain md:max-h-[520px]"
               />
             ) : (
               <StudioImagePlaceholder className="h-full w-full" markClassName="w-16" />
@@ -45,7 +45,7 @@ export function MerchGallery({ title, images }: MerchGalleryProps) {
         </div>
 
         {galleryImages.length > 1 ? (
-          <div className="mt-4 grid grid-cols-3 gap-3">
+          <div className="mt-4 grid grid-cols-5 gap-3 md:grid-cols-6">
             {galleryImages.map((image, index) => {
               const isActive = index === selectedIndex;
               return (

@@ -1,11 +1,10 @@
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400;1,500&family=Karla:wght@300;400;500&family=DM+Mono:ital,wght@0,400;1,400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
 :root {
-  --font-playfair: "Playfair Display";
   --font-cormorant: "Cormorant Garamond";
-  --font-karla: "Karla";
-  --font-dm-mono: "DM Mono";
+  --font-manrope: "Manrope";
+  --font-ibm-plex-mono: "IBM Plex Mono";
 
   /* Colors from template.html */
   --parchment:    #F5F2EC;
@@ -27,10 +26,10 @@
 
 @theme inline {
   /* Font Families mapped to Next.js font variables */
-  --font-display: var(--font-playfair), Georgia, serif;
+  --font-display: var(--font-cormorant), Georgia, serif;
   --font-sub:     var(--font-cormorant), Georgia, serif;
-  --font-body:    var(--font-karla), sans-serif;
-  --font-mono:    var(--font-dm-mono), monospace;
+  --font-body:    var(--font-manrope), sans-serif;
+  --font-mono:    var(--font-ibm-plex-mono), monospace;
 
   /* Colors */
   --color-parchment: var(--parchment);
@@ -71,6 +70,12 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 h1, h2, h3, h4, h5, h6 {

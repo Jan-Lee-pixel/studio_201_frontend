@@ -1,13 +1,22 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import clsx from "clsx";
 import { Reveal } from "@/components/animation/Reveal";
-import { SectionLabel } from "@/components/ui/SectionLabel";
+import {
+  PublicEmptyState,
+  PublicPageHeader,
+} from "@/components/ui/PublicPagePrimitives";
 import { EventRow } from "@/features/events/components/EventRow";
-import { eventService, EventDto } from "@/features/events/services/eventService";
-import { exhibitionService, Exhibition } from "@/features/exhibitions/services/exhibitionService";
-import { Skeleton } from "@/components/ui/Skeleton";
+import type { EventDto } from "@/features/events/services/eventService";
+import {
+  formatEventDate,
+  formatEventDateRange,
+  formatEventDay,
+  formatEventMonthLabel,
+  getEventEffectiveDate,
+} from "@/features/events/utils/publicEventPresentation";
+import type { Exhibition } from "@/features/exhibitions/services/exhibitionService";
 
 type FilterType = "all" | "studio" | "external" | "archive";
 
@@ -28,144 +37,89 @@ type EventRowData = {
   sortDate?: Date | null;
 };
 
-const formatDate = (dateStr?: string) => {
-  if (!dateStr) return "TBA";
-  return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-};
+const filters: { id: FilterType; label: string }[] = [
+  { id: "all", label: "All" },
+  { id: "studio", label: "Studio" },
+  { id: "external", label: "External" },
+  { id: "archive", label: "Archive" },
+];
 
-const formatDay = (dateStr?: string) => {
-  if (!dateStr) return "";
-  return new Date(dateStr).toLocaleDateString("en-US", { weekday: "long" });
-};
-
-const getMonthLabel = (dateStr?: string) => {
-  if (!dateStr) return "TBA";
-  return new Date(dateStr).toLocaleDateString("en-US", { month: "long", year: "numeric" });
-};
-
-const formatDateRange = (start?: string, end?: string) => {
-  if (!start && !end) return "";
-  if (start && !end) {
-    return new Date(start).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-  }
-  const startStr = start ? new Date(start).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
-  const endStr = end ? new Date(end).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
-  return `${startStr} – ${endStr}`.trim();
-};
-
-export default function EventsPage() {
+export default function EventsPage({
+  initialEvents,
+  initialOpenExhibitions,
+  initialArchiveExhibitions,
+}: {
+  initialEvents: EventDto[];
+  initialOpenExhibitions: Exhibition[];
+  initialArchiveExhibitions: Exhibition[];
+}) {
   const [filter, setFilter] = useState<FilterType>("all");
-  const [events, setEvents] = useState<EventDto[]>([]);
-  const [openExhibitions, setOpenExhibitions] = useState<Exhibition[]>([]);
-  const [archiveExhibitions, setArchiveExhibitions] = useState<Exhibition[]>([]);
-  const [loading, setLoading] = useState(true);
+  const events = initialEvents;
+  const openExhibitions = initialOpenExhibitions;
+  const archiveExhibitions = initialArchiveExhibitions;
 
-  const filters: { id: FilterType; label: string }[] = [
-    { id: "all", label: "All" },
-    { id: "studio", label: "Studio Events" },
-    { id: "external", label: "External Shows" },
-    { id: "archive", label: "Archive" },
-  ];
-
-  useEffect(() => {
-    Promise.all([
-      eventService.getEvents().catch(() => []),
-      exhibitionService.getOpenExhibitions().catch(() => []),
-      exhibitionService.getArchiveExhibitions().catch(() => []),
-    ])
-      .then(([eventsData, openData, archiveData]) => {
-        setEvents(eventsData);
-        setOpenExhibitions(openData);
-        setArchiveExhibitions(archiveData);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
-
-  const groupedEvents = useMemo(() => {
-    if (events.length === 0 && openExhibitions.length === 0 && archiveExhibitions.length === 0) {
-      return [] as { month: string; items: EventRowData[] }[];
-    }
-
+  const allItems = useMemo(() => {
     const now = new Date();
-    const normalizedEvents: EventRowData[] = events.map((event) => {
-      const start = event.startDate ? new Date(event.startDate) : null;
-      const end = event.endDate ? new Date(event.endDate) : null;
-      const effectiveDate = end || start;
-      const isPast = effectiveDate ? effectiveDate < now : false;
-      const monthLabel = getMonthLabel(event.startDate);
 
+    const normalizedEvents: EventRowData[] = events.map((event) => {
+      const effectiveDate = getEventEffectiveDate(event.startDate, event.endDate);
       return {
         slug: event.slug,
         hasDocumentation: event.hasDocumentation,
-        date: formatDate(event.startDate),
-        day: formatDay(event.startDate),
+        date: formatEventDate(event.startDate),
+        day: formatEventDay(event.startDate),
         type: event.type || "Event",
         title: event.title,
         subtitle: event.subtitle || "",
         venue: event.venue || "Studio 201",
         time: event.timeLabel || "",
         isExternal: event.isExternal,
-        isPast,
-        monthLabel,
+        isPast: effectiveDate ? effectiveDate < now : false,
+        monthLabel: formatEventMonthLabel(event.startDate),
         sortDate: effectiveDate,
       };
     });
 
     const normalizedOpenExhibitions: EventRowData[] = openExhibitions.map((exhibition) => {
-      const start = exhibition.startDate ? new Date(exhibition.startDate) : null;
-      const end = exhibition.endDate ? new Date(exhibition.endDate) : null;
-      const effectiveDate = end || start;
-      const isPast = effectiveDate ? effectiveDate < now : false;
-      const monthLabel = getMonthLabel(exhibition.startDate);
-
+      const effectiveDate = getEventEffectiveDate(exhibition.startDate, exhibition.endDate);
       return {
         slug: exhibition.slug,
         hrefPrefix: "/exhibitions",
-        date: formatDate(exhibition.startDate),
-        day: formatDay(exhibition.startDate),
+        date: formatEventDate(exhibition.startDate),
+        day: formatEventDay(exhibition.startDate),
         type: "Exhibition",
         title: exhibition.title,
-        subtitle: exhibition.description || "Studio 201 Exhibition",
+        subtitle: exhibition.description || "Studio 201 exhibition",
         venue: "Studio 201",
-        time: formatDateRange(exhibition.startDate, exhibition.endDate),
+        time: formatEventDateRange(exhibition.startDate, exhibition.endDate),
         isExternal: false,
-        isPast,
-        monthLabel,
+        isPast: effectiveDate ? effectiveDate < now : false,
+        monthLabel: formatEventMonthLabel(exhibition.startDate),
         sortDate: effectiveDate,
       };
     });
 
-    const normalizedArchiveExhibitions: EventRowData[] = archiveExhibitions.map((exhibition) => {
-      const start = exhibition.startDate ? new Date(exhibition.startDate) : null;
-      const end = exhibition.endDate ? new Date(exhibition.endDate) : null;
-      const effectiveDate = end || start;
-      const monthLabel = getMonthLabel(exhibition.startDate || exhibition.endDate);
+    const normalizedArchiveExhibitions: EventRowData[] = archiveExhibitions.map((exhibition) => ({
+      slug: exhibition.slug,
+      hrefPrefix: "/exhibitions",
+      date: formatEventDate(exhibition.startDate),
+      day: formatEventDay(exhibition.startDate),
+      type: "Exhibition",
+      title: exhibition.title,
+      subtitle: exhibition.description || "Studio 201 exhibition",
+      venue: "Studio 201",
+      time: formatEventDateRange(exhibition.startDate, exhibition.endDate),
+      isExternal: false,
+      isPast: true,
+      monthLabel: formatEventMonthLabel(exhibition.startDate || exhibition.endDate),
+      sortDate: getEventEffectiveDate(exhibition.startDate, exhibition.endDate),
+    }));
 
-      return {
-        slug: exhibition.slug,
-        hrefPrefix: "/exhibitions",
-        date: formatDate(exhibition.startDate),
-        day: formatDay(exhibition.startDate),
-        type: "Exhibition",
-        title: exhibition.title,
-        subtitle: exhibition.description || "Studio 201 Exhibition",
-        venue: "Studio 201",
-        time: formatDateRange(exhibition.startDate, exhibition.endDate),
-        isExternal: false,
-        isPast: true,
-        monthLabel,
-        sortDate: effectiveDate,
-      };
-    });
+    return [...normalizedEvents, ...normalizedOpenExhibitions, ...normalizedArchiveExhibitions];
+  }, [archiveExhibitions, events, openExhibitions]);
 
-    const combined = [
-      ...normalizedEvents,
-      ...normalizedOpenExhibitions,
-      ...normalizedArchiveExhibitions,
-    ];
-
-    const filteredItems = combined.filter((item) => {
+  const groupedEvents = useMemo(() => {
+    const filteredItems = allItems.filter((item) => {
       if (filter === "all") return true;
       if (filter === "studio") return !item.isExternal && !item.isPast;
       if (filter === "external") return !!item.isExternal && !item.isPast;
@@ -173,7 +127,7 @@ export default function EventsPage() {
       return true;
     });
 
-    const sortedItems = filteredItems.sort((a, b) => {
+    const sortedItems = [...filteredItems].sort((a, b) => {
       const aTime = a.sortDate ? a.sortDate.getTime() : Number.MAX_SAFE_INTEGER;
       const bTime = b.sortDate ? b.sortDate.getTime() : Number.MAX_SAFE_INTEGER;
       return aTime - bTime;
@@ -186,77 +140,80 @@ export default function EventsPage() {
       return acc;
     }, {});
 
-    return Object.entries(grouped).map(([month, items]) => ({
-      month,
-      items,
-    }));
-  }, [events, filter]);
+    return Object.entries(grouped).map(([month, items]) => ({ month, items }));
+  }, [allItems, filter]);
+
+  const upcomingCount = allItems.filter((item) => !item.isPast).length;
+  const externalCount = allItems.filter((item) => item.isExternal && !item.isPast).length;
+  const archiveCount = allItems.filter((item) => item.isPast).length;
 
   return (
-    <div className="pt-32 min-h-screen bg-[var(--color-parchment)]">
-      <div className="px-6 md:px-12 pb-16 border-b border-[var(--color-rule)]">
-        <Reveal>
-          <SectionLabel>Cultural Calendar</SectionLabel>
-        </Reveal>
-        <Reveal>
-          <h1 className="font-display text-[clamp(40px,6vw,72px)] font-normal leading-[1.1] mb-10 tracking-[-0.02em]">
-            Events &<br />
-            Programming
-          </h1>
-        </Reveal>
-
-        <Reveal className="flex gap-8 overflow-x-auto pb-2">
-          {filters.map((f) => (
-            <button
-              key={f.id}
-              onClick={() => setFilter(f.id)}
-              className={clsx(
-                "relative font-body text-[13px] bg-transparent border-none p-0 cursor-pointer transition-colors duration-200 whitespace-nowrap after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-[1px] after:bg-[var(--color-sienna)] after:origin-left after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.16,1,0.3,1)]",
-                filter === f.id
-                  ? "text-[var(--color-near-black)] after:scale-x-100"
-                  : "text-[var(--color-warm-slate)] after:scale-x-0 hover:text-[var(--color-near-black)]",
-              )}
-            >
-              {f.label}
-            </button>
-          ))}
-        </Reveal>
-      </div>
-
-      <div className="px-6 md:px-12">
-        {loading ? (
-          <div className="py-12 space-y-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-10 w-full" />
+    <div className="bg-[linear-gradient(180deg,#faf6ef_0%,var(--color-parchment)_36%,var(--color-bone)_100%)]">
+      <PublicPageHeader
+        section="Cultural Calendar"
+        title="Events"
+        description="Upcoming gatherings, studio events, external shows, and archive records in one place."
+        stats={[
+          { label: "Upcoming", value: `${upcomingCount} scheduled` },
+          { label: "External", value: `${externalCount} off-site` },
+          { label: "Archive", value: `${archiveCount} past entries` },
+        ]}
+      >
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+            Filter the calendar
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {filters.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => setFilter(option.id)}
+                className={clsx(
+                  "rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors duration-300",
+                  filter === option.id
+                    ? "border-[var(--color-near-black)] bg-[var(--color-near-black)] text-[var(--color-cream)]"
+                    : "border-[var(--color-rule)] text-[var(--color-dust)] hover:border-[var(--color-near-black)] hover:text-[var(--color-near-black)]",
+                )}
+              >
+                {option.label}
+              </button>
             ))}
           </div>
-        ) : groupedEvents.length === 0 ? (
-          <div className="py-20 text-center text-gray-500 font-dm-mono text-sm tracking-widest uppercase">
-            No Events Found
-          </div>
-        ) : (
-          groupedEvents.map((group, groupIndex) => (
-            <div
-              key={group.month}
-              className={clsx(
-                "py-16",
-                groupIndex === groupedEvents.length - 1 && "pb-20",
-              )}
-            >
-              <div className="font-mono text-[10px] tracking-[0.14em] uppercase text-[var(--color-dust)] mb-0 pb-6 border-b border-[var(--color-rule)]">
-                {group.month}
-              </div>
-              {group.items.map((event, i) => (
-                <EventRow
-                  key={`${group.month}-${i}`}
-                  {...event}
-                  delay={((i % 5) + 1) as 0 | 1 | 2 | 3 | 4 | 5}
-                />
+        </div>
+      </PublicPageHeader>
+
+      <section className="px-6 pb-16 pt-2 md:px-12 md:pb-24 md:pt-4">
+        <div className="mx-auto max-w-[1440px]">
+          {groupedEvents.length === 0 ? (
+            <PublicEmptyState
+              title="No events found"
+              description="There are no public programs in this filter yet. Try another calendar view or check back once new events are published."
+            />
+          ) : (
+            <div className="space-y-8 md:space-y-10">
+              {groupedEvents.map((group, groupIndex) => (
+                <Reveal key={group.month} delay={((groupIndex % 3) + 1) as 1 | 2 | 3}>
+                  <div className="grid gap-3 md:grid-cols-[120px_minmax(0,1fr)] md:gap-8">
+                    <div className="pt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+                      {group.month}
+                    </div>
+                    <div className="overflow-hidden rounded-[26px] border border-[var(--color-rule)] bg-[rgba(255,255,255,0.82)] px-5 shadow-[0_16px_38px_rgba(33,28,24,0.04)] md:px-8">
+                      {group.items.map((event, index) => (
+                        <EventRow
+                          key={`${group.month}-${event.slug || event.title}-${index}`}
+                          {...event}
+                          delay={0}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </Reveal>
               ))}
             </div>
-          ))
-        )}
-      </div>
+          )}
+        </div>
+      </section>
     </div>
   );
 }

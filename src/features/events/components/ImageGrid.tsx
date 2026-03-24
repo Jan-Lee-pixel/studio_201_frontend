@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { PublicEmptyState } from "@/components/ui/PublicPagePrimitives";
 import { Lightbox } from "./Lightbox";
 
 interface ImageGridProps {
@@ -11,7 +12,13 @@ export function ImageGrid({ images }: ImageGridProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   if (!images || images.length === 0) {
-    return <div className="py-20 text-center text-[var(--color-warm-slate)]">No documentation available for this event yet.</div>;
+    return (
+      <PublicEmptyState
+        className="border-none bg-transparent px-0 py-12 shadow-none"
+        title="No documentation yet"
+        description="Once event photographs or video are published, they will appear here as part of the public record."
+      />
+    );
   }
 
   return (

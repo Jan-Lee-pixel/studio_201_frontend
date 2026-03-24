@@ -1,12 +1,22 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { SectionLabel } from '@/components/ui/SectionLabel';
+import { PublicSurface } from '@/components/ui/PublicPagePrimitives';
 import { useAuth } from '@/providers/AuthProvider';
 import { resolveAuthorizedDestination } from '@/lib/auth/destinations';
 import { createClient } from '@/lib/supabase/client';
 
 const EMAIL_COOLDOWN_SECONDS = 60;
+
+const inputClass =
+  'w-full rounded-[16px] border border-[var(--color-rule)] bg-[rgba(246,243,238,0.88)] px-4 py-3 text-sm text-[var(--color-near-black)] outline-none transition-colors focus:border-[var(--color-sienna)] focus:bg-white';
+const secondaryButtonClass =
+  'inline-flex min-h-[48px] w-full items-center justify-center gap-3 rounded-full border border-[var(--color-rule)] bg-white px-4 text-[11px] font-mono uppercase tracking-[0.14em] text-[var(--color-near-black)] transition-colors duration-300 hover:border-[var(--color-near-black)] hover:bg-[var(--color-bone)] disabled:opacity-50';
+const primaryButtonClass =
+  'inline-flex min-h-[48px] w-full items-center justify-center rounded-full border border-[var(--color-near-black)] bg-[var(--color-near-black)] px-4 text-[11px] font-mono uppercase tracking-[0.14em] text-[var(--color-cream)] transition-colors duration-300 hover:bg-[var(--color-charcoal)] disabled:opacity-50';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -27,7 +37,7 @@ export default function LoginPage() {
   const visibleError = error || (!searchFeedbackDismissed ? searchError : null);
   const helperCopy = useMemo(
     () => searchParams.get('info') || 'New artist accounts are still reviewed by Studio 201 after sign-in.',
-    [searchParams]
+    [searchParams],
   );
 
   useEffect(() => {
@@ -90,7 +100,7 @@ export default function LoginPage() {
       setStatusMessage(
         mode === 'resend'
           ? `A fresh 6-digit code was sent to ${normalizedEmail}.`
-          : `We sent a 6-digit code to ${normalizedEmail}.`
+          : `We sent a 6-digit code to ${normalizedEmail}.`,
       );
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Could not send the sign-in code.';
@@ -175,145 +185,174 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F9F9F9] px-4 font-karla">
-      <div className="max-w-md w-full space-y-8 bg-white p-10 shadow-sm border border-gray-100">
-        <div>
-          <h2 className="mt-2 text-center text-3xl font-playfair font-medium text-gray-900">
-            Sign in to Studio 201
-          </h2>
-          <p className="mt-4 text-center text-sm leading-6 text-gray-600">
-            Keep it simple. Sign in with Google or use a code sent to your email, and we will
-            route you based on your approval status.
-          </p>
-        </div>
-
-        <div className="mt-8 space-y-6">
-          {visibleError && (
-            <div className="bg-red-50 text-red-500 text-sm p-3 rounded-md text-center">
-              {visibleError}
+    <div className="min-h-screen bg-[linear-gradient(180deg,#faf6ef_0%,var(--color-parchment)_36%,var(--color-bone)_100%)] pt-28">
+      <div className="mx-auto grid max-w-[1440px] gap-10 px-6 pb-20 md:px-12 md:pb-24 xl:grid-cols-[minmax(0,0.84fr)_minmax(360px,0.96fr)]">
+        <div className="flex flex-col justify-between gap-10">
+          <div>
+            <SectionLabel>Portal Access</SectionLabel>
+            <h1 className="mt-0 max-w-[11ch] font-display text-[clamp(54px,7vw,104px)] leading-[0.86] tracking-[-0.06em] text-[var(--color-near-black)]">
+              Sign in to Studio 201.
+            </h1>
+            <p className="mt-6 max-w-[56ch] text-[15px] leading-8 text-[var(--color-warm-slate)]">
+              Sign in with Google or a one-time email code. Approved users are routed directly to the correct portal.
+            </p>
+            <div className="mt-8">
+              <Link
+                href="/"
+                className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-sienna)] transition-colors duration-200 hover:text-[var(--color-near-black)]"
+              >
+                Return to public site
+              </Link>
             </div>
-          )}
-
-          {statusMessage && (
-            <div className="bg-[#faf7f1] text-gray-700 text-sm p-3 rounded-md text-center border border-[#ece6da]">
-              {statusMessage}
-            </div>
-          )}
-
-          <button
-            type="button"
-            onClick={handleGoogleSignIn}
-            disabled={googleLoading || authLoading || emailSending || codeVerifying}
-            className="flex w-full items-center justify-center gap-3 border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-50 disabled:opacity-50"
-          >
-            <span className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-300 text-xs font-semibold text-gray-700">
-              G
-            </span>
-            <span className="font-dm-mono text-xs uppercase tracking-[0.14em]">
-              {googleLoading
-                ? 'Opening Google...'
-                : authLoading
-                  ? 'Checking session...'
-                  : 'Continue with Google'}
-            </span>
-          </button>
-
-          <div className="flex items-center gap-3 text-[10px] uppercase tracking-[0.18em] text-gray-400">
-            <span className="h-px flex-1 bg-gray-200" />
-            <span>Or use email code</span>
-            <span className="h-px flex-1 bg-gray-200" />
           </div>
 
-          <div className="space-y-4 border border-gray-100 bg-white p-5">
-            <div className="space-y-2">
-              <label className="block font-dm-mono text-[11px] uppercase tracking-[0.12em] text-gray-500">
-                Email address
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(event) => {
-                  dismissSearchFeedback();
-                  setEmail(event.target.value);
-                }}
-                placeholder="you@example.com"
-                autoComplete="email"
-                disabled={emailSending || codeVerifying || authLoading}
-                className="w-full border border-gray-300 px-4 py-3 text-sm text-gray-900 outline-none transition-colors focus:border-gray-500 disabled:bg-gray-50"
-              />
+          <div className="flex flex-wrap gap-x-8 gap-y-4 border-t border-[var(--color-rule)] pt-6">
+            <div>
+              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Sign-in</div>
+              <div className="mt-2 text-sm text-[var(--color-near-black)]">Google or email code</div>
             </div>
+            <div>
+              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Artist access</div>
+              <div className="mt-2 text-sm text-[var(--color-near-black)]">Approved after review</div>
+            </div>
+          </div>
+        </div>
 
-            {emailStep === 'code' ? (
-              <>
+        <PublicSurface className="overflow-hidden">
+          <div className="p-8 md:p-10">
+            <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-sienna)]">
+              Portal sign-in
+            </div>
+            <h2 className="mt-5 font-display text-[clamp(34px,4vw,54px)] leading-[0.92] tracking-[-0.05em] text-[var(--color-near-black)]">
+              Continue into the workspace.
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-[var(--color-warm-slate)]">{helperCopy}</p>
+
+            <div className="mt-8 space-y-4">
+              {visibleError ? (
+                <div className="rounded-[18px] border border-[rgba(181,96,58,0.22)] bg-[rgba(181,96,58,0.08)] px-4 py-3 text-sm text-[#9f4c2d]">
+                  {visibleError}
+                </div>
+              ) : null}
+
+              {statusMessage ? (
+                <div className="rounded-[18px] border border-[var(--color-rule)] bg-[rgba(250,248,244,0.78)] px-4 py-3 text-sm text-[var(--color-warm-slate)]">
+                  {statusMessage}
+                </div>
+              ) : null}
+
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                disabled={googleLoading || authLoading || emailSending || codeVerifying}
+                className={secondaryButtonClass}
+              >
+                <span className="flex h-6 w-6 items-center justify-center rounded-full border border-[var(--color-rule)] text-[11px] font-semibold text-[var(--color-warm-slate)]">
+                  G
+                </span>
+                <span>
+                  {googleLoading
+                    ? 'Opening Google...'
+                    : authLoading
+                      ? 'Checking session...'
+                      : 'Continue with Google'}
+                </span>
+              </button>
+
+              <div className="flex items-center gap-3 text-[10px] uppercase tracking-[0.18em] text-[var(--color-dust)]">
+                <span className="h-px flex-1 bg-[var(--color-rule)]" />
+                <span>Or use email code</span>
+                <span className="h-px flex-1 bg-[var(--color-rule)]" />
+              </div>
+
+              <div className="space-y-4 rounded-[24px] border border-[var(--color-rule)] bg-[rgba(250,248,244,0.72)] p-5">
                 <div className="space-y-2">
-                  <label className="block font-dm-mono text-[11px] uppercase tracking-[0.12em] text-gray-500">
-                    6-digit code
+                  <label className="block font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+                    Email address
                   </label>
                   <input
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    maxLength={6}
-                    value={code}
+                    type="email"
+                    value={email}
                     onChange={(event) => {
                       dismissSearchFeedback();
-                      setCode(event.target.value.replace(/\D/g, '').slice(0, 6));
+                      setEmail(event.target.value);
                     }}
-                    placeholder="123456"
-                    autoComplete="one-time-code"
-                    disabled={codeVerifying || authLoading}
-                    className="w-full border border-gray-300 px-4 py-3 text-sm tracking-[0.3em] text-gray-900 outline-none transition-colors focus:border-gray-500 disabled:bg-gray-50"
+                    placeholder="you@example.com"
+                    autoComplete="email"
+                    disabled={emailSending || codeVerifying || authLoading}
+                    className={inputClass}
                   />
                 </div>
 
-                <button
-                  type="button"
-                  onClick={handleVerifyCode}
-                  disabled={codeVerifying || authLoading || emailSending}
-                  className="w-full border border-gray-900 bg-gray-900 px-4 py-3 font-dm-mono text-xs uppercase tracking-[0.14em] text-white transition-colors hover:bg-black disabled:opacity-50"
-                >
-                  {codeVerifying ? 'Checking code...' : 'Continue with code'}
-                </button>
+                {emailStep === 'code' ? (
+                  <>
+                    <div className="space-y-2">
+                      <label className="block font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+                        6-digit code
+                      </label>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        maxLength={6}
+                        value={code}
+                        onChange={(event) => {
+                          dismissSearchFeedback();
+                          setCode(event.target.value.replace(/\D/g, '').slice(0, 6));
+                        }}
+                        placeholder="123456"
+                        autoComplete="one-time-code"
+                        disabled={codeVerifying || authLoading}
+                        className={`${inputClass} tracking-[0.3em]`}
+                      />
+                    </div>
 
-                <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+                    <button
+                      type="button"
+                      onClick={handleVerifyCode}
+                      disabled={codeVerifying || authLoading || emailSending}
+                      className={primaryButtonClass}
+                    >
+                      {codeVerifying ? 'Checking code...' : 'Continue with code'}
+                    </button>
+
+                    <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          dismissSearchFeedback();
+                          setEmailStep('email');
+                          setCode('');
+                          setStatusMessage(null);
+                        }}
+                        className="text-[var(--color-warm-slate)] underline-offset-4 transition-colors hover:text-[var(--color-near-black)] hover:underline"
+                      >
+                        Change email
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void sendEmailCode('resend')}
+                        disabled={emailSending || resendCountdown > 0 || authLoading || codeVerifying}
+                        className="text-[var(--color-warm-slate)] underline-offset-4 transition-colors hover:text-[var(--color-near-black)] hover:underline disabled:no-underline disabled:opacity-50"
+                      >
+                        {resendCountdown > 0 ? `Resend in ${resendCountdown}s` : 'Resend code'}
+                      </button>
+                    </div>
+                  </>
+                ) : (
                   <button
                     type="button"
-                    onClick={() => {
-                      dismissSearchFeedback();
-                      setEmailStep('email');
-                      setCode('');
-                      setStatusMessage(null);
-                    }}
-                    className="text-gray-500 underline-offset-4 transition-colors hover:text-gray-900 hover:underline"
+                    onClick={() => void sendEmailCode('send')}
+                    disabled={emailSending || authLoading || googleLoading}
+                    className={primaryButtonClass}
                   >
-                    Change email
+                    {emailSending ? 'Sending code...' : 'Send email code'}
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => void sendEmailCode('resend')}
-                    disabled={emailSending || resendCountdown > 0 || authLoading || codeVerifying}
-                    className="text-gray-500 underline-offset-4 transition-colors hover:text-gray-900 hover:underline disabled:no-underline disabled:opacity-50"
-                  >
-                    {resendCountdown > 0 ? `Resend in ${resendCountdown}s` : 'Resend code'}
-                  </button>
-                </div>
-              </>
-            ) : (
-              <button
-                type="button"
-                onClick={() => void sendEmailCode('send')}
-                disabled={emailSending || authLoading || googleLoading}
-                className="w-full border border-gray-900 bg-gray-900 px-4 py-3 font-dm-mono text-xs uppercase tracking-[0.14em] text-white transition-colors hover:bg-black disabled:opacity-50"
-              >
-                {emailSending ? 'Sending code...' : 'Send email code'}
-              </button>
-            )}
+                )}
+              </div>
+            </div>
           </div>
-
-          <div className="border border-gray-100 bg-[#faf7f1] p-4 text-sm leading-6 text-gray-600">
-            {helperCopy}
-          </div>
-        </div>
+        </PublicSurface>
       </div>
     </div>
   );

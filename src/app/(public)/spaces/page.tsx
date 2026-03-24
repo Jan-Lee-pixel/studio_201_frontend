@@ -1,142 +1,130 @@
-import type { Metadata } from 'next';
-import { Reveal } from '@/components/animation/Reveal';
-import { SectionLabel } from '@/components/ui/SectionLabel';
+import type { Metadata } from "next";
+import { Reveal } from "@/components/animation/Reveal";
+import { SectionLabel } from "@/components/ui/SectionLabel";
+import {
+  PublicActionLink,
+  PublicSurface,
+} from "@/components/ui/PublicPagePrimitives";
 
 export const metadata: Metadata = {
-  title: 'Spaces | Studio 201',
-  description: 'The gallery extends beyond the walls.',
+  title: "Spaces | Studio 201",
+  description: "The gallery extends beyond the walls through coffee, residencies, and temporary programs.",
 };
 
 export default function SpacesPage() {
   return (
-    <div className="w-full">
-      
-      {/* HERO SECTION */}
-      <section className="relative w-full h-[85vh] overflow-hidden pt-24">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#3a2818] via-[#5a4030] to-[#4a3028] animate-hero-reveal origin-center"></div>
-        <div className="absolute bottom-16 left-6 md:left-12 max-w-[680px]">
-          <div className="font-mono text-[9px] tracking-[0.2em] uppercase text-[var(--color-ochre)] mb-4 opacity-0 translate-y-3 animate-slide-up [animation-delay:200ms]">
-            Studio 201
-          </div>
-          <h1 className="font-display text-[clamp(2.5rem,5vw,4.5rem)] font-light leading-[1.1] text-[var(--color-cream)] mb-4 opacity-0 translate-y-3 animate-slide-up [animation-delay:320ms]">
-            The gallery<br/>
-            <em className="font-sub italic text-[var(--color-ochre)]">extends</em><br/>
-            beyond the walls.
-          </h1>
-        </div>
-      </section>
-
-      {/* COFFEE INTRODUCTION */}
-      <section className="px-6 md:px-12 py-20 bg-[var(--color-parchment)]">
-        <Reveal><SectionLabel>Studio 201 Coffee</SectionLabel></Reveal>
-        <Reveal delay={1}>
-          <h2 className="font-display text-[clamp(2rem,3.5vw,2.8rem)] font-light leading-[1.1] max-w-[600px] mb-8 mt-12 text-[var(--color-near-black)]">
-            The café has always been the other room of the gallery.
-          </h2>
-        </Reveal>
-        <Reveal delay={2}>
-          <p className="font-body text-[14px] leading-[1.85] text-[var(--color-warm-slate)] max-w-[580px]">
-            A place where the conversation continues after the last painting. Where ideas settle alongside espresso. Where the work of the gallery — its pace, its attention, its quiet — extends into the rhythm of daily life.
-          </p>
-        </Reveal>
-      </section>
-
-      {/* SPLIT EDITORIAL GRID */}
-      <section className="grid grid-cols-1 md:grid-cols-2 bg-[var(--color-parchment)] border-t border-[var(--color-rule)]">
-        <Reveal delay={1}>
-          <div className="h-[50vw] md:h-full min-h-[50vh] bg-gradient-to-br from-[#5a4838] to-[#4a3828] overflow-hidden">
-            {/* Image Placeholder maps to template */}
-          </div>
-        </Reveal>
-        <div className="px-6 md:px-[64px] py-16 md:py-[80px] flex flex-col justify-center border-t md:border-t-0 md:border-l border-[var(--color-rule)]">
-          <Reveal>
-            <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-[var(--color-warm-slate)] mb-6">This Season</p>
-          </Reveal>
-          <Reveal delay={1}>
-            <p className="font-body text-[13px] leading-[1.85] text-[var(--color-warm-slate)] mb-6">
-              This season, we're serving a natural process Ethiopian through the Hario — bright, fruit-forward, good for slow mornings. The filter menu changes monthly alongside the gallery program.
-            </p>
-          </Reveal>
-          <Reveal delay={2}>
-            <blockquote className="font-sub text-[clamp(1.3rem,2.5vw,1.9rem)] font-light italic leading-[1.4] text-[var(--color-near-black)] border-l-2 border-[var(--color-sienna)] pl-7 my-12">
-              "The café slows you down in the best possible way. You come for fifteen minutes. You stay for two hours."
-              <footer className="not-italic font-mono text-[11px] tracking-[0.1em] uppercase text-[var(--color-warm-slate)] block mt-4">— A Regular</footer>
-            </blockquote>
-          </Reveal>
-          
-          <Reveal delay={3}>
-            <div className="flex flex-col gap-1.5 font-body text-[14px] text-[var(--color-near-black)]">
-              <span><strong>Tuesday — Saturday</strong> &nbsp; 9:00 — 18:00</span>
-              <span><strong>Sunday</strong> &nbsp; 10:00 — 16:00</span>
-              <span className="text-[var(--color-warm-slate)]">No reservations. Come as you are.</span>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-      
-      {/* POP-UPS & RESIDENCIES */}
-      <section className="px-6 md:px-12 py-20 md:py-30 bg-[var(--color-linen)] border-t border-[var(--color-rule)]">
-         <Reveal><SectionLabel>Pop-ups & Residencies</SectionLabel></Reveal>
-         
-         <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-start mt-16">
+    <div className="bg-[linear-gradient(180deg,#17160f_0%,#1a1814_32%,var(--color-parchment)_32%,var(--color-bone)_100%)]">
+      <section className="px-6 pb-20 pt-32 md:px-12 md:pb-24">
+        <div className="mx-auto grid max-w-[1440px] gap-10 xl:grid-cols-[minmax(0,0.88fr)_minmax(360px,1.12fr)]">
+          <Reveal className="flex flex-col justify-between gap-10 text-[var(--color-cream)]">
             <div>
-              <Reveal delay={1}>
-                <h2 className="font-display text-[clamp(2rem,3.5vw,2.8rem)] font-light leading-[1.1] mb-6 text-[var(--color-near-black)]">
-                  Temporary homes for urgent ideas.
-                </h2>
-                <p className="font-body text-[13px] leading-[1.85] text-[var(--color-warm-slate)] mb-8">
-                  Studio 201 hosts short-term residencies and pop-up programs for artists, publishers, and cultural practitioners who need a room of their own. Each residency leaves something behind — in the archive, in the walls, in the conversation.
-                </p>
-              </Reveal>
+              <SectionLabel className="text-[var(--color-ochre)] before:bg-[var(--color-ochre)]">
+                Spaces
+              </SectionLabel>
+              <h1 className="mt-6 max-w-[11ch] font-display text-[clamp(56px,7vw,104px)] leading-[0.84] tracking-[-0.06em] text-[var(--color-cream)]">
+                Spaces around the gallery.
+              </h1>
+              <p className="mt-6 max-w-[56ch] text-[15px] leading-8 text-[rgba(240,237,229,0.72)]">
+                This page will hold coffee-room, residency, and project-space updates when they are ready to be published.
+              </p>
 
-              {/* Current Residency Highlight */}
-              <Reveal delay={2}>
-                <div className="border border-[var(--color-rule)] p-8 mt-4 bg-[var(--color-parchment)]">
-                  <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-[var(--color-warm-slate)] mb-3">Currently in Residence</p>
-                  <h3 className="font-display text-[1.3rem] font-light mb-2 text-[var(--color-near-black)]">Tao Printshop</h3>
-                  <p className="font-mono text-[11px] tracking-[0.1em] text-[var(--color-sienna)] mb-4">3 Feb — 28 Mar 2026</p>
-                  <p className="font-body text-[12px] leading-[1.75] text-[var(--color-warm-slate)]">
-                    A risograph studio operating in the gallery's back room — printing editions, hosting workshops, and making the process visible.
-                  </p>
-                </div>
-              </Reveal>
-            </div>
-
-            <div>
-              <Reveal delay={3}>
-                <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-[var(--color-warm-slate)] mb-6">Past Residencies</p>
-              </Reveal>
-              
-              <div className="flex flex-col">
-                <Reveal delay={4}>
-                  <div className="py-4 border-b border-[var(--color-rule)] flex justify-between items-center group cursor-none">
-                    <span className="font-display text-[1.1rem] font-light transition-colors group-hover:text-[var(--color-sienna)]">Blank Canvas Studio</span>
-                    <span className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--color-warm-slate)]">Apparel / 2025</span>
-                  </div>
-                </Reveal>
-                <Reveal delay={5}>
-                  <div className="py-4 border-b border-[var(--color-rule)] flex justify-between items-center group cursor-none">
-                    <span className="font-display text-[1.1rem] font-light transition-colors group-hover:text-[var(--color-sienna)]">Kanto Reading Room</span>
-                    <span className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--color-warm-slate)]">Library / 2024</span>
-                  </div>
-                </Reveal>
-                <Reveal delay={5}>
-                  <div className="py-4 border-b border-[var(--color-rule)] flex justify-between items-center group cursor-none">
-                    <span className="font-display text-[1.1rem] font-light transition-colors group-hover:text-[var(--color-sienna)]">Materia Ceramics</span>
-                    <span className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--color-warm-slate)]">Objects / 2024</span>
-                  </div>
-                </Reveal>
-                <Reveal delay={5}>
-                  <div className="py-4 flex justify-between items-center group cursor-none">
-                    <span className="font-display text-[1.1rem] font-light transition-colors group-hover:text-[var(--color-sienna)]">Siglo Publishing</span>
-                    <span className="font-mono text-[9px] tracking-[0.12em] uppercase text-[var(--color-warm-slate)]">Publications / 2023</span>
-                  </div>
-                </Reveal>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <PublicActionLink href="/events" tone="inverse">
+                  View events
+                </PublicActionLink>
+                <PublicActionLink href="/exhibitions" tone="inverse">
+                  Current program
+                </PublicActionLink>
               </div>
             </div>
-         </div>
+
+            <div className="flex flex-wrap gap-x-8 gap-y-4 border-t border-[rgba(255,255,255,0.12)] pt-6">
+              <div>
+                <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.52)]">Status</div>
+                <div className="mt-2 text-sm text-[var(--color-cream)]">Updates published seasonally</div>
+              </div>
+              <div>
+                <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.52)]">Now</div>
+                <div className="mt-2 text-sm text-[var(--color-cream)]">See exhibitions and events for current activity</div>
+              </div>
+            </div>
+          </Reveal>
+
+          <Reveal className="xl:pt-6">
+            <PublicSurface tone="charcoal" className="overflow-hidden">
+              <div className="grid gap-0 lg:grid-cols-[minmax(280px,0.88fr)_minmax(0,1.12fr)]">
+                <div className="min-h-[360px] bg-[radial-gradient(circle_at_22%_16%,rgba(243,217,186,0.22),transparent_28%),linear-gradient(180deg,#5a4030_0%,#3b2c20_100%)]" />
+                <div className="p-8 md:p-10">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.56)]">Studio 201</div>
+                  <h2 className="mt-5 font-display text-[clamp(38px,4vw,58px)] leading-[0.9] tracking-[-0.05em] text-[var(--color-cream)]">
+                    When a space update is ready, it should read like a real public notice.
+                  </h2>
+                  <p className="mt-6 max-w-[44ch] text-sm leading-7 text-[rgba(240,237,229,0.72)]">
+                    Until then, this page should stay honest and lightweight instead of pretending there is a fuller program than what has actually been published.
+                  </p>
+
+                  <div className="mt-8 grid gap-4 border-t border-[rgba(255,255,255,0.08)] pt-6 sm:grid-cols-2">
+                    <div>
+                      <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.52)]">Current focus</div>
+                      <p className="mt-2 text-sm leading-7 text-[var(--color-cream)]">Exhibitions and public events</p>
+                    </div>
+                    <div>
+                      <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.52)]">Updates</div>
+                      <p className="mt-2 text-sm leading-7 text-[rgba(240,237,229,0.72)]">
+                        New space-related notes will appear here once they are part of the public program.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </PublicSurface>
+          </Reveal>
+        </div>
       </section>
 
+      <section className="border-t border-[var(--color-rule)] bg-[rgba(250,248,244,0.72)] px-6 py-20 md:px-12 md:py-24">
+        <div className="mx-auto max-w-[1440px]">
+          <div className="grid gap-8 xl:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)]">
+            <Reveal>
+              <div>
+                <SectionLabel>Pop-ups & Residencies</SectionLabel>
+                <div className="mt-6 max-w-[460px]">
+                  <h2 className="font-display text-[clamp(32px,4vw,48px)] leading-[0.94] tracking-[-0.05em] text-[var(--color-near-black)]">
+                    Short-term programs and working rooms.
+                  </h2>
+                  <p className="mt-4 text-sm leading-7 text-[var(--color-warm-slate)]">
+                    Follow temporary occupations, studio residencies, and related activity around the gallery.
+                  </p>
+                </div>
+              </div>
+            </Reveal>
+
+            <div className="grid gap-6">
+              <Reveal>
+                <PublicSurface>
+                  <div className="p-8 md:p-10">
+                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-sienna)]">Publishing note</div>
+                    <h2 className="mt-5 font-display text-[clamp(32px,4vw,50px)] leading-[0.92] tracking-[-0.05em] text-[var(--color-near-black)]">
+                      Space updates will appear when they are confirmed.
+                    </h2>
+                    <p className="mt-4 max-w-[48ch] text-sm leading-7 text-[var(--color-warm-slate)]">
+                      That may include residency notes, coffee-room announcements, pop-ups, or temporary occupations around the gallery.
+                    </p>
+                    <div className="mt-8 flex flex-wrap gap-3">
+                      <PublicActionLink href="/exhibitions" tone="dark">
+                        Current exhibitions
+                      </PublicActionLink>
+                      <PublicActionLink href="/events" tone="ghost">
+                        Public events
+                      </PublicActionLink>
+                    </div>
+                  </div>
+                </PublicSurface>
+              </Reveal>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

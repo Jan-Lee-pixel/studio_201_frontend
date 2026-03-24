@@ -844,7 +844,7 @@ export default function ArtistArtworksPage() {
                 <div>
                   <div className="artist-artworks-composerTitle">Submit artwork for review</div>
                   <div className="artist-artworks-composerCopy">
-                    Use this form when you want Studio 201 to review a work for exhibition.
+                    Send a work to Studio 201 for exhibition review.
                   </div>
                 </div>
                 <div className={`artist-artworks-composerChevron ${openSubmissionPanel ? "open" : ""}`}>

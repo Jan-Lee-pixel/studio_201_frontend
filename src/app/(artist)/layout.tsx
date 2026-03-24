@@ -34,12 +34,12 @@ export default function ArtistLayout({
   const normalizedRole = profile?.role?.toLowerCase();
   const normalizedStatus = profile?.accountStatus?.toLowerCase();
   const isArtworksRoute = pathname.startsWith("/artist/artworks") || pathname === "/artworks";
-  const isBackroomRoute = pathname.startsWith("/artist/backroom") || pathname === "/backroom";
+  const isBackroomRoute = pathname.startsWith("/artist/backroom");
 
   const breadcrumbLabel = useMemo(() => {
     if (pathname === "/artist/profile") return "Profile";
     if (isArtworksRoute) return "Artworks";
-    if (isBackroomRoute) return "Merch";
+    if (isBackroomRoute) return "Merch & Backroom";
     if (pathname === "/artist/messages") return "Messages";
     return "Dashboard";
   }, [isArtworksRoute, isBackroomRoute, pathname]);

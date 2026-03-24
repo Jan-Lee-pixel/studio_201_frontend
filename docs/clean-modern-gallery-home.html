@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Studio 201 - Clean Modern Gallery Template</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --paper: #f6f1e8;
+      --paper-deep: #ece4d7;
+      --card: rgba(255, 252, 247, 0.68);
+      --ink: #171411;
+      --muted: #645d55;
+      --soft: #8a7e73;
+      --line: rgba(23, 20, 17, 0.12);
+      --line-strong: rgba(23, 20, 17, 0.22);
+      --accent: #966444;
+      --accent-deep: #6e4228;
+      --charcoal: #211c18;
+      --cream: #fbf8f1;
+      --shadow: 0 24px 80px rgba(44, 34, 26, 0.12);
+      --display: "Cormorant Garamond", Georgia, serif;
+      --body: "Manrope", sans-serif;
+      --mono: "IBM Plex Mono", monospace;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      --site-pad: clamp(20px, 4vw, 48px);
+      --section-space: clamp(72px, 10vw, 132px);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-size: 16px;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(150, 100, 68, 0.12), transparent 28%),
+        linear-gradient(180deg, #faf6ef 0%, var(--paper) 40%, #f3ede3 100%);
+      color: var(--ink);
+      font-family: var(--body);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.05;
+      background-image:
+        linear-gradient(rgba(23, 20, 17, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(23, 20, 17, 0.08) 1px, transparent 1px);
+      background-size: 96px 96px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.35), transparent 72%);
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .shell {
+      width: min(1440px, calc(100vw - 32px));
+      margin: 16px auto;
+      background: rgba(255, 251, 246, 0.62);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 28px;
+      padding: 22px var(--site-pad) 20px;
+      background: rgba(246, 241, 232, 0.86);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(18px);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      min-width: max-content;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--line-strong);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-family: var(--display);
+      font-size: 1.25rem;
+      color: var(--accent-deep);
+      background:
+        radial-gradient(circle at 30% 30%, rgba(150, 100, 68, 0.18), transparent 55%),
+        rgba(255, 255, 255, 0.55);
+    }
+
+    .brand-copy {
+      display: grid;
+      gap: 2px;
+    }
+
+    .brand-name {
+      font-family: var(--display);
+      font-size: 1.45rem;
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+    }
+
+    .brand-note {
+      font-family: var(--mono);
+      font-size: 0.64rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--soft);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(18px, 2vw, 34px);
+      flex-wrap: wrap;
+    }
+
+    .nav-links a,
+    .nav-links span {
+      position: relative;
+      font-size: 0.76rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -6px;
+      width: 100%;
+      height: 1px;
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 240ms var(--ease);
+    }
+
+    .nav-links a:hover::after {
+      transform: scaleX(1);
+    }
+
+    .topbar-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 18px;
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.58);
+      transition: transform 240ms var(--ease), border-color 240ms var(--ease), background 240ms var(--ease);
+    }
+
+    .topbar-action:hover {
+      transform: translateY(-1px);
+      border-color: rgba(150, 100, 68, 0.34);
+      background: rgba(255, 255, 255, 0.82);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(320px, 1.05fr);
+      gap: clamp(28px, 4vw, 56px);
+      padding: clamp(28px, 5vw, 56px) var(--site-pad) 0;
+    }
+
+    .hero-copy {
+      display: grid;
+      align-content: space-between;
+      gap: 32px;
+      padding-bottom: clamp(32px, 5vw, 56px);
+      animation: rise 800ms var(--ease) both;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 32px;
+      height: 1px;
+      background: currentColor;
+    }
+
+    .hero-title {
+      max-width: 10ch;
+      margin-top: 18px;
+      font-family: var(--display);
+      font-size: clamp(4rem, 7vw, 7rem);
+      font-weight: 500;
+      letter-spacing: -0.05em;
+      line-height: 0.86;
+    }
+
+    .hero-subtitle {
+      margin-top: 16px;
+      font-family: var(--display);
+      font-size: clamp(1.35rem, 2vw, 1.8rem);
+      font-style: italic;
+      color: var(--accent-deep);
+    }
+
+    .hero-intro {
+      max-width: 54ch;
+      margin-top: 22px;
+      font-size: 1rem;
+      color: var(--muted);
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      min-height: 50px;
+      padding: 0 22px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      transition: transform 240ms var(--ease), background 240ms var(--ease), color 240ms var(--ease), border-color 240ms var(--ease);
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+    }
+
+    .button-primary {
+      background: var(--charcoal);
+      color: var(--cream);
+      letter-spacing: 0.04em;
+    }
+
+    .button-primary:hover {
+      background: #11100e;
+    }
+
+    .button-secondary {
+      border-color: var(--line-strong);
+      background: rgba(255, 255, 255, 0.54);
+      color: var(--ink);
+    }
+
+    .hero-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .meta-card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      min-height: 118px;
+    }
+
+    .meta-label {
+      font-family: var(--mono);
+      font-size: 0.64rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--soft);
+    }
+
+    .meta-value {
+      margin-top: 18px;
+      font-family: var(--display);
+      font-size: 1.32rem;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+    }
+
+    .meta-caption {
+      margin-top: 10px;
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
+
+    .hero-visual {
+      position: relative;
+      min-height: 760px;
+      padding-bottom: clamp(28px, 4vw, 40px);
+      animation: rise 960ms 120ms var(--ease) both;
+    }
+
+    .visual-frame {
+      position: sticky;
+      top: 108px;
+      height: calc(100vh - 140px);
+      min-height: 640px;
+      padding: 26px;
+      border-left: 1px solid var(--line);
+    }
+
+    .art-panel {
+      position: relative;
+      height: 100%;
+      min-height: 560px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 20% 18%, rgba(255, 243, 224, 0.95), transparent 18%),
+        radial-gradient(circle at 78% 26%, rgba(251, 210, 104, 0.3), transparent 26%),
+        radial-gradient(circle at 62% 78%, rgba(81, 130, 162, 0.28), transparent 24%),
+        linear-gradient(160deg, #f0a35f 0%, #d47e53 22%, #93c4d5 48%, #365771 70%, #1c2d3f 100%);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+    }
+
+    .art-panel::before {
+      content: "";
+      position: absolute;
+      inset: 6%;
+      border: 1px solid rgba(255, 255, 255, 0.32);
+      mix-blend-mode: screen;
+      pointer-events: none;
+    }
+
+    .art-panel::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(8, 8, 8, 0.02), rgba(8, 8, 8, 0.22)),
+        radial-gradient(circle at top, transparent 20%, rgba(255, 255, 255, 0.08) 60%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .art-caption {
+      position: absolute;
+      right: 28px;
+      bottom: 28px;
+      width: min(320px, calc(100% - 56px));
+      padding: 18px 20px;
+      background: rgba(16, 14, 12, 0.72);
+      color: rgba(251, 248, 241, 0.92);
+      backdrop-filter: blur(16px);
+    }
+
+    .art-caption strong {
+      display: block;
+      font-family: var(--display);
+      font-size: 1.32rem;
+      font-weight: 500;
+      letter-spacing: -0.03em;
+    }
+
+    .art-caption span {
+      display: block;
+      margin-top: 8px;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(251, 248, 241, 0.68);
+    }
+
+    .art-caption p {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      color: rgba(251, 248, 241, 0.86);
+    }
+
+    .section {
+      padding: var(--section-space) var(--site-pad) 0;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(280px, 0.8fr);
+      gap: 28px;
+      align-items: end;
+      margin-bottom: 34px;
+    }
+
+    .section-title {
+      max-width: 12ch;
+      font-family: var(--display);
+      font-size: clamp(2.6rem, 5vw, 4.5rem);
+      font-weight: 500;
+      letter-spacing: -0.05em;
+      line-height: 0.92;
+    }
+
+    .section-copy {
+      font-size: 0.98rem;
+      color: var(--muted);
+      max-width: 48ch;
+    }
+
+    .program-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+    }
+
+    .feature-card {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      min-height: 420px;
+      border-top: 1px solid var(--line-strong);
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.46);
+      overflow: hidden;
+    }
+
+    .feature-media {
+      position: relative;
+      min-height: 320px;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(255, 240, 219, 0.85), transparent 20%),
+        linear-gradient(200deg, #ba8160 8%, #9c6172 38%, #766196 58%, #32424d 100%);
+    }
+
+    .feature-media::after {
+      content: "";
+      position: absolute;
+      inset: 12%;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+    }
+
+    .feature-body {
+      display: grid;
+      align-content: space-between;
+      gap: 18px;
+      padding: 28px;
+      border-left: 1px solid var(--line);
+    }
+
+    .feature-kicker {
+      font-family: var(--mono);
+      font-size: 0.66rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .feature-title {
+      margin-top: 16px;
+      font-family: var(--display);
+      font-size: clamp(2.15rem, 4vw, 3.3rem);
+      line-height: 0.94;
+      letter-spacing: -0.04em;
+    }
+
+    .feature-body p {
+      max-width: 42ch;
+      color: var(--muted);
+    }
+
+    .feature-meta {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--soft);
+    }
+
+    .side-stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .side-card {
+      padding: 24px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      min-height: 200px;
+    }
+
+    .side-card h3 {
+      font-family: var(--display);
+      font-size: 1.82rem;
+      font-weight: 500;
+      letter-spacing: -0.04em;
+      line-height: 0.98;
+    }
+
+    .side-card p {
+      margin-top: 14px;
+      color: var(--muted);
+      max-width: 34ch;
+    }
+
+    .mini-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 18px;
+      font-size: 0.8rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent-deep);
+    }
+
+    .artists-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .artist-lead {
+      display: grid;
+      grid-template-columns: 0.88fr 1.12fr;
+      background: rgba(255, 255, 255, 0.46);
+      border: 1px solid var(--line);
+      overflow: hidden;
+    }
+
+    .artist-portrait {
+      min-height: 440px;
+      background:
+        radial-gradient(circle at 65% 20%, rgba(243, 217, 186, 0.56), transparent 24%),
+        radial-gradient(circle at 42% 58%, rgba(255, 255, 255, 0.22), transparent 20%),
+        linear-gradient(180deg, #8c6953 0%, #3f3836 100%);
+      position: relative;
+    }
+
+    .artist-portrait::after {
+      content: "";
+      position: absolute;
+      inset: 18% 22%;
+      border-radius: 160px 160px 140px 140px / 180px 180px 120px 120px;
+      background:
+        radial-gradient(circle at 50% 25%, rgba(255, 231, 202, 0.85), transparent 26%),
+        linear-gradient(180deg, rgba(255, 215, 174, 0.92), rgba(138, 84, 56, 0.78));
+      filter: blur(2px);
+    }
+
+    .artist-copy {
+      padding: 28px;
+      display: grid;
+      align-content: center;
+    }
+
+    .artist-copy h3 {
+      margin-top: 12px;
+      font-family: var(--display);
+      font-size: clamp(2.4rem, 4vw, 3.5rem);
+      font-weight: 500;
+      letter-spacing: -0.05em;
+      line-height: 0.92;
+    }
+
+    .artist-role {
+      margin-top: 14px;
+      font-size: 0.92rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--soft);
+    }
+
+    .artist-copy p {
+      margin-top: 18px;
+      color: var(--muted);
+      max-width: 38ch;
+    }
+
+    .artist-roster {
+      display: grid;
+      gap: 18px;
+    }
+
+    .roster-card {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 20px;
+      align-items: center;
+      padding: 18px;
+      border: 1px solid var(--line);
+      background: var(--card);
+    }
+
+    .roster-thumb {
+      aspect-ratio: 4 / 5;
+      background:
+        radial-gradient(circle at top right, rgba(255, 228, 186, 0.55), transparent 28%),
+        linear-gradient(160deg, #918376 0%, #ceb08c 38%, #5f5f5f 100%);
+    }
+
+    .roster-card h4 {
+      font-family: var(--display);
+      font-size: 1.65rem;
+      font-weight: 500;
+      letter-spacing: -0.04em;
+      line-height: 0.96;
+    }
+
+    .roster-card .meta {
+      margin-top: 8px;
+      font-size: 0.76rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--soft);
+    }
+
+    .roster-card p {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .archive-list {
+      border-top: 1px solid var(--line-strong);
+      background: rgba(255, 255, 255, 0.28);
+    }
+
+    .archive-row {
+      display: grid;
+      grid-template-columns: 120px minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: center;
+      padding: 22px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .archive-year {
+      font-family: var(--display);
+      font-size: 2.4rem;
+      line-height: 0.86;
+      letter-spacing: -0.05em;
+      color: rgba(150, 100, 68, 0.82);
+    }
+
+    .archive-row h3 {
+      font-family: var(--display);
+      font-size: 1.8rem;
+      font-weight: 500;
+      letter-spacing: -0.04em;
+    }
+
+    .archive-row p {
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .archive-type {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--soft);
+    }
+
+    .visit-grid {
+      display: grid;
+      grid-template-columns: 1fr 0.9fr;
+      gap: 18px;
+    }
+
+    .visit-card,
+    .contact-card {
+      min-height: 360px;
+      padding: 28px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.44);
+    }
+
+    .visit-map {
+      margin-top: 24px;
+      aspect-ratio: 16 / 10;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(0deg, rgba(23, 20, 17, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(23, 20, 17, 0.06) 1px, transparent 1px),
+        radial-gradient(circle at 30% 40%, rgba(150, 100, 68, 0.22), transparent 18%),
+        linear-gradient(140deg, #e9dfcf 0%, #f7f2e9 100%);
+      background-size: 52px 52px, 52px 52px, auto, auto;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .visit-map::after {
+      content: "Studio 201";
+      position: absolute;
+      left: 16%;
+      top: 42%;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: var(--charcoal);
+      color: var(--cream);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .visit-list {
+      display: grid;
+      gap: 18px;
+      margin-top: 20px;
+    }
+
+    .visit-item {
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .visit-item span {
+      display: block;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--soft);
+    }
+
+    .visit-item strong {
+      display: block;
+      margin-top: 10px;
+      font-family: var(--display);
+      font-size: 1.7rem;
+      font-weight: 500;
+      letter-spacing: -0.04em;
+      line-height: 0.94;
+    }
+
+    .visit-item p {
+      margin-top: 10px;
+      color: var(--muted);
+    }
+
+    .contact-card {
+      display: grid;
+      align-content: space-between;
+      gap: 28px;
+      background:
+        linear-gradient(180deg, rgba(33, 28, 24, 0.98), rgba(24, 20, 17, 0.96)),
+        var(--charcoal);
+      color: var(--cream);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .contact-card .eyebrow {
+      color: rgba(238, 220, 201, 0.74);
+    }
+
+    .contact-card .eyebrow::before {
+      background: currentColor;
+    }
+
+    .contact-card h3 {
+      max-width: 10ch;
+      font-family: var(--display);
+      font-size: clamp(2.5rem, 4vw, 4rem);
+      font-weight: 500;
+      letter-spacing: -0.05em;
+      line-height: 0.9;
+    }
+
+    .contact-card p {
+      max-width: 38ch;
+      color: rgba(251, 248, 241, 0.72);
+    }
+
+    .contact-links {
+      display: grid;
+      gap: 12px;
+    }
+
+    .contact-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 16px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 0.9rem;
+      color: rgba(251, 248, 241, 0.88);
+    }
+
+    .footer {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: end;
+      padding: 48px var(--site-pad) 44px;
+    }
+
+    .footer-brand {
+      display: grid;
+      gap: 8px;
+    }
+
+    .footer-brand h2 {
+      font-family: var(--display);
+      font-size: 2.2rem;
+      font-weight: 500;
+      letter-spacing: -0.04em;
+    }
+
+    .footer-brand p,
+    .footer-meta {
+      color: var(--muted);
+    }
+
+    .footer-meta {
+      display: grid;
+      gap: 10px;
+      text-align: right;
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .fade-line {
+      margin-top: 18px;
+      height: 1px;
+      background: linear-gradient(90deg, var(--line-strong), transparent 80%);
+    }
+
+    .fade-in {
+      animation: rise 900ms var(--ease) both;
+    }
+
+    .delay-1 {
+      animation-delay: 120ms;
+    }
+
+    .delay-2 {
+      animation-delay: 220ms;
+    }
+
+    .delay-3 {
+      animation-delay: 320ms;
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 1120px) {
+      .hero,
+      .program-grid,
+      .artists-grid,
+      .visit-grid,
+      .section-head,
+      .feature-card,
+      .artist-lead {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-visual {
+        min-height: auto;
+      }
+
+      .visual-frame {
+        position: relative;
+        top: 0;
+        height: auto;
+        min-height: auto;
+        border-left: none;
+        padding: 0;
+      }
+
+      .art-panel {
+        min-height: 580px;
+      }
+
+      .feature-body,
+      .artist-copy {
+        border-left: none;
+        border-top: 1px solid var(--line);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .shell {
+        width: min(100vw - 16px, 100%);
+        margin: 8px auto;
+      }
+
+      .topbar {
+        grid-template-columns: 1fr;
+        justify-items: start;
+        gap: 18px;
+      }
+
+      .nav-links {
+        justify-content: flex-start;
+        gap: 12px 18px;
+      }
+
+      .hero-meta {
+        grid-template-columns: 1fr;
+      }
+
+      .roster-card {
+        grid-template-columns: 88px 1fr;
+      }
+
+      .archive-row {
+        grid-template-columns: 1fr;
+      }
+
+      .footer {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-meta {
+        text-align: left;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .hero-title {
+        max-width: none;
+      }
+
+      .feature-title,
+      .artist-copy h3,
+      .section-title,
+      .contact-card h3 {
+        max-width: none;
+      }
+
+      .art-panel {
+        min-height: 440px;
+      }
+
+      .art-caption {
+        right: 18px;
+        left: 18px;
+        width: auto;
+        bottom: 18px;
+      }
+
+      .artist-portrait {
+        min-height: 320px;
+      }
+
+      .visit-card,
+      .contact-card {
+        min-height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="#">
+        <div class="brand-mark">S</div>
+        <div class="brand-copy">
+          <div class="brand-name">Studio 201</div>
+          <div class="brand-note">Argao, Cebu</div>
+        </div>
+      </a>
+
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#current">Current</a>
+        <a href="#program">Program</a>
+        <a href="#artists">Artists</a>
+        <a href="#archive">Archive</a>
+        <a href="#visit">Visit</a>
+      </nav>
+
+      <a class="topbar-action" href="#visit">Plan A Visit</a>
+    </header>
+
+    <main>
+      <section class="hero" id="current">
+        <div class="hero-copy">
+          <div>
+            <div class="eyebrow">Current Exhibition</div>
+            <h1 class="hero-title">Bloo Ang Color Sa Sunshine</h1>
+            <div class="hero-subtitle">A softer, cleaner homepage direction for Studio 201</div>
+            <p class="hero-intro">
+              This concept keeps the exhibition as the main event, but adds enough context for visitors to
+              understand what is on view, where the gallery is, and why the program matters without making the
+              page feel like a content management interface.
+            </p>
+            <div class="hero-actions">
+              <a class="button button-primary" href="#program">View Exhibition Story</a>
+              <a class="button button-secondary" href="#visit">See Visit Details</a>
+            </div>
+          </div>
+
+          <div class="hero-meta">
+            <article class="meta-card fade-in delay-1">
+              <div class="meta-label">On View</div>
+              <div class="meta-value">Mar 16 - Mar 29, 2026</div>
+              <div class="meta-caption">Lead with real dates and current status instead of generic section filler.</div>
+            </article>
+            <article class="meta-card fade-in delay-2">
+              <div class="meta-label">Location</div>
+              <div class="meta-value">Studio 201<br />Argao, Cebu</div>
+              <div class="meta-caption">A gallery homepage should tell people where the work can actually be seen.</div>
+            </article>
+            <article class="meta-card fade-in delay-3">
+              <div class="meta-label">Why This Layout</div>
+              <div class="meta-value">Less empty-state noise</div>
+              <div class="meta-caption">Use fewer, stronger sections so the gallery still feels alive between shows.</div>
+            </article>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="visual-frame">
+            <div class="art-panel">
+              <div class="art-caption">
+                <strong>Editorial hero with room to breathe</strong>
+                <span>Large artwork first, practical details second</span>
+                <p>
+                  The image field stays dominant, but the caption block gives visitors a curatorial note,
+                  dates, and a clear next step without crowding the artwork itself.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="program">
+        <div class="section-head fade-in">
+          <div>
+            <div class="eyebrow">Program</div>
+            <h2 class="section-title">A homepage that stays curated even when the calendar is light.</h2>
+          </div>
+          <p class="section-copy">
+            The live site currently spends a lot of space saying there is nothing scheduled yet. A cleaner solution
+            is to keep one strong current-show block, one upcoming program card, and one concise note about what is
+            happening around the gallery right now.
+          </p>
+        </div>
+
+        <div class="program-grid">
+          <article class="feature-card fade-in delay-1">
+            <div class="feature-media"></div>
+            <div class="feature-body">
+              <div>
+                <div class="feature-kicker">Featured Program Block</div>
+                <h3 class="feature-title">This month at Studio 201 should read like a curated invitation.</h3>
+                <p>
+                  Replace stacked empty states with one narrative block that can flex: an upcoming opening, a studio
+                  conversation, a publication drop, or a curatorial note. The page feels intentional even with fewer
+                  events.
+                </p>
+              </div>
+              <div>
+                <div class="feature-meta">
+                  <span>Apr 05</span>
+                  <span>Artist Conversation</span>
+                  <span>6:00 PM</span>
+                </div>
+                <a class="mini-link" href="#visit">Reserve or inquire</a>
+              </div>
+            </div>
+          </article>
+
+          <div class="side-stack">
+            <article class="side-card fade-in delay-2">
+              <div class="feature-kicker">Upcoming</div>
+              <h3>One solid next show card is enough.</h3>
+              <p>
+                Use a single upcoming highlight with dates, artist names, and one visual. Avoid filling the page with
+                placeholder boxes when there are only one or two confirmed programs.
+              </p>
+              <a class="mini-link" href="#archive">See archive rhythm</a>
+            </article>
+
+            <article class="side-card fade-in delay-3">
+              <div class="feature-kicker">Visitor Cue</div>
+              <h3>Make the visit path visible early.</h3>
+              <p>
+                The current homepage is missing a proper visit section. Add hours, location, and contact before the
+                footer so new visitors do not need to guess what to do next.
+              </p>
+              <a class="mini-link" href="#visit">Go to visit details</a>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="artists">
+        <div class="section-head fade-in">
+          <div>
+            <div class="eyebrow">Artists</div>
+            <h2 class="section-title">The roster should feel editorial, not like a generic directory.</h2>
+          </div>
+          <p class="section-copy">
+            The current artist strip is clean, but thin. Add a featured artist story and give the supporting cards a
+            role, medium, or context line so the section communicates more than just a list of names.
+          </p>
+        </div>
+
+        <div class="artists-grid">
+          <article class="artist-lead fade-in delay-1">
+            <div class="artist-portrait"></div>
+            <div class="artist-copy">
+              <div class="feature-kicker">Featured Artist</div>
+              <h3>Kanonono</h3>
+              <div class="artist-role">Painter, drawer, exhibition collaborator</div>
+              <p>
+                A lead artist slot adds depth without making the homepage busy. It gives visitors a face, a practice,
+                and a reason to keep exploring the program.
+              </p>
+              <a class="mini-link" href="#archive">View artist archive</a>
+            </div>
+          </article>
+
+          <div class="artist-roster">
+            <article class="roster-card fade-in delay-2">
+              <div class="roster-thumb"></div>
+              <div>
+                <h4>Janlie Pantinople</h4>
+                <div class="meta">Painting / installation</div>
+                <p>Use short descriptors so the roster says who each artist is, not only what their slug is.</p>
+              </div>
+            </article>
+            <article class="roster-card fade-in delay-3">
+              <div class="roster-thumb" style="background: radial-gradient(circle at top left, rgba(255,233,197,0.55), transparent 28%), linear-gradient(160deg, #79635c 0%, #9f7a61 48%, #d7b68d 100%);"></div>
+              <div>
+                <h4>Juan Carabao</h4>
+                <div class="meta">Works on paper / object</div>
+                <p>Include one sentence of editorial framing so the section feels curated rather than merely indexed.</p>
+              </div>
+            </article>
+            <article class="roster-card fade-in delay-3">
+              <div class="roster-thumb" style="background: radial-gradient(circle at top right, rgba(255,238,223,0.6), transparent 24%), linear-gradient(160deg, #6d665c 0%, #9b8774 36%, #454e56 100%);"></div>
+              <div>
+                <h4>Visiting Artists</h4>
+                <div class="meta">Residencies / talks / collaborations</div>
+                <p>Reserve one card for guests, collectives, or rotating contributors without redesigning the whole grid.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="archive">
+        <div class="section-head fade-in">
+          <div>
+            <div class="eyebrow">Archive</div>
+            <h2 class="section-title">Institutional memory works better as a list than as another empty card grid.</h2>
+          </div>
+          <p class="section-copy">
+            For a gallery, the archive builds trust. A simple year-based list is easier to scan, easier to maintain,
+            and stronger than a placeholder section that says the archive is still coming soon.
+          </p>
+        </div>
+
+        <div class="archive-list fade-in delay-1">
+          <article class="archive-row">
+            <div class="archive-year">2026</div>
+            <div>
+              <h3>Bloo Ang Color Sa Sunshine</h3>
+              <p>Current exhibition with a larger hero, more breathing room, and clearer visit context.</p>
+            </div>
+            <div class="archive-type">Now on view</div>
+          </article>
+          <article class="archive-row">
+            <div class="archive-year">2025</div>
+            <div>
+              <h3>Hands That Hold The Heat</h3>
+              <p>Archived exhibitions can live in a clean vertical rhythm without competing with the homepage hero.</p>
+            </div>
+            <div class="archive-type">Past exhibition</div>
+          </article>
+          <article class="archive-row">
+            <div class="archive-year">2024</div>
+            <div>
+              <h3>Small Rooms, Long Afternoon</h3>
+              <p>Keep the copy brief and let the year, title, and thumbnail on the archive page do the work.</p>
+            </div>
+            <div class="archive-type">Past exhibition</div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="visit">
+        <div class="section-head fade-in">
+          <div>
+            <div class="eyebrow">Visit</div>
+            <h2 class="section-title">A real gallery homepage should end with a clear invitation to arrive.</h2>
+          </div>
+          <p class="section-copy">
+            The public site needs a proper visit block with location, hours, and direct contact. This makes the page
+            useful to first-time visitors, collectors, and collaborators without pushing them into a generic feedback
+            flow.
+          </p>
+        </div>
+
+        <div class="visit-grid">
+          <article class="visit-card fade-in delay-1">
+            <div class="feature-kicker">Gallery Details</div>
+            <div class="visit-map"></div>
+            <div class="visit-list">
+              <div class="visit-item">
+                <span>Address</span>
+                <strong>Studio 201, Argao, Cebu</strong>
+                <p>Show the exact address or landmark here, not only in the footer.</p>
+              </div>
+              <div class="visit-item">
+                <span>Hours</span>
+                <strong>Thu-Sun / 1PM-6PM</strong>
+                <p>Hours can change with the exhibition schedule, so this block should be easy for admins to update.</p>
+              </div>
+            </div>
+          </article>
+
+          <aside class="contact-card fade-in delay-2">
+            <div>
+              <div class="eyebrow">Contact</div>
+              <h3>Keep the public actions simple and human.</h3>
+              <p>
+                Replace placeholder footer links and redundant homepage buttons with direct public actions:
+                Instagram, email, visit inquiries, and a simple RSVP path when an event is active.
+              </p>
+            </div>
+            <div class="contact-links">
+              <a class="contact-link" href="#">
+                <span>Instagram</span>
+                <span>@studio201</span>
+              </a>
+              <a class="contact-link" href="#">
+                <span>Email</span>
+                <span>hello@studio201.art</span>
+              </a>
+              <a class="contact-link" href="#">
+                <span>Visits</span>
+                <span>Schedule or inquire</span>
+              </a>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-brand">
+        <h2>Studio 201</h2>
+        <p>
+          Clean, modern, and exhibition-first. This template keeps the gallery identity warm and editorial while
+          reducing redundant chrome, empty-state clutter, and placeholder interactions.
+        </p>
+        <div class="fade-line"></div>
+      </div>
+      <div class="footer-meta">
+        <span>Template concept</span>
+        <span>Homepage only</span>
+        <span>Prepared for Studio 201</span>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
