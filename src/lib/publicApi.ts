@@ -5,10 +5,18 @@ export const PUBLIC_API_BASE_URL =
 
 const shouldBypassBuildCache =
   PUBLIC_API_BASE_URL.includes("localhost:") || PUBLIC_API_BASE_URL.includes("backend:8080");
+const PUBLIC_FETCH_RETRY_DELAYS_MS = [450, 1200] as const;
 
 type PublicFetchOptions = {
   revalidate?: number;
   tags?: string[];
+};
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const shouldRetryStatus = (status: number) => {
+  if (status >= 500) return true;
+  return status === 408 || status === 425 || status === 429;
 };
 
 export function getPublicFetchConfig({
@@ -31,16 +39,36 @@ async function fetchPublic<T>(
   endpoint: string,
   { revalidate = 300, tags = [] }: PublicFetchOptions = {},
 ): Promise<T> {
-  const response = await fetch(
-    `${PUBLIC_API_BASE_URL}${endpoint}`,
-    getPublicFetchConfig({ revalidate, tags }),
-  );
+  let lastError: Error | null = null;
 
-  if (!response.ok) {
-    throw new Error(`Public API request failed for ${endpoint}: ${response.status}`);
+  for (let attempt = 0; attempt <= PUBLIC_FETCH_RETRY_DELAYS_MS.length; attempt += 1) {
+    try {
+      const response = await fetch(
+        `${PUBLIC_API_BASE_URL}${endpoint}`,
+        getPublicFetchConfig({ revalidate, tags }),
+      );
+
+      if (!response.ok) {
+        if (shouldRetryStatus(response.status) && attempt < PUBLIC_FETCH_RETRY_DELAYS_MS.length) {
+          await sleep(PUBLIC_FETCH_RETRY_DELAYS_MS[attempt]);
+          continue;
+        }
+
+        throw new Error(`Public API request failed for ${endpoint}: ${response.status}`);
+      }
+
+      return response.json();
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+
+      if (attempt < PUBLIC_FETCH_RETRY_DELAYS_MS.length) {
+        await sleep(PUBLIC_FETCH_RETRY_DELAYS_MS[attempt]);
+        continue;
+      }
+    }
   }
 
-  return response.json();
+  throw lastError ?? new Error(`Public API request failed for ${endpoint}`);
 }
 
 export async function getPublicCollection<T>(
@@ -49,7 +77,8 @@ export async function getPublicCollection<T>(
 ): Promise<T[]> {
   try {
     return await fetchPublic<T[]>(endpoint, options);
-  } catch {
+  } catch (error) {
+    console.error(`[publicApi] Failed to load collection ${endpoint}`, error);
     return [];
   }
 }
@@ -60,7 +89,8 @@ export async function getPublicResource<T>(
 ): Promise<T | null> {
   try {
     return await fetchPublic<T>(endpoint, options);
-  } catch {
+  } catch (error) {
+    console.error(`[publicApi] Failed to load resource ${endpoint}`, error);
     return null;
   }
 }
