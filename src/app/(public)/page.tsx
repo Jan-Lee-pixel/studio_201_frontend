@@ -3,7 +3,6 @@ import { Reveal } from "@/components/animation/Reveal";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { sortPublicArtists, type PublicUserProfile } from "@/features/artists/services/artistService";
 import type { EventDto } from "@/features/events/services/eventService";
-import { ExhibitionCoverFrame } from "@/features/exhibitions/components/ExhibitionCoverFrame";
 import type { Exhibition } from "@/features/exhibitions/services/exhibitionService";
 import { getPublicCollection } from "@/lib/publicApi";
 
@@ -110,10 +109,6 @@ export default async function Home() {
   const heroLabel = formatHeroLabel(featuredExhibition?.startDate);
   const heroDates = formatDateRange(featuredExhibition?.startDate, featuredExhibition?.endDate);
   const heroLink = featuredExhibition ? `/exhibitions/${featuredExhibition.slug}` : "/exhibitions";
-  const heroDescription = featuredExhibition
-    ? featuredExhibition.description?.trim() ||
-      "Studio 201 presents exhibitions, artist projects, and public programming from the gallery in Argao, Cebu."
-    : "See what is on view now, follow the artists in the program, and return to the archive between openings.";
 
   const now = new Date();
   const upcomingExhibition = exhibitions
@@ -138,70 +133,48 @@ export default async function Home() {
 
   return (
     <div className="bg-[linear-gradient(180deg,#faf6ef_0%,var(--color-parchment)_32%,var(--color-bone)_100%)]">
-      <section className="px-6 pb-18 pt-30 md:px-12 md:pb-24">
-        <div className="mx-auto grid max-w-[1440px] gap-10 xl:grid-cols-[minmax(0,0.92fr)_minmax(420px,1.08fr)]">
-          <Reveal className="flex flex-col gap-8 xl:pt-6">
-            <div>
-              <div className="inline-flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--color-sienna)] before:block before:h-px before:w-8 before:bg-current before:content-['']">
-                {heroLabel}
-              </div>
-              <h1 className="mt-6 max-w-[10ch] font-display text-[clamp(54px,8vw,110px)] font-normal leading-[0.84] tracking-[-0.06em] text-[var(--color-near-black)]">
-                {heroTitle}
-              </h1>
-              <div className="mt-5 font-sub text-[clamp(22px,2.2vw,30px)] font-light italic text-[var(--color-sienna)]">
-                Studio 201
-              </div>
-              <p className="mt-6 max-w-[58ch] text-[15px] leading-8 text-[var(--color-warm-slate)]">
-                {heroDescription}
-              </p>
+      <section className="relative min-h-[100svh] overflow-hidden">
+        {heroImage ? (
+          <img
+            src={heroImage}
+            alt={heroTitle}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(181,96,58,0.35),rgba(23,22,15,0.95))]" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-[rgba(23,22,15,0.86)] via-[rgba(23,22,15,0.26)_50%] to-[rgba(23,22,15,0.14)] md:from-[rgba(23,22,15,0.82)] md:via-[rgba(23,22,15,0.18)_52%] md:to-[rgba(23,22,15,0.12)]" />
 
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Link
-                  href={heroLink}
-                  className="inline-flex min-h-[52px] items-center justify-center rounded-full bg-[var(--color-near-black)] px-6 text-sm tracking-[0.04em] text-[var(--color-cream)] transition-colors duration-200 hover:bg-[var(--color-charcoal)]"
-                >
-                  {featuredExhibition ? "View Exhibition" : "Explore Exhibitions"}
-                </Link>
-                <Link
-                  href="/artists"
-                  className="inline-flex min-h-[52px] items-center justify-center rounded-full border border-[var(--color-rule)] bg-white/70 px-6 text-sm tracking-[0.03em] text-[var(--color-near-black)] transition-colors duration-200 hover:bg-white"
-                >
-                  Meet the Artists
-                </Link>
-              </div>
+        <div className="absolute inset-x-0 bottom-0 px-6 pb-14 pt-28 md:px-12 md:pb-24 md:pt-40">
+          <Reveal className="max-w-[760px]">
+            <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-sienna)]">
+              {heroLabel}
             </div>
-
-            <div className="mt-2 flex flex-wrap gap-x-8 gap-y-4 border-t border-[var(--color-rule)] pt-6">
-              <div>
-                <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Dates</div>
-                <div className="mt-2 text-sm text-[var(--color-near-black)]">{heroDates}</div>
-              </div>
-              <div>
-                <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Location</div>
-                <div className="mt-2 text-sm text-[var(--color-near-black)]">Argao, Cebu</div>
-              </div>
-              <div>
-                <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Artists</div>
-                <div className="mt-2 text-sm text-[var(--color-near-black)]">{artists.length || 0} in the public roster</div>
-              </div>
+            <h1 className="mt-4 max-w-[8ch] font-display text-[clamp(44px,13vw,94px)] leading-[0.94] tracking-[-0.05em] text-[var(--color-cream)] md:mt-5 md:max-w-none md:leading-[0.92]">
+              {heroTitle}
+            </h1>
+            <div className="mt-3 font-sub text-[clamp(20px,5vw,30px)] italic text-[rgba(240,237,229,0.86)] md:mt-4">
+              Studio 201
+            </div>
+            <div className="mt-2 font-mono text-[11px] tracking-[0.08em] text-[rgba(240,237,229,0.66)] md:mt-3">
+              {heroDates}
+            </div>
+            <div className="mt-8 md:mt-10">
+              <Link
+                href={heroLink}
+                className="relative inline-block text-sm tracking-[0.03em] text-[var(--color-cream)] after:absolute after:bottom-[-3px] after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-300 hover:after:scale-x-100"
+              >
+                {featuredExhibition ? "View Exhibition →" : "Explore Exhibitions →"}
+              </Link>
             </div>
           </Reveal>
+        </div>
 
-          <Reveal className="self-start">
-            <div className="overflow-hidden rounded-[30px] border border-[rgba(26,24,20,0.12)] bg-[var(--color-linen)] p-4 shadow-[0_28px_70px_rgba(33,28,24,0.12)] xl:sticky xl:top-[96px]">
-              <div className="relative overflow-hidden rounded-[24px]">
-                <ExhibitionCoverFrame
-                  image={heroImage}
-                  alt={heroTitle}
-                  className="w-full"
-                  paddingClassName="p-4 md:p-5 xl:p-6"
-                  imageClassName="h-auto w-auto max-h-[min(68vh,680px)] max-w-full"
-                />
-                <div className="absolute inset-[7%] border border-[rgba(255,255,255,0.32)]" />
-
-              </div>
-            </div>
-          </Reveal>
+        <div className="absolute bottom-10 right-12 hidden flex-col items-center gap-2 md:flex">
+          <div className="relative h-12 w-px overflow-hidden bg-[rgba(240,237,229,0.18)] before:absolute before:left-0 before:top-0 before:h-full before:w-full before:bg-[rgba(240,237,229,0.6)] before:animate-scroll-drop before:content-['']" />
+          <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-[rgba(240,237,229,0.42)] [writing-mode:vertical-rl]">
+            Scroll
+          </span>
         </div>
       </section>
 

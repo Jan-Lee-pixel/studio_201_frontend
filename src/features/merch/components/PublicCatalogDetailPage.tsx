@@ -38,7 +38,7 @@ export function PublicCatalogDetailPage({
 
   return (
     <div className="min-h-screen bg-[var(--color-parchment)] pt-28">
-      <div className="px-6 py-10 md:px-12 md:py-12">
+      <div className="px-6 py-8 md:px-12 md:py-12">
         <div className="mx-auto max-w-[1320px]">
           <Link
             href={backHref}
@@ -50,20 +50,20 @@ export function PublicCatalogDetailPage({
       </div>
 
       <div className="px-6 pb-16 md:px-12 md:pb-20">
-        <div className="mx-auto grid max-w-[1320px] gap-10 lg:grid-cols-[minmax(0,1.08fr)_minmax(320px,0.72fr)] lg:items-start">
+        <div className="mx-auto grid max-w-[1320px] gap-8 lg:grid-cols-[minmax(0,1.08fr)_minmax(320px,0.72fr)] lg:items-start lg:gap-10">
           <Reveal>
             <MerchGallery title={item.title} images={galleryImages} />
           </Reveal>
 
           <Reveal delay={1}>
-            <div className="space-y-8 lg:sticky lg:top-[104px]">
-              <div className="flex flex-wrap items-center gap-3 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+            <div className="flex flex-col gap-6 lg:sticky lg:top-[104px] lg:gap-8">
+              <div className="order-1 flex flex-wrap items-center gap-3 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
                 <span>{channelName}</span>
                 <span className="h-1 w-1 rounded-full bg-[var(--color-rule)]" />
                 <span>{formatCatalogItemType(item.itemType)}</span>
               </div>
 
-              <div>
+              <div className="order-2">
                 <h1 className="font-body text-[clamp(30px,4.2vw,46px)] font-semibold leading-[1.03] tracking-[-0.03em] text-[var(--color-near-black)]">
                   {item.title}
                 </h1>
@@ -76,38 +76,7 @@ export function PublicCatalogDetailPage({
                 <p className="mt-2 text-sm leading-6 text-[var(--color-warm-slate)]">Handled by inquiry</p>
               </div>
 
-              <div className="border-y border-[var(--color-rule)] py-6">
-                <div className="space-y-5">
-                  <div>
-                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Collection</div>
-                    <div className="mt-2 text-sm text-[var(--color-near-black)]">{collectionLabel}</div>
-                  </div>
-                  <div>
-                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Type</div>
-                    <div className="mt-2 text-sm text-[var(--color-near-black)]">{formatCatalogItemType(item.itemType)}</div>
-                  </div>
-                  <div>
-                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Inquiry</div>
-                    <div className="mt-2 font-body text-[18px] font-semibold leading-6 text-[var(--color-near-black)]">
-                      {introTitle}
-                    </div>
-                    <div className="mt-2 text-sm leading-7 text-[var(--color-warm-slate)]">{introCopy}</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                {item.shortNote ? (
-                  <p className="text-base leading-8 text-[var(--color-warm-slate)]">{item.shortNote}</p>
-                ) : null}
-                {item.description ? (
-                  <div className="whitespace-pre-line text-sm leading-8 text-[var(--color-warm-slate)]">
-                    {item.description}
-                  </div>
-                ) : null}
-              </div>
-
-              <div className="flex flex-col gap-3">
+              <div className="order-3 flex flex-col gap-3">
                 {inquiryHref ? (
                   <a
                     href={inquiryHref}
@@ -131,6 +100,37 @@ export function PublicCatalogDetailPage({
                     </Link>
                   ) : null}
                 </div>
+              </div>
+
+              <div className="order-4 border-y border-[var(--color-rule)] py-6">
+                <div className="space-y-5">
+                  <div>
+                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Collection</div>
+                    <div className="mt-2 text-sm text-[var(--color-near-black)]">{collectionLabel}</div>
+                  </div>
+                  <div>
+                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Type</div>
+                    <div className="mt-2 text-sm text-[var(--color-near-black)]">{formatCatalogItemType(item.itemType)}</div>
+                  </div>
+                  <div>
+                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Inquiry</div>
+                    <div className="mt-2 font-body text-[18px] font-semibold leading-6 text-[var(--color-near-black)]">
+                      {introTitle}
+                    </div>
+                    <div className="mt-2 text-sm leading-7 text-[var(--color-warm-slate)]">{introCopy}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="order-5 space-y-4">
+                {item.shortNote ? (
+                  <p className="text-base leading-8 text-[var(--color-warm-slate)]">{item.shortNote}</p>
+                ) : null}
+                {item.description ? (
+                  <div className="whitespace-pre-line text-sm leading-8 text-[var(--color-warm-slate)]">
+                    {item.description}
+                  </div>
+                ) : null}
               </div>
             </div>
           </Reveal>

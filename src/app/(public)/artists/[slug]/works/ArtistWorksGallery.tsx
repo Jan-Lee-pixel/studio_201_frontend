@@ -43,8 +43,8 @@ function ApprovedExhibitionSection({
 
   return (
     <section key={exhibitionId} className="mt-16 first:mt-0">
-      <div className="sticky top-[86px] z-10 -mx-6 bg-[var(--color-linen)]/95 px-6 pb-6 pt-2 backdrop-blur-sm md:-mx-12 md:px-12">
-        <div className="flex flex-col gap-4 border-b border-[var(--color-rule)] pb-6 md:flex-row md:items-end md:justify-between">
+      <div className="border-b border-[var(--color-rule)] pb-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
               Exhibition
@@ -53,46 +53,44 @@ function ApprovedExhibitionSection({
               {exhibitionHref ? (
                 <Link
                   href={exhibitionHref}
-                  className="font-display text-[clamp(26px,3vw,38px)] leading-[1.08] tracking-[-0.02em] text-[var(--color-near-black)] transition-colors duration-300 hover:text-[var(--color-sienna)]"
+                  className="font-display text-[clamp(26px,3vw,38px)] leading-[1.04] tracking-[-0.03em] text-[var(--color-near-black)] transition-colors duration-300 hover:text-[var(--color-sienna)]"
                 >
                   {exhibitionTitle}
                 </Link>
               ) : (
-                <h2 className="font-display text-[clamp(26px,3vw,38px)] leading-[1.08] tracking-[-0.02em] text-[var(--color-near-black)]">
+                <h2 className="font-display text-[clamp(26px,3vw,38px)] leading-[1.04] tracking-[-0.03em] text-[var(--color-near-black)]">
                   {exhibitionTitle}
                 </h2>
               )}
             </div>
             <div className="mt-3 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
-              {artworks.length} approved work{artworks.length === 1 ? "" : "s"}
+              {artworks.length} work{artworks.length === 1 ? "" : "s"}
             </div>
           </div>
 
-          {showToggle ? (
-            <button
-              type="button"
-              onClick={() => setIsExpanded((current) => !current)}
-              className="inline-flex items-center justify-center border border-[var(--color-near-black)] bg-[var(--color-linen)] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-300 hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)]"
-            >
-              {isExpanded ? "Show Fewer Works" : `Show ${hiddenCount} More Works`}
-            </button>
-          ) : null}
+          <div className="flex flex-wrap items-center gap-3">
+            {exhibitionHref ? (
+              <Link
+                href={exhibitionHref}
+                className="inline-flex min-h-[40px] items-center justify-center rounded-full border border-[var(--color-rule)] bg-white px-4 text-[11px] uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-200 hover:border-[var(--color-near-black)]"
+              >
+                View exhibition
+              </Link>
+            ) : null}
+            {showToggle ? (
+              <button
+                type="button"
+                onClick={() => setIsExpanded((current) => !current)}
+                className="inline-flex min-h-[40px] items-center justify-center rounded-full border border-[var(--color-rule)] bg-transparent px-4 text-[11px] uppercase tracking-[0.12em] text-[var(--color-dust)] transition-colors duration-200 hover:border-[var(--color-near-black)] hover:text-[var(--color-near-black)]"
+              >
+                {isExpanded ? "Show fewer" : `Show ${hiddenCount} more`}
+              </button>
+            ) : null}
+          </div>
         </div>
       </div>
 
       <ArtworkPreviewGrid artworks={visibleArtworks} />
-
-      {showToggle && isExpanded ? (
-        <div className="mt-10 flex justify-center">
-          <button
-            type="button"
-            onClick={() => setIsExpanded(false)}
-            className="inline-flex items-center justify-center border border-[var(--color-near-black)] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-300 hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)]"
-          >
-            Show Fewer Works
-          </button>
-        </div>
-      ) : null}
     </section>
   );
 }
@@ -136,44 +134,53 @@ export function ArtistWorksGallery({
   }, [approvedArtworks]);
 
   return (
-    <div className="pt-28 pb-24 px-6 md:px-12 bg-[var(--color-linen)] min-h-screen">
+    <div className="min-h-screen bg-[linear-gradient(180deg,#f7f3ec_0%,var(--color-linen)_26%,var(--color-bone)_100%)] px-6 pb-24 pt-24 md:px-12 md:pt-28">
       <div className="max-w-[1240px] mx-auto">
-        <Reveal>
-          <SectionLabel>All Works</SectionLabel>
-        </Reveal>
-
-        <div className="mt-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div className="border-b border-[var(--color-rule)] pb-6 md:pb-8">
+          <Reveal>
+            <SectionLabel className="mb-4">All Works</SectionLabel>
+          </Reveal>
           <div>
-            <h1 className="font-display text-[clamp(38px,6vw,68px)] leading-[1.02] tracking-[-0.02em] text-[var(--color-near-black)]">
-              {artistName}
-            </h1>
-            <p className="mt-4 max-w-[680px] text-base leading-[1.75] text-[var(--color-warm-slate)]">
-              Browse the public work first. Select any piece to view the details.
-            </p>
+            <Reveal>
+              <h1 className="font-display text-[clamp(38px,6vw,68px)] leading-[0.98] tracking-[-0.04em] text-[var(--color-near-black)]">
+                {artistName}
+              </h1>
+            </Reveal>
+            <Reveal>
+              <p className="mt-3 max-w-[720px] text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-base md:leading-[1.75]">
+                Public works connected to the artist profile and current exhibition program. Select any piece to view it in detail.
+              </p>
+            </Reveal>
           </div>
 
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href={`/artists/${artistSlug}`}
-              className="inline-flex min-h-[46px] items-center justify-center rounded-full bg-[var(--color-near-black)] px-6 text-sm tracking-[0.04em] text-[var(--color-cream)] transition-colors duration-200 hover:bg-[var(--color-charcoal)]"
-            >
-              Back to Artist
-            </Link>
-            <Link
-              href="/artists"
-              className="inline-flex min-h-[46px] items-center justify-center rounded-full border border-[var(--color-rule)] bg-white/72 px-6 text-sm tracking-[0.04em] text-[var(--color-near-black)] transition-colors duration-200 hover:bg-white"
-            >
-              Browse Artists
-            </Link>
+          <div className="mt-5 flex flex-wrap gap-3 md:mt-6">
+            <Reveal>
+              <Link
+                href={`/artists/${artistSlug}`}
+                className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-[var(--color-near-black)] px-5 text-sm tracking-[0.04em] text-[var(--color-cream)] transition-colors duration-200 hover:bg-[var(--color-charcoal)]"
+              >
+                Back to Artist
+              </Link>
+            </Reveal>
+            <Reveal>
+              <Link
+                href="/artists"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-full border border-[var(--color-rule)] bg-white/72 px-5 text-sm tracking-[0.04em] text-[var(--color-near-black)] transition-colors duration-200 hover:bg-white"
+              >
+                Browse Artists
+              </Link>
+            </Reveal>
           </div>
         </div>
 
-        <PublicProfileOwnerActions
-          artistId={artistId}
-          artistSlug={artistSlug}
-          compact
-          showEditProfile={false}
-        />
+        <div className="mt-4">
+          <PublicProfileOwnerActions
+            artistId={artistId}
+            artistSlug={artistSlug}
+            compact
+            showEditProfile={false}
+          />
+        </div>
 
         {portfolioArtworks.length === 0 && approvedArtworks.length === 0 ? (
           <div className="mt-16 font-mono text-[11px] uppercase tracking-[0.1em] text-[var(--color-dust)]">
@@ -193,7 +200,7 @@ export function ArtistWorksGallery({
         {approvedArtworks.length > 0 ? (
           <section className="mt-16">
             <Reveal>
-              <SectionLabel>Approved Exhibition Works</SectionLabel>
+              <SectionLabel>Exhibition Works</SectionLabel>
             </Reveal>
             <div className="mt-10 space-y-16">
             {approvedArtworkGroups.map((group, index) => (

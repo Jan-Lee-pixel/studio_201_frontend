@@ -17,9 +17,9 @@ export function PublicHeader() {
   const [supabase] = useState(() => createClient());
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
-  const hasDarkHero = pathname === "/spaces";
+  const hasDarkHero = pathname === "/" || pathname === "/spaces";
   const isHero = hasDarkHero;
-  const keepTransparent = hasDarkHero;
+  const keepTransparent = pathname === "/spaces";
   const showLogin = !loading && !isAuthenticated && pathname !== "/login";
   const showLogout = !loading && isAuthenticated;
 
@@ -70,7 +70,7 @@ export function PublicHeader() {
   }, [pathname]);
 
   const navClass = clsx(
-    "fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-5 md:px-12 md:py-6 transition-all duration-400 ease-[cubic-bezier(0.25,0,0,1)]",
+    "fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-5 py-4 md:px-12 md:py-6 transition-all duration-400 ease-[cubic-bezier(0.25,0,0,1)]",
     {
       "bg-[rgba(245,242,236,0.96)] backdrop-blur-md border-b border-[var(--color-rule)]":
         scrolled && !keepTransparent,
@@ -142,7 +142,7 @@ export function PublicHeader() {
       <nav className={navClass}>
         <Link href="/" className="flex items-center gap-3">
           <LogoMark className="h-6 md:h-7 w-auto" />
-          <span className="font-display text-lg tracking-[-0.01em]">Studio 201</span>
+          <span className="font-display text-base tracking-[-0.01em] md:text-lg">Studio 201</span>
         </Link>
 
         {/* Desktop Nav */}
@@ -162,7 +162,7 @@ export function PublicHeader() {
         <div className="flex items-center gap-4">
           {showLogin ? (
             <Link href="/login" className={clsx("hidden md:inline-flex", actionButtonClass)}>
-              Portal
+              Log in
             </Link>
           ) : null}
 
@@ -180,7 +180,7 @@ export function PublicHeader() {
 
           {/* Mobile Toggle */}
           <button
-            className="md:hidden flex flex-col gap-[5px] p-1 border-none bg-transparent cursor-pointer"
+            className="md:hidden flex min-h-[40px] min-w-[40px] flex-col items-center justify-center gap-[5px] rounded-full border border-transparent bg-transparent p-1 cursor-pointer"
             onClick={() => setMobileOpen(true)}
             aria-label="Menu"
           >
@@ -215,59 +215,68 @@ export function PublicHeader() {
       {/* Mobile Overlay */}
       <div
         className={clsx(
-          "fixed inset-0 bg-[var(--color-charcoal)] z-[100] overflow-y-auto px-6 py-24 transition-opacity duration-400 ease-out",
+          "fixed inset-0 z-[100] overflow-y-auto bg-[rgba(23,22,15,0.98)] px-5 py-20 transition-opacity duration-400 ease-out md:px-12 md:py-24",
           mobileOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none",
         )}
       >
         <button
-          className="absolute right-6 top-6 font-mono text-[11px] tracking-[0.1em] text-[var(--color-dust)] bg-transparent border-none cursor-pointer md:right-12"
+          className="absolute right-5 top-5 font-mono text-[11px] tracking-[0.1em] text-[var(--color-dust)] bg-transparent border-none cursor-pointer md:right-12 md:top-6"
           onClick={() => setMobileOpen(false)}
         >
           CLOSE ×
         </button>
-        <div className="mx-auto flex w-full max-w-[420px] flex-col items-center justify-center">
-          <div className="w-full space-y-3 border-y border-[rgba(240,237,229,0.1)] py-8">
+        <div className="mx-auto flex w-full max-w-[420px] flex-col items-stretch justify-center">
+          <Link
+            href="/"
+            onClick={() => setMobileOpen(false)}
+            className="mb-6 flex items-center gap-3 text-[var(--color-cream)]"
+          >
+            <LogoMark className="h-6 w-auto" />
+            <span className="font-display text-xl tracking-[-0.02em]">Studio 201</span>
+          </Link>
+
+          <div className="w-full space-y-2 border-y border-[rgba(240,237,229,0.1)] py-6">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
-                className="flex min-h-[52px] items-center justify-between rounded-[18px] px-1 text-[var(--color-cream)]"
+                className="flex min-h-[60px] items-center justify-between rounded-[18px] border border-[rgba(240,237,229,0.08)] bg-[rgba(255,255,255,0.02)] px-4 text-[var(--color-cream)]"
               >
-                <span className="font-display text-[clamp(28px,8vw,44px)] leading-none tracking-[-0.03em]">
+                <span className="font-display text-[clamp(26px,8vw,40px)] leading-none tracking-[-0.03em]">
                   {link.label}
                 </span>
                 <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.42)]">
-                  Open
+                  View
                 </span>
               </Link>
             ))}
           </div>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-5 font-mono text-[10px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.56)]">
+          <div className="mt-5 flex flex-wrap items-center gap-5 font-mono text-[10px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.56)]">
             <Link href="/archive" onClick={() => setMobileOpen(false)}>
               Archive
             </Link>
           </div>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-          {showLogin ? (
-            <Link href="/login" onClick={() => setMobileOpen(false)} className={mobileActionClass}>
-              Portal
-            </Link>
-          ) : null}
-          {showLogout ? (
-            <button
-              type="button"
-              onClick={() => void handleSignOut()}
-              className={mobileActionClass}
-              disabled={signingOut}
-              aria-busy={signingOut}
-            >
-              {signingOut ? "Signing Out" : "Log Out"}
-            </button>
-          ) : null}
-        </div>
+          <div className="mt-5 flex flex-col gap-3">
+            {showLogin ? (
+              <Link href="/login" onClick={() => setMobileOpen(false)} className={mobileActionClass}>
+                Portal
+              </Link>
+            ) : null}
+            {showLogout ? (
+              <button
+                type="button"
+                onClick={() => void handleSignOut()}
+                className={mobileActionClass}
+                disabled={signingOut}
+                aria-busy={signingOut}
+              >
+                {signingOut ? "Signing Out" : "Log Out"}
+              </button>
+            ) : null}
+          </div>
         </div>
       </div>
     </>

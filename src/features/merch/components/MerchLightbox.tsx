@@ -14,6 +14,7 @@ interface MerchLightboxProps {
 export function MerchLightbox({ images, title, initialIndex, onClose }: MerchLightboxProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [mounted, setMounted] = useState(false);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -49,6 +50,21 @@ export function MerchLightbox({ images, title, initialIndex, onClose }: MerchLig
 
   if (!mounted || images.length === 0) return null;
 
+  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    setTouchStartX(event.changedTouches[0]?.clientX ?? null);
+  };
+
+  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (touchStartX === null || images.length <= 1) return;
+    const endX = event.changedTouches[0]?.clientX ?? touchStartX;
+    const delta = endX - touchStartX;
+    if (Math.abs(delta) > 48) {
+      if (delta < 0) goToNext();
+      if (delta > 0) goToPrev();
+    }
+    setTouchStartX(null);
+  };
+
   return createPortal(
     <div
       className="fixed inset-0 z-[99999] bg-[rgba(18,16,13,0.82)] backdrop-blur-sm"
@@ -66,7 +82,7 @@ export function MerchLightbox({ images, title, initialIndex, onClose }: MerchLig
       <button
         type="button"
         onClick={onClose}
-        className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center border border-white/20 bg-black/25 text-[var(--color-cream)] transition-colors hover:bg-black/45 md:right-6 md:top-6"
+        className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-black/25 text-[var(--color-cream)] transition-colors hover:bg-black/45 md:right-6 md:top-6"
         aria-label="Close merch viewer"
       >
         <X className="h-5 w-5" />
@@ -77,7 +93,7 @@ export function MerchLightbox({ images, title, initialIndex, onClose }: MerchLig
           <button
             type="button"
             onClick={goToPrev}
-            className="absolute left-3 top-1/2 z-10 hidden h-14 w-14 -translate-y-1/2 items-center justify-center border border-white/15 bg-black/20 text-[var(--color-cream)] transition-colors hover:bg-black/40 md:flex"
+            className="absolute left-3 top-1/2 z-10 hidden h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-black/20 text-[var(--color-cream)] transition-colors hover:bg-black/40 md:flex"
             aria-label="Previous merch image"
           >
             <ChevronLeft className="h-7 w-7" />
@@ -86,7 +102,7 @@ export function MerchLightbox({ images, title, initialIndex, onClose }: MerchLig
           <button
             type="button"
             onClick={goToNext}
-            className="absolute right-3 top-1/2 z-10 hidden h-14 w-14 -translate-y-1/2 items-center justify-center border border-white/15 bg-black/20 text-[var(--color-cream)] transition-colors hover:bg-black/40 md:flex"
+            className="absolute right-3 top-1/2 z-10 hidden h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-black/20 text-[var(--color-cream)] transition-colors hover:bg-black/40 md:flex"
             aria-label="Next merch image"
           >
             <ChevronRight className="h-7 w-7" />
@@ -94,23 +110,19 @@ export function MerchLightbox({ images, title, initialIndex, onClose }: MerchLig
         </>
       ) : null}
 
-      <div className="flex min-h-full items-center justify-center px-4 py-20 md:px-12">
-        <div className="w-full max-w-[1100px] overflow-hidden bg-white shadow-2xl">
-          <div className="flex items-center justify-center bg-white px-4 py-4 md:px-8 md:py-8">
+      <div
+        className="flex min-h-full items-center justify-center px-4 py-16 md:px-10"
+        onClick={(event) => {
+          if (event.target === event.currentTarget) onClose();
+        }}
+      >
+        <div className="w-full max-w-[min(92vw,980px)]" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+          <div className="mx-auto flex w-fit max-w-full items-center justify-center rounded-[22px] bg-[rgba(255,255,255,0.96)] p-2 shadow-[0_24px_80px_rgba(0,0,0,0.35)] md:rounded-[26px] md:p-3">
             <img
               src={images[currentIndex]}
               alt={`${title} image ${currentIndex + 1}`}
-              className="block max-h-[72vh] w-auto max-w-full object-contain"
+              className="block max-h-[72vh] w-auto max-w-[min(82vw,760px)] object-contain"
             />
-          </div>
-
-          <div className="border-t border-[var(--color-rule)] px-5 py-4 md:px-8 md:py-5">
-            <div className="font-display text-[clamp(24px,2.6vw,34px)] tracking-[-0.02em] text-[var(--color-near-black)]">
-              {title}
-            </div>
-            <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
-              Merch image preview
-            </div>
           </div>
         </div>
       </div>
@@ -120,7 +132,7 @@ export function MerchLightbox({ images, title, initialIndex, onClose }: MerchLig
           <button
             type="button"
             onClick={goToPrev}
-            className="flex h-11 w-11 items-center justify-center border border-white/15 bg-black/25 text-[var(--color-cream)]"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/25 text-[var(--color-cream)]"
             aria-label="Previous merch image"
           >
             <ChevronLeft className="h-5 w-5" />
@@ -128,7 +140,7 @@ export function MerchLightbox({ images, title, initialIndex, onClose }: MerchLig
           <button
             type="button"
             onClick={goToNext}
-            className="flex h-11 w-11 items-center justify-center border border-white/15 bg-black/25 text-[var(--color-cream)]"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/25 text-[var(--color-cream)]"
             aria-label="Next merch image"
           >
             <ChevronRight className="h-5 w-5" />

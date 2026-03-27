@@ -186,14 +186,14 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#faf6ef_0%,var(--color-parchment)_36%,var(--color-bone)_100%)] pt-28">
-      <div className="mx-auto grid max-w-[1440px] gap-10 px-6 pb-20 md:px-12 md:pb-24 xl:grid-cols-[minmax(0,0.84fr)_minmax(360px,0.96fr)]">
-        <div className="flex flex-col justify-between gap-10">
+      <div className="mx-auto grid max-w-[1440px] gap-8 px-6 pb-16 md:px-12 md:pb-24 xl:grid-cols-[minmax(0,0.84fr)_minmax(360px,0.96fr)] xl:gap-10">
+        <div className="order-2 flex flex-col justify-between gap-8 xl:order-1 xl:gap-10">
           <div>
             <SectionLabel>Portal Access</SectionLabel>
-            <h1 className="mt-0 max-w-[11ch] font-display text-[clamp(54px,7vw,104px)] leading-[0.86] tracking-[-0.06em] text-[var(--color-near-black)]">
+            <h1 className="mt-0 max-w-[10ch] font-display text-[clamp(40px,11vw,104px)] leading-[0.9] tracking-[-0.06em] text-[var(--color-near-black)] md:max-w-[11ch] md:leading-[0.86]">
               Sign in to Studio 201.
             </h1>
-            <p className="mt-6 max-w-[56ch] text-[15px] leading-8 text-[var(--color-warm-slate)]">
+            <p className="mt-5 max-w-[56ch] text-[15px] leading-7 text-[var(--color-warm-slate)] md:mt-6 md:leading-8">
               Sign in with Google or a one-time email code. Approved users are routed directly to the correct portal.
             </p>
             <div className="mt-8">
@@ -206,7 +206,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-x-8 gap-y-4 border-t border-[var(--color-rule)] pt-6">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-4 border-t border-[var(--color-rule)] pt-5 sm:flex sm:flex-wrap sm:gap-x-8 sm:pt-6">
             <div>
               <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Sign-in</div>
               <div className="mt-2 text-sm text-[var(--color-near-black)]">Google or email code</div>
@@ -218,12 +218,12 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <PublicSurface className="overflow-hidden">
-          <div className="p-8 md:p-10">
+        <PublicSurface className="order-1 overflow-hidden xl:order-2">
+          <div className="p-6 md:p-10">
             <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-sienna)]">
               Portal sign-in
             </div>
-            <h2 className="mt-5 font-display text-[clamp(34px,4vw,54px)] leading-[0.92] tracking-[-0.05em] text-[var(--color-near-black)]">
+            <h2 className="mt-5 font-display text-[clamp(30px,8vw,54px)] leading-[0.94] tracking-[-0.05em] text-[var(--color-near-black)]">
               Continue into the workspace.
             </h2>
             <p className="mt-4 text-sm leading-7 text-[var(--color-warm-slate)]">{helperCopy}</p>

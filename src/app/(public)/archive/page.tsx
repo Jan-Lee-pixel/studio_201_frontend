@@ -55,25 +55,25 @@ export default async function ArchivePage() {
 
   return (
     <div className="bg-[linear-gradient(180deg,#faf6ef_0%,var(--color-parchment)_36%,var(--color-bone)_100%)]">
-      <section className="px-6 pb-20 pt-32 md:px-12 md:pb-24">
-        <div className="mx-auto grid max-w-[1440px] gap-10 xl:grid-cols-[minmax(0,0.88fr)_minmax(360px,1.12fr)]">
+      <section className="px-6 pb-14 pt-24 md:px-12 md:pb-24 md:pt-32">
+        <div className="mx-auto grid max-w-[1440px] gap-8 xl:grid-cols-[minmax(0,0.88fr)_minmax(360px,1.12fr)] xl:gap-10">
           <Reveal className="flex flex-col justify-between gap-10">
             <div>
               <SectionLabel>Archive</SectionLabel>
-              <h1 className="mt-0 max-w-[11ch] font-display text-[clamp(54px,7vw,104px)] leading-[0.86] tracking-[-0.06em] text-[var(--color-near-black)]">
+              <h1 className="mt-0 max-w-[10ch] font-display text-[clamp(40px,11vw,104px)] leading-[0.9] tracking-[-0.06em] text-[var(--color-near-black)] md:max-w-[11ch] md:leading-[0.86]">
                 The longer memory of the gallery.
               </h1>
-              <p className="mt-6 max-w-[56ch] text-[15px] leading-8 text-[var(--color-warm-slate)]">
+              <p className="mt-5 max-w-[56ch] text-[15px] leading-7 text-[var(--color-warm-slate)] md:mt-6 md:leading-8">
                 Revisit past exhibitions by year and move back through the recent history of Studio 201.
               </p>
 
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row md:mt-8">
                 <PublicActionLink href="/exhibitions">Current program</PublicActionLink>
                 <PublicActionLink href="/artists" tone="light">
                   Meet the artists
                 </PublicActionLink>
               </div>
-              <div className="mt-8 flex flex-wrap gap-x-8 gap-y-4 border-t border-[var(--color-rule)] pt-6">
+              <div className="mt-7 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-[var(--color-rule)] pt-5 sm:flex sm:flex-wrap sm:gap-x-8 sm:pt-6 md:mt-8">
                 <div>
                   <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Shows</div>
                   <div className="mt-2 text-sm text-[var(--color-near-black)]">{archiveExhibitions.length} in the archive</div>
@@ -126,7 +126,7 @@ export default async function ArchivePage() {
         </div>
       </section>
 
-      <section className="border-t border-[var(--color-rule)] bg-[rgba(250,248,244,0.74)] px-6 py-20 md:px-12 md:py-24">
+      <section className="border-t border-[var(--color-rule)] bg-[rgba(250,248,244,0.74)] px-6 py-16 md:px-12 md:py-24">
         <div className="mx-auto max-w-[1440px]">
           <Reveal>
             <SectionLabel>Timeline</SectionLabel>
@@ -155,7 +155,7 @@ export default async function ArchivePage() {
                   <Reveal key={year} delay={((yearIndex % 3) + 1) as 1 | 2 | 3}>
                     <PublicSurface className="overflow-hidden">
                       <div className="grid gap-0 lg:grid-cols-[140px_minmax(0,1fr)]">
-                        <div className="border-b border-[var(--color-rule)] bg-[var(--color-bone)] px-6 py-6 lg:border-b-0 lg:border-r">
+                        <div className="border-b border-[var(--color-rule)] bg-[var(--color-bone)] px-5 py-5 lg:border-b-0 lg:border-r lg:px-6 lg:py-6">
                           <div className="font-display text-[42px] leading-none tracking-[-0.05em] text-[var(--color-sienna)]">
                             {year}
                           </div>
@@ -166,9 +166,9 @@ export default async function ArchivePage() {
                             <Link
                               key={exhibition.id}
                               href={`/exhibitions/${exhibition.slug}`}
-                              className="grid gap-5 px-6 py-6 transition-colors duration-200 hover:bg-[var(--color-bone)]/40 md:grid-cols-[120px_minmax(0,1fr)_96px] md:items-center"
+                              className="grid gap-4 px-5 py-5 transition-colors duration-200 hover:bg-[var(--color-bone)]/40 md:grid-cols-[120px_minmax(0,1fr)_96px] md:items-center md:gap-5 md:px-6 md:py-6"
                             >
-                              <div className="aspect-[4/3] overflow-hidden rounded-[18px] bg-[var(--color-bone)]">
+                              <div className="aspect-[4/3] overflow-hidden rounded-[16px] bg-[var(--color-bone)] md:rounded-[18px]">
                                 <ExhibitionCoverFrame
                                   image={exhibition.coverImageUrl}
                                   alt={exhibition.title}
@@ -180,7 +180,7 @@ export default async function ArchivePage() {
                               </div>
 
                               <div>
-                                <div className="font-display text-[30px] leading-[0.94] tracking-[-0.04em] text-[var(--color-near-black)]">
+                                <div className="font-display text-[26px] leading-[0.94] tracking-[-0.04em] text-[var(--color-near-black)] md:text-[30px]">
                                   {exhibition.title}
                                 </div>
                                 <p className="mt-2 text-sm leading-6 text-[var(--color-warm-slate)]">

@@ -62,20 +62,20 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         </div>
       </div>
 
-      <section className="px-6 py-16 md:px-12 md:py-20">
-        <div className="mx-auto grid max-w-[1220px] gap-12 lg:grid-cols-[minmax(320px,460px)_minmax(0,1fr)]">
-          <Reveal>
+      <section className="px-6 py-14 md:px-12 md:py-20">
+        <div className="mx-auto grid max-w-[1220px] gap-8 lg:grid-cols-[minmax(320px,460px)_minmax(0,1fr)] lg:gap-12">
+          <Reveal className="order-1">
             <PublicSurface className="overflow-hidden">
               {event.coverImageUrl ? (
-                <img src={event.coverImageUrl} alt={event.title} className="h-full min-h-[360px] w-full object-cover" />
+                <img src={event.coverImageUrl} alt={event.title} className="h-full min-h-[260px] w-full object-cover md:min-h-[360px]" />
               ) : (
-                <div className="min-h-[360px] bg-[radial-gradient(circle_at_25%_18%,rgba(243,217,186,0.58),transparent_28%),linear-gradient(180deg,#8c6953_0%,#3f3836_100%)]" />
+                <div className="min-h-[260px] bg-[radial-gradient(circle_at_25%_18%,rgba(243,217,186,0.58),transparent_28%),linear-gradient(180deg,#8c6953_0%,#3f3836_100%)] md:min-h-[360px]" />
               )}
             </PublicSurface>
           </Reveal>
 
-          <Reveal delay={1}>
-            <div className="space-y-10">
+          <Reveal delay={1} className="order-2">
+            <div className="space-y-8 md:space-y-10">
               <div>
                 <SectionLabel>Event Details</SectionLabel>
                 <div className="mt-6 flex flex-wrap items-center gap-3 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
@@ -124,7 +124,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
               </div>
 
               <PublicSurface tone="muted">
-                <div className="grid gap-6 p-6 md:grid-cols-[minmax(0,1fr)_220px] md:items-center md:p-8">
+                <div className="grid gap-5 p-5 md:grid-cols-[minmax(0,1fr)_220px] md:items-center md:p-8">
                   <div>
                     <div className="font-display text-[30px] leading-[1.08] tracking-[-0.03em] text-[var(--color-near-black)]">
                       Follow this event in the wider calendar.

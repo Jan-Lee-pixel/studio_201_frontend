@@ -3,7 +3,7 @@ import { Reveal } from "@/components/animation/Reveal";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { StudioImagePlaceholder } from "@/components/ui/StudioImagePlaceholder";
 import { ExhibitionCoverFrame } from "@/features/exhibitions/components/ExhibitionCoverFrame";
-import { PublicPageHeader } from "@/components/ui/PublicPagePrimitives";
+import { PublicCatalogHeader } from "@/components/ui/PublicPagePrimitives";
 import { WorkspaceStatusPill } from "@/components/ui/WorkspacePrimitives";
 import type { Exhibition } from "@/features/exhibitions/services/exhibitionService";
 import { getPublicCollection } from "@/lib/publicApi";
@@ -183,21 +183,16 @@ export default async function ExhibitionsPage() {
 
   return (
     <div className="bg-[linear-gradient(180deg,#faf6ef_0%,var(--color-parchment)_36%,var(--color-bone)_100%)]">
-      <PublicPageHeader
-        section="Exhibitions"
+      <PublicCatalogHeader
         title="Exhibitions"
         description="Current, upcoming, and recent program records from Studio 201."
-        stats={[
-          { label: "On view", value: `${onViewCount} exhibition${onViewCount === 1 ? "" : "s"}` },
-          { label: "Upcoming", value: `${upcomingCount} announced` },
-          { label: "Archive", value: `${archiveExhibitions.length} past exhibitions` },
-        ]}
+        meta={`${onViewCount} on view · ${upcomingCount} upcoming · ${archiveExhibitions.length} archived`}
       />
 
       <section id="program" className="px-6 pb-16 pt-2 md:px-12 md:pb-24 md:pt-4">
         <div className="mx-auto max-w-[1440px]">
           {orderedProgram.length > 0 ? (
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-5 md:grid-cols-2 md:gap-6 xl:grid-cols-3">
               {orderedProgram.map((exhibition, index) => (
                 <ProgramCard
                   key={exhibition.id}
@@ -221,7 +216,7 @@ export default async function ExhibitionsPage() {
 
       <section className="border-t border-[var(--color-rule)] bg-[var(--color-bone)] px-6 py-20 md:px-12 md:py-24">
         <div className="mx-auto max-w-[1440px]">
-          <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
             <div>
               <Reveal>
                 <SectionLabel>Archive Preview</SectionLabel>
@@ -236,7 +231,7 @@ export default async function ExhibitionsPage() {
             <Reveal>
               <Link
                 href="/archive"
-                className="inline-flex min-h-[46px] items-center justify-center rounded-full border border-[var(--color-near-black)] px-5 text-xs uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-200 hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)]"
+                className="inline-flex min-h-[46px] w-full items-center justify-center rounded-full border border-[var(--color-near-black)] px-5 text-xs uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-200 hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)] sm:w-auto"
               >
                 Full Archive
               </Link>

@@ -72,6 +72,16 @@ body {
   overflow-x: hidden;
 }
 
+::selection {
+  background: rgba(168, 92, 64, 0.22);
+  color: var(--near-black);
+}
+
+::-moz-selection {
+  background: rgba(168, 92, 64, 0.22);
+  color: var(--near-black);
+}
+
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;

@@ -23,6 +23,7 @@ interface ArtworkLightboxProps {
 export function ArtworkLightbox({ artworks, initialIndex, onClose }: ArtworkLightboxProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [mounted, setMounted] = useState(false);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -67,6 +68,21 @@ export function ArtworkLightbox({ artworks, initialIndex, onClose }: ArtworkLigh
       ? `${currentArtwork.description.slice(0, 177)}...`
       : currentArtwork.description;
 
+  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    setTouchStartX(event.changedTouches[0]?.clientX ?? null);
+  };
+
+  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (touchStartX === null || artworks.length <= 1) return;
+    const endX = event.changedTouches[0]?.clientX ?? touchStartX;
+    const delta = endX - touchStartX;
+    if (Math.abs(delta) > 48) {
+      if (delta < 0) goToNext();
+      if (delta > 0) goToPrev();
+    }
+    setTouchStartX(null);
+  };
+
   return createPortal(
     <div
       className="fixed inset-0 z-[99999] bg-[rgba(18,16,13,0.82)] backdrop-blur-sm"
@@ -84,7 +100,7 @@ export function ArtworkLightbox({ artworks, initialIndex, onClose }: ArtworkLigh
       <button
         type="button"
         onClick={onClose}
-        className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center border border-white/20 bg-black/25 text-[var(--color-cream)] transition-colors hover:bg-black/45 md:right-6 md:top-6"
+        className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-black/25 text-[var(--color-cream)] transition-colors hover:bg-black/45 md:right-6 md:top-6"
         aria-label="Close artwork viewer"
       >
         <X className="h-5 w-5" />
@@ -95,7 +111,7 @@ export function ArtworkLightbox({ artworks, initialIndex, onClose }: ArtworkLigh
           <button
             type="button"
             onClick={goToPrev}
-            className="absolute left-3 top-1/2 z-10 hidden h-14 w-14 -translate-y-1/2 items-center justify-center border border-white/15 bg-black/20 text-[var(--color-cream)] transition-colors hover:bg-black/40 md:flex"
+            className="absolute left-3 top-1/2 z-10 hidden h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-black/20 text-[var(--color-cream)] transition-colors hover:bg-black/40 md:flex"
             aria-label="Previous artwork"
           >
             <ChevronLeft className="h-7 w-7" />
@@ -104,7 +120,7 @@ export function ArtworkLightbox({ artworks, initialIndex, onClose }: ArtworkLigh
           <button
             type="button"
             onClick={goToNext}
-            className="absolute right-3 top-1/2 z-10 hidden h-14 w-14 -translate-y-1/2 items-center justify-center border border-white/15 bg-black/20 text-[var(--color-cream)] transition-colors hover:bg-black/40 md:flex"
+            className="absolute right-3 top-1/2 z-10 hidden h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-black/20 text-[var(--color-cream)] transition-colors hover:bg-black/40 md:flex"
             aria-label="Next artwork"
           >
             <ChevronRight className="h-7 w-7" />
@@ -112,9 +128,9 @@ export function ArtworkLightbox({ artworks, initialIndex, onClose }: ArtworkLigh
         </>
       ) : null}
 
-      <div className="flex min-h-full items-center justify-center px-4 py-16 md:px-8">
-        <div className="w-full max-w-[min(92vw,960px)]">
-          <div className="mx-auto flex w-fit max-w-full items-center justify-center rounded-[24px] bg-[rgba(255,255,255,0.96)] p-3 shadow-[0_24px_80px_rgba(0,0,0,0.35)] md:p-4">
+      <div className="flex min-h-full items-center justify-center px-4 py-14 md:px-8">
+        <div className="w-full max-w-[min(92vw,960px)]" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+          <div className="mx-auto flex w-fit max-w-full items-center justify-center rounded-[22px] bg-[rgba(255,255,255,0.96)] p-2 shadow-[0_24px_80px_rgba(0,0,0,0.35)] md:rounded-[24px] md:p-3">
             <img
               src={currentArtwork.imageUrl}
               alt={currentArtwork.title}
@@ -122,8 +138,8 @@ export function ArtworkLightbox({ artworks, initialIndex, onClose }: ArtworkLigh
             />
           </div>
 
-          <div className="mx-auto mt-4 max-w-[min(82vw,760px)] rounded-[20px] bg-[rgba(255,255,255,0.96)] px-5 py-4 shadow-[0_18px_42px_rgba(0,0,0,0.18)] md:px-6">
-            <div className="font-display text-[clamp(24px,2.6vw,34px)] font-normal tracking-[-0.02em] text-[var(--color-near-black)]">
+          <div className="mx-auto mt-3 max-w-[min(82vw,760px)] rounded-[18px] bg-[rgba(255,255,255,0.96)] px-5 py-4 shadow-[0_18px_42px_rgba(0,0,0,0.18)] md:px-6">
+            <div className="font-display text-[clamp(22px,2.4vw,30px)] font-normal tracking-[-0.03em] text-[var(--color-near-black)]">
               {currentArtwork.title}
             </div>
             {detailLine ? (
@@ -145,7 +161,7 @@ export function ArtworkLightbox({ artworks, initialIndex, onClose }: ArtworkLigh
           <button
             type="button"
             onClick={goToPrev}
-            className="flex h-11 w-11 items-center justify-center border border-white/15 bg-black/25 text-[var(--color-cream)]"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/25 text-[var(--color-cream)]"
             aria-label="Previous artwork"
           >
             <ChevronLeft className="h-5 w-5" />
@@ -153,7 +169,7 @@ export function ArtworkLightbox({ artworks, initialIndex, onClose }: ArtworkLigh
           <button
             type="button"
             onClick={goToNext}
-            className="flex h-11 w-11 items-center justify-center border border-white/15 bg-black/25 text-[var(--color-cream)]"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/25 text-[var(--color-cream)]"
             aria-label="Next artwork"
           >
             <ChevronRight className="h-5 w-5" />
