@@ -17,7 +17,7 @@ export function PublicHeader() {
   const [supabase] = useState(() => createClient());
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
-  const hasDarkHero = pathname === "/spaces";
+  const hasDarkHero = pathname === "/" || pathname === "/spaces";
   const isHero = hasDarkHero;
   const keepTransparent = hasDarkHero;
   const showLogin = !loading && !isAuthenticated && pathname !== "/login";
