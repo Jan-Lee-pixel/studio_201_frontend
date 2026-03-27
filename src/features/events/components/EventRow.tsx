@@ -59,7 +59,7 @@ export function EventRow({
         tabIndex={0}
         role="link"
         className={clsx(
-          "grid grid-cols-1 gap-4 border-t border-[var(--color-rule)] py-5 transition-colors duration-200 cursor-pointer group outline-none first:border-t-0 hover:bg-[rgba(240,237,229,0.18)] focus-visible:bg-[rgba(240,237,229,0.18)] md:grid-cols-[132px_minmax(0,1fr)_132px] md:gap-6",
+          "grid grid-cols-1 gap-3 border-t border-[var(--color-rule)] py-4 transition-colors duration-200 cursor-pointer group outline-none first:border-t-0 hover:bg-[rgba(240,237,229,0.18)] focus-visible:bg-[rgba(240,237,229,0.18)] md:grid-cols-[132px_minmax(0,1fr)_132px] md:gap-6 md:py-5",
           { "md:pl-6": isExternal }
         )}
       >
@@ -91,12 +91,12 @@ export function EventRow({
           ) : null}
         </div>
 
-        <div className="flex flex-col justify-between gap-4 text-left md:items-end md:text-right">
+        <div className="flex flex-col gap-3 border-t border-[var(--color-rule)] pt-3 text-left md:justify-between md:gap-4 md:border-t-0 md:pt-0 md:items-end md:text-right">
           <div>
             <div className="text-xs tracking-[0.03em] text-[var(--color-dust)]">{venue}</div>
             {time ? <div className="mt-1 text-xs tracking-[0.03em] text-[var(--color-dust)]">{time}</div> : null}
           </div>
-          <div className="flex flex-wrap items-center gap-2 md:justify-end">
+          <div className="flex flex-wrap items-center justify-between gap-2 md:justify-end">
             {hasDocumentation && slug ? (
               <Link
                 href={`/events/${slug}/documentation`}

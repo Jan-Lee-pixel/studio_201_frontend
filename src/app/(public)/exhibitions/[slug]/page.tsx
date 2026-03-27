@@ -74,36 +74,36 @@ export default async function ExhibitionResultPage({
   return (
     <div className="bg-[linear-gradient(180deg,#faf6ef_0%,var(--color-parchment)_36%,var(--color-bone)_100%)]">
       <section>
-        <div className="mx-auto grid max-w-[1440px] gap-10 px-6 pb-20 pt-32 md:px-12 md:pb-24 xl:grid-cols-[minmax(0,0.92fr)_minmax(420px,1.08fr)]">
-          <Reveal className="flex flex-col gap-8 xl:pt-6">
+        <div className="mx-auto grid max-w-[1440px] gap-8 px-6 pb-14 pt-24 md:px-12 md:pb-24 md:pt-32 xl:grid-cols-[minmax(0,0.92fr)_minmax(420px,1.08fr)] xl:gap-10">
+          <Reveal className="order-2 flex flex-col gap-6 xl:order-1 xl:gap-8 xl:pt-6">
             <div>
               <div className="inline-flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--color-sienna)] before:block before:h-px before:w-8 before:bg-current before:content-['']">
                 Exhibition
               </div>
-              <h1 className="mt-6 max-w-[11ch] font-display text-[clamp(48px,7vw,92px)] leading-[0.86] tracking-[-0.06em] text-[var(--color-near-black)]">
+              <h1 className="mt-5 max-w-[10ch] font-display text-[clamp(40px,11vw,92px)] leading-[0.9] tracking-[-0.06em] text-[var(--color-near-black)] md:mt-6 md:max-w-[11ch] md:leading-[0.86]">
                 {exhibition.title}
               </h1>
-              <div className="mt-5 font-sub text-[clamp(20px,2.2vw,28px)] italic text-[var(--color-warm-slate)]">
+              <div className="mt-4 font-sub text-[clamp(20px,5vw,28px)] italic text-[var(--color-warm-slate)] md:mt-5">
                 {heroArtistLabel}
               </div>
 
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                 <ScrollToSectionButton
                   targetId="works"
-                  className="inline-flex min-h-[50px] items-center justify-center rounded-full bg-[var(--color-near-black)] px-6 text-sm tracking-[0.04em] text-[var(--color-cream)] transition-colors duration-200 hover:bg-[var(--color-charcoal)]"
+                  className="inline-flex min-h-[50px] w-full items-center justify-center rounded-full bg-[var(--color-near-black)] px-6 text-sm tracking-[0.04em] text-[var(--color-cream)] transition-colors duration-200 hover:bg-[var(--color-charcoal)] sm:w-auto"
                 >
                   View Works
                 </ScrollToSectionButton>
                 <Link
                   href="/exhibitions"
-                  className="inline-flex min-h-[50px] items-center justify-center rounded-full border border-[var(--color-rule)] bg-white/70 px-6 text-sm tracking-[0.04em] text-[var(--color-near-black)] transition-colors duration-200 hover:bg-white"
+                  className="inline-flex min-h-[50px] w-full items-center justify-center rounded-full border border-[var(--color-rule)] bg-white/70 px-6 text-sm tracking-[0.04em] text-[var(--color-near-black)] transition-colors duration-200 hover:bg-white sm:w-auto"
                 >
                   Browse Exhibitions
                 </Link>
               </div>
             </div>
 
-            <div className="mt-2 flex flex-wrap gap-x-8 gap-y-4 border-t border-[var(--color-rule)] pt-6">
+            <div className="mt-1 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-[var(--color-rule)] pt-5 sm:flex sm:flex-wrap sm:gap-x-8 sm:pt-6">
               <div>
                 <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Dates</div>
                 <div className="mt-2 text-sm text-[var(--color-near-black)]">{formatDateRange(exhibition.startDate, exhibition.endDate)}</div>
@@ -119,15 +119,15 @@ export default async function ExhibitionResultPage({
             </div>
           </Reveal>
 
-          <Reveal className="self-start">
-            <div className="overflow-hidden rounded-[30px] border border-[var(--color-rule)] bg-[rgba(255,255,255,0.82)] p-4 shadow-[0_24px_56px_rgba(33,28,24,0.08)] xl:sticky xl:top-[96px]">
+          <Reveal className="order-1 self-start xl:order-2">
+            <div className="overflow-hidden rounded-[26px] border border-[var(--color-rule)] bg-[rgba(255,255,255,0.82)] p-3 shadow-[0_24px_56px_rgba(33,28,24,0.08)] md:rounded-[30px] md:p-4 xl:sticky xl:top-[96px]">
               <div className="relative overflow-hidden rounded-[24px]">
                 <ExhibitionCoverFrame
                   image={exhibition.coverImageUrl}
                   alt={exhibition.title}
                   className="w-full"
-                  paddingClassName="p-4 md:p-5 xl:p-6"
-                  imageClassName="h-auto w-auto max-h-[min(68vh,680px)] max-w-full"
+                  paddingClassName="p-3 md:p-5 xl:p-6"
+                  imageClassName="h-auto w-auto max-h-[min(54vh,560px)] max-w-full md:max-h-[min(68vh,680px)]"
                 />
                 <div className="absolute inset-[7%] border border-[rgba(255,255,255,0.22)]" />
               </div>
@@ -136,7 +136,7 @@ export default async function ExhibitionResultPage({
         </div>
       </section>
 
-      <section className="bg-[var(--color-parchment)] px-6 py-20 md:px-12 md:py-24">
+      <section className="bg-[var(--color-parchment)] px-6 py-16 md:px-12 md:py-24">
         <div className="mx-auto grid max-w-[1440px] gap-10 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
           <div>
             <Reveal>
@@ -184,7 +184,7 @@ export default async function ExhibitionResultPage({
 
       <section
         id="works"
-        className="scroll-mt-24 border-t border-[var(--color-rule)] bg-[var(--color-bone)] px-6 py-20 md:scroll-mt-28 md:px-12 md:py-24"
+        className="scroll-mt-24 border-t border-[var(--color-rule)] bg-[var(--color-bone)] px-6 py-16 md:scroll-mt-28 md:px-12 md:py-24"
       >
         <div className="mx-auto max-w-[1440px]">
           <Reveal>
@@ -215,7 +215,7 @@ export default async function ExhibitionResultPage({
         </div>
       </section>
 
-      <section className="border-t border-[var(--color-rule)] bg-[var(--color-parchment)] px-6 py-20 md:px-12 md:py-24">
+      <section className="border-t border-[var(--color-rule)] bg-[var(--color-parchment)] px-6 py-16 md:px-12 md:py-24">
         <div className="mx-auto max-w-[1440px]">
           <Reveal>
             <SectionLabel>Artists in This Exhibition</SectionLabel>

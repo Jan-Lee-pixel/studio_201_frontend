@@ -236,11 +236,11 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
 
   return (
     <div className="bg-[var(--color-parchment)]">
-      <section className="px-6 pb-20 pt-28 md:px-12 md:pb-24">
-        <div className="mx-auto grid max-w-[1440px] gap-8 xl:grid-cols-[minmax(320px,420px)_minmax(0,1fr)] xl:gap-14">
+      <section className="px-6 pb-14 pt-24 md:px-12 md:pb-24 md:pt-28">
+        <div className="mx-auto grid max-w-[1440px] gap-6 xl:grid-cols-[minmax(320px,420px)_minmax(0,1fr)] xl:gap-14">
           <Reveal>
-            <div className="xl:sticky xl:top-28">
-              <div className="overflow-hidden rounded-[30px] border border-[var(--color-rule)] bg-[rgba(255,255,255,0.82)] p-4 shadow-[0_18px_42px_rgba(33,28,24,0.06)]">
+            <div className="mx-auto w-full max-w-[360px] xl:sticky xl:top-28 xl:max-w-none">
+              <div className="overflow-hidden rounded-[26px] border border-[var(--color-rule)] bg-[rgba(255,255,255,0.82)] p-3 shadow-[0_18px_42px_rgba(33,28,24,0.06)] md:rounded-[30px] md:p-4">
                 <div className="aspect-[4/5] overflow-hidden rounded-[24px] bg-[var(--color-bone)]">
                   {artist.profileImageUrl ? (
                     <img
@@ -257,12 +257,12 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
           </Reveal>
 
           <Reveal className="min-w-0">
-            <div className="rounded-[34px] border border-[var(--color-rule)] bg-[rgba(255,253,250,0.88)] p-7 shadow-[0_18px_42px_rgba(33,28,24,0.04)] md:p-10 lg:p-12">
+            <div className="rounded-[28px] border border-[var(--color-rule)] bg-[rgba(255,253,250,0.88)] p-6 shadow-[0_18px_42px_rgba(33,28,24,0.04)] md:rounded-[34px] md:p-10 lg:p-12">
               <div className="inline-flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--color-sienna)] before:block before:h-px before:w-8 before:bg-current before:content-['']">
                 Artist Profile
               </div>
 
-              <h1 className="mt-6 max-w-[11ch] font-display text-[clamp(52px,7vw,96px)] leading-[0.88] tracking-[-0.06em] text-[var(--color-near-black)]">
+              <h1 className="mt-5 max-w-[10ch] font-display text-[clamp(40px,11vw,96px)] leading-[0.92] tracking-[-0.06em] text-[var(--color-near-black)] md:mt-6 md:max-w-[11ch] md:leading-[0.88]">
                 {artist.fullName}
               </h1>
 
@@ -275,20 +275,20 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
                 ) : null}
               </div>
 
-              <p className="mt-8 max-w-[760px] whitespace-pre-line font-sub text-[clamp(24px,3vw,34px)] italic font-light leading-[1.55] text-[var(--color-warm-slate)]">
+              <p className="mt-6 max-w-[760px] whitespace-pre-line font-sub text-[clamp(22px,6vw,34px)] italic font-light leading-[1.5] text-[var(--color-warm-slate)] md:mt-8 md:leading-[1.55]">
                 {artist.bio?.trim() ||
                   "Artist statement coming soon."}
               </p>
 
               {socialLinks.length > 0 ? (
-                <div className="mt-8 flex flex-wrap gap-3">
+                <div className="mt-7 flex flex-wrap gap-3 md:mt-8">
                   {socialLinks.map((link) => (
                     <a
                       key={link.label}
                       href={link.url as string}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex min-h-[44px] items-center justify-center rounded-full border border-[var(--color-rule)] bg-white px-5 text-xs uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-200 hover:border-[var(--color-near-black)]"
+                      className="inline-flex min-h-[42px] items-center justify-center rounded-full border border-[var(--color-rule)] bg-white px-4 text-[11px] uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-200 hover:border-[var(--color-near-black)] md:min-h-[44px] md:px-5 md:text-xs"
                     >
                       {link.label}
                     </a>
@@ -296,18 +296,18 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
                 </div>
               ) : null}
 
-              <div className="mt-10 flex flex-wrap gap-3 border-t border-[var(--color-rule)] pt-6">
+              <div className="mt-8 flex flex-col gap-3 border-t border-[var(--color-rule)] pt-5 sm:flex-row md:mt-10 md:pt-6">
                 {hasVisibleWorks ? (
                   <Link
                     href={`/artists/${artist.slug}/works`}
-                    className="inline-flex min-h-[48px] items-center justify-center rounded-full bg-[var(--color-near-black)] px-6 text-sm tracking-[0.04em] text-[var(--color-cream)] transition-colors duration-200 hover:bg-[var(--color-charcoal)]"
+                    className="inline-flex min-h-[48px] w-full items-center justify-center rounded-full bg-[var(--color-near-black)] px-6 text-sm tracking-[0.04em] text-[var(--color-cream)] transition-colors duration-200 hover:bg-[var(--color-charcoal)] sm:w-auto"
                   >
                     View Works
                   </Link>
                 ) : null}
                 <Link
                   href="/artists"
-                  className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-[var(--color-rule)] bg-white/72 px-6 text-sm tracking-[0.04em] text-[var(--color-near-black)] transition-colors duration-200 hover:bg-white"
+                  className="inline-flex min-h-[48px] w-full items-center justify-center rounded-full border border-[var(--color-rule)] bg-white/72 px-6 text-sm tracking-[0.04em] text-[var(--color-near-black)] transition-colors duration-200 hover:bg-white sm:w-auto"
                 >
                   Browse Artists
                 </Link>
@@ -319,7 +319,7 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
         </div>
       </section>
 
-      <section className="border-t border-[var(--color-rule)] bg-[var(--color-bone)] px-6 py-20 md:px-12 md:py-24">
+      <section className="border-t border-[var(--color-rule)] bg-[var(--color-bone)] px-6 py-16 md:px-12 md:py-24">
         <div className="mx-auto max-w-[1440px]">
           <Reveal>
             <SectionLabel>Selected Works</SectionLabel>
@@ -336,26 +336,32 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
             </div>
           ) : (
             <>
-              <ArtworkPreviewGrid artworks={previewArtworks} />
-              <div className={`mt-6 flex flex-wrap items-center gap-4 ${visibleArtworks.length === 1 ? "justify-center" : ""}`}>
-                <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
-                  {usingPortfolio ? "Curated from portfolio" : "Drawn from approved submissions"}
+              <div className={visibleArtworks.length === 1 ? "max-w-[560px]" : undefined}>
+                <ArtworkPreviewGrid
+                  artworks={previewArtworks}
+                  singleArtworkAlign={visibleArtworks.length === 1 ? "start" : "center"}
+                  singleArtworkMaxWidth={visibleArtworks.length === 1 ? "560px" : "460px"}
+                />
+                <div className={`mt-6 flex flex-wrap items-center gap-4 ${visibleArtworks.length === 1 ? "justify-start" : ""}`}>
+                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+                    {usingPortfolio ? "Curated from portfolio" : "Drawn from approved submissions"}
+                  </div>
+                  {showViewAllWorksLink ? (
+                    <Link
+                      href={`/artists/${artist.slug}/works`}
+                      className="inline-flex min-h-[44px] items-center justify-center rounded-full border border-[var(--color-near-black)] px-5 text-xs uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-200 hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)]"
+                    >
+                      View all works
+                    </Link>
+                  ) : null}
                 </div>
-                {showViewAllWorksLink ? (
-                  <Link
-                    href={`/artists/${artist.slug}/works`}
-                    className="inline-flex min-h-[44px] items-center justify-center rounded-full border border-[var(--color-near-black)] px-5 text-xs uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-200 hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)]"
-                  >
-                    View all works
-                  </Link>
-                ) : null}
               </div>
             </>
           )}
         </div>
       </section>
 
-      <section className="border-t border-[var(--color-rule)] bg-[var(--color-parchment)] px-6 py-20 md:px-12 md:py-24">
+      <section className="border-t border-[var(--color-rule)] bg-[var(--color-parchment)] px-6 py-16 md:px-12 md:py-24">
         <div className="mx-auto grid max-w-[1440px] gap-10 xl:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)]">
           <Reveal>
             <div className="max-w-[440px]">

@@ -16,9 +16,15 @@ export type ArtworkPreviewItem = {
 
 interface ArtworkPreviewGridProps {
   artworks: ArtworkPreviewItem[];
+  singleArtworkAlign?: "center" | "start";
+  singleArtworkMaxWidth?: string;
 }
 
-export function ArtworkPreviewGrid({ artworks }: ArtworkPreviewGridProps) {
+export function ArtworkPreviewGrid({
+  artworks,
+  singleArtworkAlign = "center",
+  singleArtworkMaxWidth = "460px",
+}: ArtworkPreviewGridProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   if (artworks.length === 0) return null;
@@ -28,13 +34,14 @@ export function ArtworkPreviewGrid({ artworks }: ArtworkPreviewGridProps) {
   return (
     <>
       {singleArtwork ? (
-        <div className="mt-8 flex justify-center">
+        <div className={`mt-8 flex ${singleArtworkAlign === "start" ? "justify-start" : "justify-center"}`}>
           {artworks.map((artwork, index) => (
             <Reveal key={artwork.id} delay={((index % 3) + 1) as 1 | 2 | 3}>
               <button
                 type="button"
                 onClick={() => setSelectedIndex(index)}
-                className="group block w-full max-w-[460px] cursor-zoom-in border-none bg-transparent p-0 text-left"
+                className="group block w-full cursor-zoom-in border-none bg-transparent p-0 text-left"
+                style={{ maxWidth: singleArtworkMaxWidth }}
                 aria-label={`View ${artwork.title}`}
               >
                 <div className="flex items-center justify-center">

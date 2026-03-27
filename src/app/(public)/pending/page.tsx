@@ -111,12 +111,12 @@ export default function PendingApprovalPage() {
       <div className="mx-auto max-w-[860px] px-6 pb-20 md:px-12 md:pb-24">
         <PublicSurface className="overflow-hidden">
           <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_240px]">
-            <div className="p-8 md:p-10">
+            <div className="p-6 md:p-10">
               <SectionLabel>Application Status</SectionLabel>
-              <h1 className="mt-6 max-w-[13ch] font-display text-[clamp(40px,6vw,72px)] leading-[0.92] tracking-[-0.05em] text-[var(--color-near-black)]">
+              <h1 className="mt-5 max-w-[12ch] font-display text-[clamp(34px,9vw,72px)] leading-[0.94] tracking-[-0.05em] text-[var(--color-near-black)] md:mt-6 md:max-w-[13ch] md:leading-[0.92]">
                 Your artist application is pending review.
               </h1>
-              <p className="mt-6 max-w-[46ch] text-sm leading-8 text-[var(--color-warm-slate)]">
+              <p className="mt-5 max-w-[46ch] text-sm leading-7 text-[var(--color-warm-slate)] md:mt-6 md:leading-8">
                 Studio 201 reviews artist access before opening the portal. You can return here anytime to check the
                 latest approval status.
               </p>
@@ -127,11 +127,11 @@ export default function PendingApprovalPage() {
                 </div>
               ) : null}
 
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Button onClick={() => void checkLatestStatus()} disabled={refreshing}>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Button onClick={() => void checkLatestStatus()} disabled={refreshing} className="w-full sm:w-auto">
                   {refreshing ? "Checking Status..." : "Check Approval Status"}
                 </Button>
-                <Button onClick={handleSignOut} variant="outline">
+                <Button onClick={handleSignOut} variant="outline" className="w-full sm:w-auto">
                   Sign Out
                 </Button>
               </div>
@@ -141,7 +141,7 @@ export default function PendingApprovalPage() {
               </div>
             </div>
 
-            <div className="border-t border-[var(--color-rule)] bg-[var(--color-bone)] px-8 py-8 lg:border-l lg:border-t-0">
+            <div className="border-t border-[var(--color-rule)] bg-[var(--color-bone)] px-6 py-6 lg:border-l lg:border-t-0 lg:px-8 lg:py-8">
               <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Next steps</div>
               <div className="mt-4 space-y-4 text-sm leading-7 text-[var(--color-warm-slate)]">
                 <p>Approval routes you directly into the artist workspace.</p>

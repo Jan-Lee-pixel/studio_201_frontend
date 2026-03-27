@@ -52,24 +52,24 @@ export default async function EventDocumentationPage({ params }: { params: Promi
         </div>
       </div>
 
-      <section className="px-6 py-16 md:px-12 md:py-20">
+      <section className="px-6 py-14 md:px-12 md:py-20">
         <div className="mx-auto max-w-[1240px] space-y-12">
           <Reveal>
-            <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-end">
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-end lg:gap-8">
               <div>
                 <SectionLabel>Documentation</SectionLabel>
-                <h1 className="mt-6 max-w-[12ch] font-display text-[clamp(42px,6vw,82px)] leading-[0.92] tracking-[-0.05em] text-[var(--color-near-black)]">
+                <h1 className="mt-5 max-w-[12ch] font-display text-[clamp(34px,9vw,82px)] leading-[0.94] tracking-[-0.05em] text-[var(--color-near-black)] md:mt-6 md:leading-[0.92]">
                   {event.title}
                 </h1>
                 {event.subtitle ? (
-                  <p className="mt-5 max-w-[42ch] font-sub text-[clamp(20px,2.6vw,28px)] italic font-light leading-[1.5] text-[var(--color-warm-slate)]">
+                  <p className="mt-4 max-w-[42ch] font-sub text-[clamp(20px,5vw,28px)] italic font-light leading-[1.5] text-[var(--color-warm-slate)] md:mt-5">
                     {event.subtitle}
                   </p>
                 ) : null}
               </div>
 
               <PublicSurface tone="muted">
-                <div className="p-6">
+                <div className="p-5 md:p-6">
                   <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
                     Notes
                   </div>
@@ -82,7 +82,7 @@ export default async function EventDocumentationPage({ params }: { params: Promi
           </Reveal>
 
           <Reveal delay={1}>
-            <PublicSurface className="p-6 md:p-8">
+            <PublicSurface className="p-5 md:p-8">
               <ImageGrid images={images} />
             </PublicSurface>
           </Reveal>

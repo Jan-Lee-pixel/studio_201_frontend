@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PublicEmptyState, PublicPageHeader } from "@/components/ui/PublicPagePrimitives";
+import { PublicCatalogHeader, PublicEmptyState } from "@/components/ui/PublicPagePrimitives";
 import { MerchCard } from "@/features/merch/components/MerchCard";
 import {
   formatCatalogItemType,
@@ -40,20 +40,16 @@ export default async function MerchPage({
 
   return (
     <div className="bg-[linear-gradient(180deg,#faf6ef_0%,var(--color-parchment)_36%,var(--color-bone)_100%)]">
-      <PublicPageHeader
-        section="Merch"
+      <PublicCatalogHeader
         title="Merch"
         description="Public releases, apparel, objects, and printed matter from Studio 201."
-        stats={[
-          { label: "Items", value: `${allItems.length} published` },
-          { label: "Scope", value: "Main public catalog" },
-        ]}
+        meta={`${allItems.length} published item${allItems.length === 1 ? "" : "s"}`}
       >
         {typeFilters.length > 0 ? (
-          <div className="flex flex-wrap gap-2">
+          <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:px-0 md:pb-0">
             <Link
               href="/merch"
-              className={`rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors duration-300 ${
+              className={`shrink-0 rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors duration-300 ${
                 !activeFilter
                   ? "border-[var(--color-near-black)] bg-[var(--color-near-black)] text-[var(--color-cream)]"
                   : "border-[var(--color-rule)] text-[var(--color-dust)] hover:border-[var(--color-near-black)] hover:text-[var(--color-near-black)]"
@@ -65,7 +61,7 @@ export default async function MerchPage({
               <Link
                 key={type}
                 href={`/merch?type=${encodeURIComponent(type)}`}
-                className={`rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors duration-300 ${
+                className={`shrink-0 rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors duration-300 ${
                   activeFilter === type.toLowerCase()
                     ? "border-[var(--color-near-black)] bg-[var(--color-near-black)] text-[var(--color-cream)]"
                     : "border-[var(--color-rule)] text-[var(--color-dust)] hover:border-[var(--color-near-black)] hover:text-[var(--color-near-black)]"
@@ -76,10 +72,11 @@ export default async function MerchPage({
             ))}
           </div>
         ) : null}
-      </PublicPageHeader>
+      </PublicCatalogHeader>
 
-      <section className="px-6 pb-16 pt-2 md:px-12 md:pb-24 md:pt-4">
+      <section className="px-6 pb-16 md:px-12 md:pb-24">
         <div className="mx-auto max-w-[1440px]">
+
           {filteredItems.length === 0 ? (
             <PublicEmptyState
               title={allItems.length === 0 ? "No merch items yet" : `No ${activeFilterLabel.toLowerCase()} items yet`}
@@ -88,9 +85,10 @@ export default async function MerchPage({
                   ? "Published merch releases will appear here once they are added to the public catalog."
                   : `There are no ${activeFilterLabel.toLowerCase()} merch items in the public catalog yet.`
               }
+              className="mt-8"
             />
           ) : (
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <div className="mt-8 grid grid-cols-2 gap-x-3 gap-y-6 md:gap-4 xl:grid-cols-4">
               {filteredItems.map((item, index) => (
                 <MerchCard
                   key={item.id}

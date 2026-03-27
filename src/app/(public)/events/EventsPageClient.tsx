@@ -4,8 +4,8 @@ import { useMemo, useState } from "react";
 import clsx from "clsx";
 import { Reveal } from "@/components/animation/Reveal";
 import {
+  PublicCatalogHeader,
   PublicEmptyState,
-  PublicPageHeader,
 } from "@/components/ui/PublicPagePrimitives";
 import { EventRow } from "@/features/events/components/EventRow";
 import type { EventDto } from "@/features/events/services/eventService";
@@ -149,39 +149,29 @@ export default function EventsPage({
 
   return (
     <div className="bg-[linear-gradient(180deg,#faf6ef_0%,var(--color-parchment)_36%,var(--color-bone)_100%)]">
-      <PublicPageHeader
-        section="Cultural Calendar"
+      <PublicCatalogHeader
         title="Events"
         description="Upcoming gatherings, studio events, external shows, and archive records in one place."
-        stats={[
-          { label: "Upcoming", value: `${upcomingCount} scheduled` },
-          { label: "External", value: `${externalCount} off-site` },
-          { label: "Archive", value: `${archiveCount} past entries` },
-        ]}
+        meta={`${upcomingCount} scheduled · ${externalCount} off-site · ${archiveCount} archived`}
       >
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
-            Filter the calendar
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {filters.map((option) => (
-              <button
-                key={option.id}
-                type="button"
-                onClick={() => setFilter(option.id)}
-                className={clsx(
-                  "rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors duration-300",
-                  filter === option.id
-                    ? "border-[var(--color-near-black)] bg-[var(--color-near-black)] text-[var(--color-cream)]"
-                    : "border-[var(--color-rule)] text-[var(--color-dust)] hover:border-[var(--color-near-black)] hover:text-[var(--color-near-black)]",
-                )}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
+        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:px-0 md:pb-0">
+          {filters.map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              onClick={() => setFilter(option.id)}
+              className={clsx(
+                "shrink-0 rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors duration-300",
+                filter === option.id
+                  ? "border-[var(--color-near-black)] bg-[var(--color-near-black)] text-[var(--color-cream)]"
+                  : "border-[var(--color-rule)] text-[var(--color-dust)] hover:border-[var(--color-near-black)] hover:text-[var(--color-near-black)]",
+              )}
+            >
+              {option.label}
+            </button>
+          ))}
         </div>
-      </PublicPageHeader>
+      </PublicCatalogHeader>
 
       <section className="px-6 pb-16 pt-2 md:px-12 md:pb-24 md:pt-4">
         <div className="mx-auto max-w-[1440px]">
@@ -191,14 +181,14 @@ export default function EventsPage({
               description="There are no public programs in this filter yet. Try another calendar view or check back once new events are published."
             />
           ) : (
-            <div className="space-y-8 md:space-y-10">
+            <div className="space-y-6 md:space-y-10">
               {groupedEvents.map((group, groupIndex) => (
                 <Reveal key={group.month} delay={((groupIndex % 3) + 1) as 1 | 2 | 3}>
                   <div className="grid gap-3 md:grid-cols-[120px_minmax(0,1fr)] md:gap-8">
-                    <div className="pt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+                    <div className="pt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:pt-2">
                       {group.month}
                     </div>
-                    <div className="overflow-hidden rounded-[26px] border border-[var(--color-rule)] bg-[rgba(255,255,255,0.82)] px-5 shadow-[0_16px_38px_rgba(33,28,24,0.04)] md:px-8">
+                    <div className="overflow-hidden rounded-[24px] border border-[var(--color-rule)] bg-[rgba(255,255,255,0.82)] px-4 shadow-[0_16px_38px_rgba(33,28,24,0.04)] md:rounded-[26px] md:px-8">
                       {group.items.map((event, index) => (
                         <EventRow
                           key={`${group.month}-${event.slug || event.title}-${index}`}

@@ -133,7 +133,7 @@ export default async function Home() {
 
   return (
     <div className="bg-[linear-gradient(180deg,#faf6ef_0%,var(--color-parchment)_32%,var(--color-bone)_100%)]">
-      <section className="relative min-h-screen overflow-hidden">
+      <section className="relative min-h-[100svh] overflow-hidden">
         {heroImage ? (
           <img
             src={heroImage}
@@ -143,23 +143,23 @@ export default async function Home() {
         ) : (
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(181,96,58,0.35),rgba(23,22,15,0.95))]" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[rgba(23,22,15,0.82)] via-[rgba(23,22,15,0.18)_52%] to-[rgba(23,22,15,0.12)]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[rgba(23,22,15,0.86)] via-[rgba(23,22,15,0.26)_50%] to-[rgba(23,22,15,0.14)] md:from-[rgba(23,22,15,0.82)] md:via-[rgba(23,22,15,0.18)_52%] md:to-[rgba(23,22,15,0.12)]" />
 
-        <div className="absolute inset-x-0 bottom-0 px-6 pb-20 pt-36 md:px-12 md:pb-24 md:pt-40">
+        <div className="absolute inset-x-0 bottom-0 px-6 pb-14 pt-28 md:px-12 md:pb-24 md:pt-40">
           <Reveal className="max-w-[760px]">
             <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-sienna)]">
               {heroLabel}
             </div>
-            <h1 className="mt-5 font-display text-[clamp(52px,8vw,94px)] leading-[0.92] tracking-[-0.05em] text-[var(--color-cream)]">
+            <h1 className="mt-4 max-w-[8ch] font-display text-[clamp(44px,13vw,94px)] leading-[0.94] tracking-[-0.05em] text-[var(--color-cream)] md:mt-5 md:max-w-none md:leading-[0.92]">
               {heroTitle}
             </h1>
-            <div className="mt-4 font-sub text-[clamp(22px,2.2vw,30px)] italic text-[rgba(240,237,229,0.86)]">
+            <div className="mt-3 font-sub text-[clamp(20px,5vw,30px)] italic text-[rgba(240,237,229,0.86)] md:mt-4">
               Studio 201
             </div>
-            <div className="mt-3 font-mono text-[11px] tracking-[0.08em] text-[rgba(240,237,229,0.66)]">
+            <div className="mt-2 font-mono text-[11px] tracking-[0.08em] text-[rgba(240,237,229,0.66)] md:mt-3">
               {heroDates}
             </div>
-            <div className="mt-10">
+            <div className="mt-8 md:mt-10">
               <Link
                 href={heroLink}
                 className="relative inline-block text-sm tracking-[0.03em] text-[var(--color-cream)] after:absolute after:bottom-[-3px] after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-300 hover:after:scale-x-100"
