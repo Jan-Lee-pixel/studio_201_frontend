@@ -1,13 +1,10 @@
 import { PublicCatalogHeader, PublicEmptyState } from "@/components/ui/PublicPagePrimitives";
 import { ArtistCard } from "@/features/artists/components/ArtistCard";
 import { sortPublicArtists, type PublicUserProfile } from "@/features/artists/services/artistService";
-import { getPublicCollection } from "@/lib/publicApi";
+import { getPublicArtists } from "@/lib/publicData";
 
 export default async function ArtistsPage() {
-  const artistsData = await getPublicCollection<PublicUserProfile>("/Profile/artists", {
-    revalidate: 300,
-    tags: ["public-artists"],
-  });
+  const artistsData = await getPublicArtists();
   const artists = sortPublicArtists(artistsData);
 
   return (

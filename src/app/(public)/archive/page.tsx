@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/PublicPagePrimitives";
 import { ExhibitionCoverFrame } from "@/features/exhibitions/components/ExhibitionCoverFrame";
 import type { Exhibition } from "@/features/exhibitions/services/exhibitionService";
-import { getPublicCollection } from "@/lib/publicApi";
+import { getArchiveExhibitions } from "@/lib/publicData";
 
 function formatYear(exhibition: Exhibition) {
   if (exhibition.endDate) return new Date(exhibition.endDate).getFullYear().toString();
@@ -38,10 +38,7 @@ function formatDateRange(start?: string, end?: string) {
 }
 
 export default async function ArchivePage() {
-  const archiveExhibitions = await getPublicCollection<Exhibition>("/Exhibitions/archive", {
-    revalidate: 600,
-    tags: ["public-archive"],
-  });
+  const archiveExhibitions = await getArchiveExhibitions();
 
   const archiveByYear = archiveExhibitions.reduce<Record<string, Exhibition[]>>((acc, exhibition) => {
     const year = formatYear(exhibition);

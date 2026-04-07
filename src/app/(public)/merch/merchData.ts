@@ -1,4 +1,7 @@
-import { getPublicFetchConfig, PUBLIC_API_BASE_URL } from "@/lib/publicApi";
+import {
+  getPublicMerchItemBySlug as getPublicMerchItemBySlugData,
+  getPublicMerchItems as getPublicMerchItemsData,
+} from "@/lib/publicData";
 
 export type PublicMerchItem = {
   id: string;
@@ -27,36 +30,10 @@ export type PublicMerchItem = {
   updatedAt?: string | null;
 };
 
-function buildQuery(params?: { channel?: string; itemType?: string }) {
-  const searchParams = new URLSearchParams();
-  if (params?.channel) searchParams.set("channel", params.channel);
-  if (params?.itemType) searchParams.set("itemType", params.itemType);
-  const query = searchParams.toString();
-  return query ? `?${query}` : "";
-}
-
 export async function getPublicMerch(params?: { channel?: string; itemType?: string }): Promise<PublicMerchItem[]> {
-  try {
-    const res = await fetch(
-      `${PUBLIC_API_BASE_URL}/Merch${buildQuery(params)}`,
-      getPublicFetchConfig({ revalidate: 300, tags: ["public-merch"] }),
-    );
-    if (!res.ok) return [];
-    return res.json();
-  } catch {
-    return [];
-  }
+  return getPublicMerchItemsData(params);
 }
 
 export async function getPublicMerchBySlug(slug: string): Promise<PublicMerchItem | null> {
-  try {
-    const res = await fetch(
-      `${PUBLIC_API_BASE_URL}/Merch/slug/${slug}`,
-      getPublicFetchConfig({ revalidate: 300, tags: [`merch-${slug}`, "public-merch"] }),
-    );
-    if (!res.ok) return null;
-    return res.json();
-  } catch {
-    return null;
-  }
+  return getPublicMerchItemBySlugData(slug);
 }
