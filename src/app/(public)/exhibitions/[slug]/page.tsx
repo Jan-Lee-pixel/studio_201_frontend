@@ -8,7 +8,11 @@ import type { PublicArtworkDto } from "@/features/artworks/services/artworkServi
 import { ArtworkPreviewGrid } from "@/features/artworks/components/ArtworkPreviewGrid";
 import { ExhibitionCoverFrame } from "@/features/exhibitions/components/ExhibitionCoverFrame";
 import type { Exhibition } from "@/features/exhibitions/services/exhibitionService";
-import { getPublicCollection, getPublicResource } from "@/lib/publicApi";
+import {
+  getPublicArtists,
+  getPublicExhibitionArtworks,
+  getPublicExhibitionBySlug,
+} from "@/lib/publicData";
 
 function formatDateRange(start?: string, end?: string) {
   if (!start) return "Dates to be announced";
@@ -34,10 +38,7 @@ export default async function ExhibitionResultPage({
 }) {
   const { slug } = await params;
 
-  const exhibition = await getPublicResource<Exhibition>(`/Exhibitions/slug/${slug}`, {
-    revalidate: 60,
-    tags: [`exhibition-${slug}`, "public-exhibitions"],
-  });
+  const exhibition = await getPublicExhibitionBySlug(slug);
 
   if (!exhibition) {
     return (
@@ -48,14 +49,8 @@ export default async function ExhibitionResultPage({
   }
 
   const [artworks, allArtists] = await Promise.all([
-    getPublicCollection<PublicArtworkDto>(`/ArtworkSubmissions/public/exhibition/${exhibition.id}`, {
-      revalidate: 60,
-      tags: [`exhibition-artworks-${exhibition.id}`],
-    }),
-    getPublicCollection<PublicUserProfile>("/Profile/artists", {
-      revalidate: 300,
-      tags: ["public-artists"],
-    }),
+    getPublicExhibitionArtworks(exhibition.id),
+    getPublicArtists(),
   ]);
 
   const artistLookup = Object.fromEntries(allArtists.map((artist) => [artist.id, artist]));

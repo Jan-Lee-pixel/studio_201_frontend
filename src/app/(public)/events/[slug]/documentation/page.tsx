@@ -4,20 +4,7 @@ import { SectionLabel } from "@/components/ui/SectionLabel";
 import { PublicActionLink, PublicSurface } from "@/components/ui/PublicPagePrimitives";
 import { ImageGrid } from "@/features/events/components/ImageGrid";
 import type { EventDto } from "@/features/events/services/eventService";
-import { getPublicFetchConfig, PUBLIC_API_BASE_URL } from "@/lib/publicApi";
-
-async function getEvent(slug: string): Promise<EventDto | null> {
-  try {
-    const res = await fetch(
-      `${PUBLIC_API_BASE_URL}/Events/slug/${slug}`,
-      getPublicFetchConfig({ revalidate: 300, tags: [`event-${slug}`, "public-events"] }),
-    );
-    if (!res.ok) return null;
-    return res.json();
-  } catch {
-    return null;
-  }
-}
+import { getPublicEventBySlug } from "@/lib/publicData";
 
 const getEventImages = () => {
   return [] as {
@@ -31,7 +18,7 @@ const getEventImages = () => {
 
 export default async function EventDocumentationPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const event = await getEvent(slug);
+  const event = await getPublicEventBySlug(slug);
 
   if (!event) {
     notFound();

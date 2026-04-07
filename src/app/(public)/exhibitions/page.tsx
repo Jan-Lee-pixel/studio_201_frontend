@@ -6,7 +6,7 @@ import { ExhibitionCoverFrame } from "@/features/exhibitions/components/Exhibiti
 import { PublicCatalogHeader } from "@/components/ui/PublicPagePrimitives";
 import { WorkspaceStatusPill } from "@/components/ui/WorkspacePrimitives";
 import type { Exhibition } from "@/features/exhibitions/services/exhibitionService";
-import { getPublicCollection } from "@/lib/publicApi";
+import { getArchiveExhibitions, getProgramExhibitions } from "@/lib/publicData";
 
 type ExhibitionState = {
   label: string;
@@ -148,14 +148,8 @@ function ProgramCard({
 
 export default async function ExhibitionsPage() {
   const [programExhibitions, archiveExhibitions] = await Promise.all([
-    getPublicCollection<Exhibition>("/Exhibitions", {
-      revalidate: 60,
-      tags: ["public-exhibitions"],
-    }),
-    getPublicCollection<Exhibition>("/Exhibitions/archive", {
-      revalidate: 300,
-      tags: ["public-archive"],
-    }),
+    getProgramExhibitions(),
+    getArchiveExhibitions(),
   ]);
 
   const orderedProgram = sortExhibitions(programExhibitions);

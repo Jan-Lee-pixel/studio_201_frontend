@@ -4,7 +4,12 @@ import { SectionLabel } from "@/components/ui/SectionLabel";
 import { sortPublicArtists, type PublicUserProfile } from "@/features/artists/services/artistService";
 import type { EventDto } from "@/features/events/services/eventService";
 import type { Exhibition } from "@/features/exhibitions/services/exhibitionService";
-import { getPublicCollection } from "@/lib/publicApi";
+import {
+  getArchiveExhibitions,
+  getProgramExhibitions,
+  getPublicArtists,
+  getPublicEvents,
+} from "@/lib/publicData";
 
 const formatDateRange = (start?: string, end?: string) => {
   if (!start) return "Dates to be announced";
@@ -83,22 +88,10 @@ function ProgramLink({
 
 export default async function Home() {
   const [exhibitions, archiveExhibitions, artistsData, events] = await Promise.all([
-    getPublicCollection<Exhibition>("/Exhibitions", {
-      revalidate: 60,
-      tags: ["public-exhibitions"],
-    }),
-    getPublicCollection<Exhibition>("/Exhibitions/archive", {
-      revalidate: 600,
-      tags: ["public-archive"],
-    }),
-    getPublicCollection<PublicUserProfile>("/Profile/artists", {
-      revalidate: 300,
-      tags: ["public-artists"],
-    }),
-    getPublicCollection<EventDto>("/Events", {
-      revalidate: 300,
-      tags: ["public-events"],
-    }),
+    getProgramExhibitions(),
+    getArchiveExhibitions(),
+    getPublicArtists(),
+    getPublicEvents(),
   ]);
   const artists = sortPublicArtists(artistsData);
 
