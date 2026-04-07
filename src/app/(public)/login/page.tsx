@@ -12,11 +12,11 @@ import { createClient } from '@/lib/supabase/client';
 const EMAIL_COOLDOWN_SECONDS = 60;
 
 const inputClass =
-  'w-full rounded-[16px] border border-[var(--color-rule)] bg-[rgba(246,243,238,0.88)] px-4 py-3 text-sm text-[var(--color-near-black)] outline-none transition-colors focus:border-[var(--color-sienna)] focus:bg-white';
+  'w-full rounded-[16px] border border-[var(--color-rule)] bg-[rgba(246,243,238,0.88)] px-4 py-3 text-[16px] text-[var(--color-near-black)] outline-none transition-colors focus:border-[var(--color-sienna)] focus:bg-white md:text-sm';
 const secondaryButtonClass =
-  'inline-flex min-h-[48px] w-full items-center justify-center gap-3 rounded-full border border-[var(--color-rule)] bg-white px-4 text-[11px] font-mono uppercase tracking-[0.14em] text-[var(--color-near-black)] transition-colors duration-300 hover:border-[var(--color-near-black)] hover:bg-[var(--color-bone)] disabled:opacity-50';
+  'inline-flex min-h-[52px] w-full items-center justify-center gap-3 rounded-full border border-[var(--color-rule)] bg-white px-4 text-[12px] font-mono uppercase tracking-[0.14em] text-[var(--color-near-black)] transition-colors duration-300 hover:border-[var(--color-near-black)] hover:bg-[var(--color-bone)] disabled:opacity-50 md:min-h-[48px] md:text-[11px]';
 const primaryButtonClass =
-  'inline-flex min-h-[48px] w-full items-center justify-center rounded-full border border-[var(--color-near-black)] bg-[var(--color-near-black)] px-4 text-[11px] font-mono uppercase tracking-[0.14em] text-[var(--color-cream)] transition-colors duration-300 hover:bg-[var(--color-charcoal)] disabled:opacity-50';
+  'inline-flex min-h-[52px] w-full items-center justify-center rounded-full border border-[var(--color-near-black)] bg-[var(--color-near-black)] px-4 text-[12px] font-mono uppercase tracking-[0.14em] text-[var(--color-cream)] transition-colors duration-300 hover:bg-[var(--color-charcoal)] disabled:opacity-50 md:min-h-[48px] md:text-[11px]';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -199,7 +199,7 @@ export default function LoginPage() {
             <div className="mt-8">
               <Link
                 href="/"
-                className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-sienna)] transition-colors duration-200 hover:text-[var(--color-near-black)]"
+                className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-sienna)] transition-colors duration-200 hover:text-[var(--color-near-black)] md:text-[10px]"
               >
                 Return to public site
               </Link>
@@ -208,35 +208,35 @@ export default function LoginPage() {
 
           <div className="grid grid-cols-2 gap-x-6 gap-y-4 border-t border-[var(--color-rule)] pt-5 sm:flex sm:flex-wrap sm:gap-x-8 sm:pt-6">
             <div>
-              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Sign-in</div>
-              <div className="mt-2 text-sm text-[var(--color-near-black)]">Google or email code</div>
+              <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">Sign-in</div>
+              <div className="mt-2 text-[15px] leading-7 text-[var(--color-near-black)] md:text-sm md:leading-6">Google or email code</div>
             </div>
             <div>
-              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Artist access</div>
-              <div className="mt-2 text-sm text-[var(--color-near-black)]">Approved after review</div>
+              <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">Artist access</div>
+              <div className="mt-2 text-[15px] leading-7 text-[var(--color-near-black)] md:text-sm md:leading-6">Approved after review</div>
             </div>
           </div>
         </div>
 
         <PublicSurface className="order-1 overflow-hidden xl:order-2">
           <div className="p-6 md:p-10">
-            <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-sienna)]">
+            <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-sienna)] md:text-[10px]">
               Portal sign-in
             </div>
             <h2 className="mt-5 font-display text-[clamp(30px,8vw,54px)] leading-[0.94] tracking-[-0.05em] text-[var(--color-near-black)]">
               Continue into the workspace.
             </h2>
-            <p className="mt-4 text-sm leading-7 text-[var(--color-warm-slate)]">{helperCopy}</p>
+            <p className="mt-4 text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm">{helperCopy}</p>
 
             <div className="mt-8 space-y-4">
               {visibleError ? (
-                <div className="rounded-[18px] border border-[rgba(181,96,58,0.22)] bg-[rgba(181,96,58,0.08)] px-4 py-3 text-sm text-[#9f4c2d]">
+                <div className="rounded-[18px] border border-[rgba(181,96,58,0.22)] bg-[rgba(181,96,58,0.08)] px-4 py-3 text-[15px] text-[#9f4c2d] md:text-sm">
                   {visibleError}
                 </div>
               ) : null}
 
               {statusMessage ? (
-                <div className="rounded-[18px] border border-[var(--color-rule)] bg-[rgba(250,248,244,0.78)] px-4 py-3 text-sm text-[var(--color-warm-slate)]">
+                <div className="rounded-[18px] border border-[var(--color-rule)] bg-[rgba(250,248,244,0.78)] px-4 py-3 text-[15px] text-[var(--color-warm-slate)] md:text-sm">
                   {statusMessage}
                 </div>
               ) : null}
@@ -247,7 +247,7 @@ export default function LoginPage() {
                 disabled={googleLoading || authLoading || emailSending || codeVerifying}
                 className={secondaryButtonClass}
               >
-                <span className="flex h-6 w-6 items-center justify-center rounded-full border border-[var(--color-rule)] text-[11px] font-semibold text-[var(--color-warm-slate)]">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full border border-[var(--color-rule)] text-[12px] font-semibold text-[var(--color-warm-slate)] md:text-[11px]">
                   G
                 </span>
                 <span>
@@ -259,7 +259,7 @@ export default function LoginPage() {
                 </span>
               </button>
 
-              <div className="flex items-center gap-3 text-[10px] uppercase tracking-[0.18em] text-[var(--color-dust)]">
+              <div className="flex items-center gap-3 text-[11px] uppercase tracking-[0.18em] text-[var(--color-dust)] md:text-[10px]">
                 <span className="h-px flex-1 bg-[var(--color-rule)]" />
                 <span>Or use email code</span>
                 <span className="h-px flex-1 bg-[var(--color-rule)]" />
@@ -267,7 +267,7 @@ export default function LoginPage() {
 
               <div className="space-y-4 rounded-[24px] border border-[var(--color-rule)] bg-[rgba(250,248,244,0.72)] p-5">
                 <div className="space-y-2">
-                  <label className="block font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+                  <label className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">
                     Email address
                   </label>
                   <input
@@ -287,7 +287,7 @@ export default function LoginPage() {
                 {emailStep === 'code' ? (
                   <>
                     <div className="space-y-2">
-                      <label className="block font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+                      <label className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">
                         6-digit code
                       </label>
                       <input
@@ -316,7 +316,7 @@ export default function LoginPage() {
                       {codeVerifying ? 'Checking code...' : 'Continue with code'}
                     </button>
 
-                    <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+                    <div className="flex flex-wrap items-center justify-between gap-3 text-[15px] md:text-sm">
                       <button
                         type="button"
                         onClick={() => {

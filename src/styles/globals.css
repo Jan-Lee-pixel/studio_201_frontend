@@ -66,8 +66,9 @@ body {
   background: var(--parchment);
   color: var(--near-black);
   font-family: var(--font-body);
+  font-size: 16px;
   font-weight: 400;
-  line-height: 1.6;
+  line-height: 1.68;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }

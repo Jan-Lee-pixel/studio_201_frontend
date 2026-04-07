@@ -49,7 +49,7 @@ export default async function MerchPage({
           <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:px-0 md:pb-0">
             <Link
               href="/merch"
-              className={`shrink-0 rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors duration-300 ${
+              className={`shrink-0 rounded-full border px-3.5 py-2.5 font-mono text-[11px] uppercase tracking-[0.12em] transition-colors duration-300 md:px-3 md:py-2 md:text-[10px] ${
                 !activeFilter
                   ? "border-[var(--color-near-black)] bg-[var(--color-near-black)] text-[var(--color-cream)]"
                   : "border-[var(--color-rule)] text-[var(--color-dust)] hover:border-[var(--color-near-black)] hover:text-[var(--color-near-black)]"
@@ -61,7 +61,7 @@ export default async function MerchPage({
               <Link
                 key={type}
                 href={`/merch?type=${encodeURIComponent(type)}`}
-                className={`shrink-0 rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors duration-300 ${
+                className={`shrink-0 rounded-full border px-3.5 py-2.5 font-mono text-[11px] uppercase tracking-[0.12em] transition-colors duration-300 md:px-3 md:py-2 md:text-[10px] ${
                   activeFilter === type.toLowerCase()
                     ? "border-[var(--color-near-black)] bg-[var(--color-near-black)] text-[var(--color-cream)]"
                     : "border-[var(--color-rule)] text-[var(--color-dust)] hover:border-[var(--color-near-black)] hover:text-[var(--color-near-black)]"

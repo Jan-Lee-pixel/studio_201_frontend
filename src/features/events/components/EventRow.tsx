@@ -64,14 +64,14 @@ export function EventRow({
         )}
       >
         <div className="flex flex-col gap-1">
-          <div className="font-mono text-[13px] text-[var(--color-near-black)]">{date}</div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--color-dust)]">{day}</div>
+          <div className="font-mono text-[15px] text-[var(--color-near-black)] md:text-[13px]">{date}</div>
+          <div className="font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-dust)] md:text-[10px]">{day}</div>
         </div>
 
         <div>
           <div
             className={clsx(
-              "mb-2.5 font-mono text-[10px] tracking-[0.14em] uppercase",
+              "mb-2.5 font-mono text-[11px] tracking-[0.14em] uppercase md:text-[10px]",
               isExternal ? "text-[var(--color-dust)]" : "text-[var(--color-sienna)]"
             )}
           >
@@ -93,20 +93,20 @@ export function EventRow({
 
         <div className="flex flex-col gap-3 border-t border-[var(--color-rule)] pt-3 text-left md:justify-between md:gap-4 md:border-t-0 md:pt-0 md:items-end md:text-right">
           <div>
-            <div className="text-xs tracking-[0.03em] text-[var(--color-dust)]">{venue}</div>
-            {time ? <div className="mt-1 text-xs tracking-[0.03em] text-[var(--color-dust)]">{time}</div> : null}
+            <div className="text-[14px] tracking-[0.02em] text-[var(--color-dust)] md:text-xs">{venue}</div>
+            {time ? <div className="mt-1 text-[14px] tracking-[0.02em] text-[var(--color-dust)] md:text-xs">{time}</div> : null}
           </div>
           <div className="flex flex-wrap items-center justify-between gap-2 md:justify-end">
             {hasDocumentation && slug ? (
               <Link
                 href={`/events/${slug}/documentation`}
                 onClick={(e) => e.stopPropagation()}
-                className="inline-flex min-h-[32px] items-center rounded-full border border-[var(--color-rule)] bg-[var(--color-bone)] px-3 font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-300 hover:border-[var(--color-near-black)] hover:bg-white"
+                className="inline-flex min-h-[38px] items-center rounded-full border border-[var(--color-rule)] bg-[var(--color-bone)] px-3.5 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-300 hover:border-[var(--color-near-black)] hover:bg-white md:min-h-[32px] md:px-3 md:text-[10px]"
               >
                 Documentation
               </Link>
             ) : null}
-            <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-sienna)]">
+            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-sienna)] md:text-[10px]">
               View details
             </span>
           </div>

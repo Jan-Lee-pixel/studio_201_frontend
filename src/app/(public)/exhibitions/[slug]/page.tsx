@@ -72,7 +72,7 @@ export default async function ExhibitionResultPage({
         <div className="mx-auto grid max-w-[1440px] gap-8 px-6 pb-14 pt-24 md:px-12 md:pb-24 md:pt-32 xl:grid-cols-[minmax(0,0.92fr)_minmax(420px,1.08fr)] xl:gap-10">
           <Reveal className="order-2 flex flex-col gap-6 xl:order-1 xl:gap-8 xl:pt-6">
             <div>
-              <div className="inline-flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--color-sienna)] before:block before:h-px before:w-8 before:bg-current before:content-['']">
+              <div className="inline-flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.16em] text-[var(--color-sienna)] before:block before:h-px before:w-8 before:bg-current before:content-[''] md:text-[10px]">
                 Exhibition
               </div>
               <h1 className="mt-5 max-w-[10ch] font-display text-[clamp(40px,11vw,92px)] leading-[0.9] tracking-[-0.06em] text-[var(--color-near-black)] md:mt-6 md:max-w-[11ch] md:leading-[0.86]">
@@ -85,13 +85,13 @@ export default async function ExhibitionResultPage({
               <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                 <ScrollToSectionButton
                   targetId="works"
-                  className="inline-flex min-h-[50px] w-full items-center justify-center rounded-full bg-[var(--color-near-black)] px-6 text-sm tracking-[0.04em] text-[var(--color-cream)] transition-colors duration-200 hover:bg-[var(--color-charcoal)] sm:w-auto"
+                  className="inline-flex min-h-[52px] w-full items-center justify-center rounded-full bg-[var(--color-near-black)] px-6 text-[15px] tracking-[0.04em] text-[var(--color-cream)] transition-colors duration-200 hover:bg-[var(--color-charcoal)] sm:w-auto md:min-h-[50px] md:text-sm"
                 >
                   View Works
                 </ScrollToSectionButton>
                 <Link
                   href="/exhibitions"
-                  className="inline-flex min-h-[50px] w-full items-center justify-center rounded-full border border-[var(--color-rule)] bg-white/70 px-6 text-sm tracking-[0.04em] text-[var(--color-near-black)] transition-colors duration-200 hover:bg-white sm:w-auto"
+                  className="inline-flex min-h-[52px] w-full items-center justify-center rounded-full border border-[var(--color-rule)] bg-white/70 px-6 text-[15px] tracking-[0.04em] text-[var(--color-near-black)] transition-colors duration-200 hover:bg-white sm:w-auto md:min-h-[50px] md:text-sm"
                 >
                   Browse Exhibitions
                 </Link>
@@ -100,16 +100,16 @@ export default async function ExhibitionResultPage({
 
             <div className="mt-1 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-[var(--color-rule)] pt-5 sm:flex sm:flex-wrap sm:gap-x-8 sm:pt-6">
               <div>
-                <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Dates</div>
-                <div className="mt-2 text-sm text-[var(--color-near-black)]">{formatDateRange(exhibition.startDate, exhibition.endDate)}</div>
+                <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">Dates</div>
+                <div className="mt-2 text-[15px] leading-7 text-[var(--color-near-black)] md:text-sm md:leading-6">{formatDateRange(exhibition.startDate, exhibition.endDate)}</div>
               </div>
               <div>
-                <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Artists</div>
-                <div className="mt-2 text-sm text-[var(--color-near-black)]">{artists.length || "TBA"}</div>
+                <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">Artists</div>
+                <div className="mt-2 text-[15px] leading-7 text-[var(--color-near-black)] md:text-sm md:leading-6">{artists.length || "TBA"}</div>
               </div>
               <div>
-                <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Works</div>
-                <div className="mt-2 text-sm text-[var(--color-near-black)]">{galleryArtworks.length || "TBA"} published</div>
+                <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">Works</div>
+                <div className="mt-2 text-[15px] leading-7 text-[var(--color-near-black)] md:text-sm md:leading-6">{galleryArtworks.length || "TBA"} published</div>
               </div>
             </div>
           </Reveal>
@@ -149,23 +149,23 @@ export default async function ExhibitionResultPage({
 
           <Reveal>
             <div className="rounded-[26px] border border-[var(--color-rule)] bg-[rgba(255,255,255,0.84)] p-6 shadow-[0_16px_38px_rgba(33,28,24,0.04)]">
-              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-sienna)]">
+              <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-sienna)] md:text-[10px]">
                 Exhibition Details
               </div>
               <div className="mt-5 space-y-5">
                 <div className="border-t border-[var(--color-rule)] pt-5 first:border-t-0 first:pt-0">
-                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Dates</div>
-                  <div className="mt-2 text-sm leading-7 text-[var(--color-near-black)]">
+                  <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">Dates</div>
+                  <div className="mt-2 text-[15px] leading-7 text-[var(--color-near-black)] md:text-sm">
                     {formatDateRange(exhibition.startDate, exhibition.endDate)}
                   </div>
                 </div>
                 <div className="border-t border-[var(--color-rule)] pt-5">
-                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Participating Artists</div>
-                  <div className="mt-2 text-sm leading-7 text-[var(--color-near-black)]">{heroArtistLabel}</div>
+                  <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">Participating Artists</div>
+                  <div className="mt-2 text-[15px] leading-7 text-[var(--color-near-black)] md:text-sm">{heroArtistLabel}</div>
                 </div>
                 <div className="border-t border-[var(--color-rule)] pt-5">
-                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Works Published</div>
-                  <div className="mt-2 text-sm leading-7 text-[var(--color-near-black)]">
+                  <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">Works Published</div>
+                  <div className="mt-2 text-[15px] leading-7 text-[var(--color-near-black)] md:text-sm">
                     {galleryArtworks.length > 0
                       ? `${galleryArtworks.length} work${galleryArtworks.length === 1 ? "" : "s"} currently visible`
                       : "No works have been published yet"}

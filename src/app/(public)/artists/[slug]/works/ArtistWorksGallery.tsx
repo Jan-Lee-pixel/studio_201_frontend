@@ -46,7 +46,7 @@ function ApprovedExhibitionSection({
       <div className="border-b border-[var(--color-rule)] pb-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+            <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">
               Exhibition
             </div>
             <div className="mt-3">
@@ -63,7 +63,7 @@ function ApprovedExhibitionSection({
                 </h2>
               )}
             </div>
-            <div className="mt-3 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+            <div className="mt-3 font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">
               {artworks.length} work{artworks.length === 1 ? "" : "s"}
             </div>
           </div>
@@ -72,7 +72,7 @@ function ApprovedExhibitionSection({
             {exhibitionHref ? (
               <Link
                 href={exhibitionHref}
-                className="inline-flex min-h-[40px] items-center justify-center rounded-full border border-[var(--color-rule)] bg-white px-4 text-[11px] uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-200 hover:border-[var(--color-near-black)]"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-full border border-[var(--color-rule)] bg-white px-4 text-[12px] uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-200 hover:border-[var(--color-near-black)] md:min-h-[40px] md:text-[11px]"
               >
                 View exhibition
               </Link>
@@ -81,7 +81,7 @@ function ApprovedExhibitionSection({
               <button
                 type="button"
                 onClick={() => setIsExpanded((current) => !current)}
-                className="inline-flex min-h-[40px] items-center justify-center rounded-full border border-[var(--color-rule)] bg-transparent px-4 text-[11px] uppercase tracking-[0.12em] text-[var(--color-dust)] transition-colors duration-200 hover:border-[var(--color-near-black)] hover:text-[var(--color-near-black)]"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-full border border-[var(--color-rule)] bg-transparent px-4 text-[12px] uppercase tracking-[0.12em] text-[var(--color-dust)] transition-colors duration-200 hover:border-[var(--color-near-black)] hover:text-[var(--color-near-black)] md:min-h-[40px] md:text-[11px]"
               >
                 {isExpanded ? "Show fewer" : `Show ${hiddenCount} more`}
               </button>
@@ -183,7 +183,7 @@ export function ArtistWorksGallery({
         </div>
 
         {portfolioArtworks.length === 0 && approvedArtworks.length === 0 ? (
-          <div className="mt-16 font-mono text-[11px] uppercase tracking-[0.1em] text-[var(--color-dust)]">
+          <div className="mt-16 font-mono text-[12px] uppercase tracking-[0.1em] text-[var(--color-dust)] md:text-[11px]">
             No public artworks yet.
           </div>
         ) : null}

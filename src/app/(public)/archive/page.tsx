@@ -72,12 +72,12 @@ export default async function ArchivePage() {
               </div>
               <div className="mt-7 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-[var(--color-rule)] pt-5 sm:flex sm:flex-wrap sm:gap-x-8 sm:pt-6 md:mt-8">
                 <div>
-                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Shows</div>
-                  <div className="mt-2 text-sm text-[var(--color-near-black)]">{archiveExhibitions.length} in the archive</div>
+                  <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">Shows</div>
+                  <div className="mt-2 text-[15px] leading-7 text-[var(--color-near-black)] md:text-sm md:leading-6">{archiveExhibitions.length} in the archive</div>
                 </div>
                 <div>
-                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Years</div>
-                  <div className="mt-2 text-sm text-[var(--color-near-black)]">{years.length} represented</div>
+                  <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">Years</div>
+                  <div className="mt-2 text-[15px] leading-7 text-[var(--color-near-black)] md:text-sm md:leading-6">{years.length} represented</div>
                 </div>
               </div>
             </div>
@@ -86,13 +86,13 @@ export default async function ArchivePage() {
           <Reveal>
             <PublicSurface>
               <div className="p-8 md:p-10">
-                <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-sienna)]">
+                <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-sienna)] md:text-[10px]">
                   Latest archive year
                 </div>
                 <h2 className="mt-4 font-display text-[clamp(40px,5vw,64px)] leading-[0.9] tracking-[-0.05em] text-[var(--color-near-black)]">
                   {leadYear || "Archive"}
                 </h2>
-                <p className="mt-5 max-w-[42ch] text-sm leading-7 text-[var(--color-warm-slate)]">
+                <p className="mt-5 max-w-[42ch] text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm">
                   Start with the most recent archive year, then move backwards through the exhibition history.
                 </p>
 
@@ -110,7 +110,7 @@ export default async function ArchivePage() {
                         <div className="font-display text-[28px] leading-[0.94] tracking-[-0.04em] text-[var(--color-near-black)]">
                           {exhibition.title}
                         </div>
-                        <p className="mt-2 text-sm leading-6 text-[var(--color-warm-slate)]">
+                        <p className="mt-2 text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm md:leading-6">
                           {formatDateRange(exhibition.startDate, exhibition.endDate)}
                         </p>
                       </div>
@@ -135,7 +135,7 @@ export default async function ArchivePage() {
                 <h2 className="font-display text-[clamp(32px,4vw,48px)] leading-[0.94] tracking-[-0.05em] text-[var(--color-near-black)]">
                   Browse the archive by year.
                 </h2>
-                <p className="mt-4 text-sm leading-7 text-[var(--color-warm-slate)]">
+                <p className="mt-4 text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm">
                   Open any exhibition record for dates, artists, and published works.
                 </p>
               </div>
@@ -180,12 +180,12 @@ export default async function ArchivePage() {
                                 <div className="font-display text-[26px] leading-[0.94] tracking-[-0.04em] text-[var(--color-near-black)] md:text-[30px]">
                                   {exhibition.title}
                                 </div>
-                                <p className="mt-2 text-sm leading-6 text-[var(--color-warm-slate)]">
+                                <p className="mt-2 text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm md:leading-6">
                                   {formatDateRange(exhibition.startDate, exhibition.endDate)}
                                 </p>
                               </div>
 
-                              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-right">
+                              <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-right md:text-[10px]">
                                 View show
                               </div>
                             </Link>

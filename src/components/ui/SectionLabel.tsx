@@ -9,7 +9,7 @@ export function SectionLabel({ children, className }: SectionLabelProps) {
   return (
     <div
       className={clsx(
-        "font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--color-sienna)] mb-12 flex items-center gap-4 before:content-[''] before:block before:w-8 before:h-[1px] before:bg-[var(--color-sienna)]",
+        "mb-10 flex items-center gap-4 font-mono text-[11px] tracking-[0.14em] uppercase text-[var(--color-sienna)] before:block before:h-[1px] before:w-8 before:bg-[var(--color-sienna)] before:content-[''] md:mb-12 md:text-[12px]",
         className
       )}
     >

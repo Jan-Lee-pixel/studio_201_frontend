@@ -116,13 +116,13 @@ export default function PendingApprovalPage() {
               <h1 className="mt-5 max-w-[12ch] font-display text-[clamp(34px,9vw,72px)] leading-[0.94] tracking-[-0.05em] text-[var(--color-near-black)] md:mt-6 md:max-w-[13ch] md:leading-[0.92]">
                 Your artist application is pending review.
               </h1>
-              <p className="mt-5 max-w-[46ch] text-sm leading-7 text-[var(--color-warm-slate)] md:mt-6 md:leading-8">
+              <p className="mt-5 max-w-[46ch] text-[15px] leading-7 text-[var(--color-warm-slate)] md:mt-6 md:text-sm md:leading-8">
                 Studio 201 reviews artist access before opening the portal. You can return here anytime to check the
                 latest approval status.
               </p>
 
               {statusMessage ? (
-                <div className="mt-6 rounded-[18px] border border-[var(--color-rule)] bg-[rgba(250,248,244,0.78)] px-4 py-3 text-sm text-[var(--color-warm-slate)]">
+                <div className="mt-6 rounded-[18px] border border-[var(--color-rule)] bg-[rgba(250,248,244,0.78)] px-4 py-3 text-[15px] text-[var(--color-warm-slate)] md:text-sm">
                   {statusMessage}
                 </div>
               ) : null}
@@ -136,14 +136,14 @@ export default function PendingApprovalPage() {
                 </Button>
               </div>
 
-              <div className="mt-6 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+              <div className="mt-6 font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">
                 Automatic refresh every 30 seconds while this tab is visible
               </div>
             </div>
 
             <div className="border-t border-[var(--color-rule)] bg-[var(--color-bone)] px-6 py-6 lg:border-l lg:border-t-0 lg:px-8 lg:py-8">
-              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Next steps</div>
-              <div className="mt-4 space-y-4 text-sm leading-7 text-[var(--color-warm-slate)]">
+              <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">Next steps</div>
+              <div className="mt-4 space-y-4 text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm">
                 <p>Approval routes you directly into the artist workspace.</p>
                 <p>Rejected applications are signed out and returned to the public login page.</p>
                 <p>

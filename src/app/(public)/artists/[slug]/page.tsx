@@ -124,7 +124,7 @@ function ProgramCard({
 
       <div className="flex h-full flex-col p-6 md:p-7">
         <div className="flex items-start justify-between gap-4">
-          <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+          <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">
             Studio 201 Exhibition
           </div>
           <WorkspaceStatusPill tone={state.tone}>{state.label}</WorkspaceStatusPill>
@@ -139,18 +139,18 @@ function ProgramCard({
           {exhibition.title}
         </h3>
 
-        <p className="mt-4 text-sm leading-7 text-[var(--color-warm-slate)]">
+        <p className="mt-4 text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm">
           {formatDateRange(exhibition.startDate, exhibition.endDate)}
         </p>
 
         {exhibition.description ? (
-          <p className="mt-4 max-w-[48ch] text-sm leading-7 text-[var(--color-warm-slate)]">
+          <p className="mt-4 max-w-[48ch] text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm">
             {exhibition.description}
           </p>
         ) : null}
 
         <div className="mt-auto pt-6">
-          <div className="inline-flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-sienna)]">
+          <div className="inline-flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-sienna)] md:text-[10px]">
             View exhibition
             <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">
               {"->"}
@@ -258,7 +258,7 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
 
           <Reveal className="min-w-0">
             <div className="rounded-[28px] border border-[var(--color-rule)] bg-[rgba(255,253,250,0.88)] p-6 shadow-[0_18px_42px_rgba(33,28,24,0.04)] md:rounded-[34px] md:p-10 lg:p-12">
-              <div className="inline-flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--color-sienna)] before:block before:h-px before:w-8 before:bg-current before:content-['']">
+              <div className="inline-flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.16em] text-[var(--color-sienna)] before:block before:h-px before:w-8 before:bg-current before:content-[''] md:text-[10px]">
                 Artist Profile
               </div>
 
@@ -288,7 +288,7 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
                       href={link.url as string}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex min-h-[42px] items-center justify-center rounded-full border border-[var(--color-rule)] bg-white px-4 text-[11px] uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-200 hover:border-[var(--color-near-black)] md:min-h-[44px] md:px-5 md:text-xs"
+                      className="inline-flex min-h-[46px] items-center justify-center rounded-full border border-[var(--color-rule)] bg-white px-4 text-[12px] uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-200 hover:border-[var(--color-near-black)] md:min-h-[44px] md:px-5 md:text-xs"
                     >
                       {link.label}
                     </a>
@@ -300,14 +300,14 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
                 {hasVisibleWorks ? (
                   <Link
                     href={`/artists/${artist.slug}/works`}
-                    className="inline-flex min-h-[48px] w-full items-center justify-center rounded-full bg-[var(--color-near-black)] px-6 text-sm tracking-[0.04em] text-[var(--color-cream)] transition-colors duration-200 hover:bg-[var(--color-charcoal)] sm:w-auto"
+                    className="inline-flex min-h-[48px] w-full items-center justify-center rounded-full bg-[var(--color-near-black)] px-6 text-[15px] tracking-[0.04em] text-[var(--color-cream)] transition-colors duration-200 hover:bg-[var(--color-charcoal)] sm:w-auto md:text-sm"
                   >
                     View Works
                   </Link>
                 ) : null}
                 <Link
                   href="/artists"
-                  className="inline-flex min-h-[48px] w-full items-center justify-center rounded-full border border-[var(--color-rule)] bg-white/72 px-6 text-sm tracking-[0.04em] text-[var(--color-near-black)] transition-colors duration-200 hover:bg-white sm:w-auto"
+                  className="inline-flex min-h-[48px] w-full items-center justify-center rounded-full border border-[var(--color-rule)] bg-white/72 px-6 text-[15px] tracking-[0.04em] text-[var(--color-near-black)] transition-colors duration-200 hover:bg-white sm:w-auto md:text-sm"
                 >
                   Browse Artists
                 </Link>
@@ -330,7 +330,7 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
               <div className="font-display text-[32px] leading-none tracking-[-0.04em] text-[var(--color-near-black)]">
                 No public works yet
               </div>
-              <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-[var(--color-warm-slate)]">
+              <p className="mx-auto mt-3 max-w-xl text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm">
                 Public works will appear here as they are published to the profile.
               </p>
             </div>
@@ -343,13 +343,13 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
                   singleArtworkMaxWidth={visibleArtworks.length === 1 ? "560px" : "460px"}
                 />
                 <div className={`mt-6 flex flex-wrap items-center gap-4 ${visibleArtworks.length === 1 ? "justify-start" : ""}`}>
-                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+                  <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">
                     {usingPortfolio ? "Curated from portfolio" : "Drawn from approved submissions"}
                   </div>
                   {showViewAllWorksLink ? (
                     <Link
                       href={`/artists/${artist.slug}/works`}
-                      className="inline-flex min-h-[44px] items-center justify-center rounded-full border border-[var(--color-near-black)] px-5 text-xs uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-200 hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)]"
+                      className="inline-flex min-h-[46px] items-center justify-center rounded-full border border-[var(--color-near-black)] px-5 text-[12px] uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-200 hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)] md:min-h-[44px] md:text-xs"
                     >
                       View all works
                     </Link>
@@ -369,7 +369,7 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
               <h2 className="mt-6 font-display text-[clamp(34px,4vw,54px)] leading-[0.92] tracking-[-0.05em] text-[var(--color-near-black)]">
                 Exhibitions connected to this artist.
               </h2>
-              <p className="mt-5 text-sm leading-7 text-[var(--color-warm-slate)]">
+              <p className="mt-5 text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm">
                 See current, upcoming, and past Studio 201 exhibitions connected to this artist.
               </p>
             </div>
@@ -381,7 +381,7 @@ export default async function ArtistProfilePage({ params }: { params: Promise<{ 
                 <div className="font-display text-[32px] leading-none tracking-[-0.04em] text-[var(--color-near-black)]">
                   Program details coming soon
                 </div>
-                <p className="mx-auto mt-3 max-w-lg text-sm leading-7 text-[var(--color-warm-slate)]">
+                <p className="mx-auto mt-3 max-w-lg text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm">
                   No exhibitions are connected to this artist profile yet.
                 </p>
               </div>

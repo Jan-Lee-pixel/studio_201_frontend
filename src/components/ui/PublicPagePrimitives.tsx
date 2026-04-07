@@ -50,7 +50,7 @@ export function PublicActionLink({
     <Link
       href={href}
       className={clsx(
-        "inline-flex min-h-[46px] items-center justify-center rounded-full px-4 text-[13px] tracking-[0.03em] transition-colors duration-200 md:min-h-[48px] md:px-5 md:text-sm md:tracking-[0.04em]",
+        "inline-flex min-h-[50px] items-center justify-center rounded-full px-5 text-[15px] tracking-[0.02em] transition-colors duration-200 md:min-h-[48px] md:px-5 md:text-sm md:tracking-[0.04em]",
         {
           "bg-[var(--color-near-black)] text-[var(--color-cream)] hover:bg-[var(--color-charcoal)]":
             tone === "dark",
@@ -89,7 +89,7 @@ export function PublicStatTile({
       })}
     >
       <div
-        className={clsx("font-mono text-[10px] uppercase tracking-[0.14em]", {
+        className={clsx("font-mono text-[11px] uppercase tracking-[0.14em] md:text-[10px]", {
           "text-[var(--color-dust)]": !inverse,
           "text-[rgba(240,237,229,0.52)]": inverse,
         })}
@@ -105,7 +105,7 @@ export function PublicStatTile({
         {value}
       </div>
       <p
-        className={clsx("mt-3 text-xs leading-6", {
+        className={clsx("mt-3 text-[15px] leading-7 md:text-[13px] md:leading-6", {
           "text-[var(--color-warm-slate)]": !inverse,
           "text-[rgba(240,237,229,0.68)]": inverse,
         })}
@@ -137,7 +137,7 @@ export function PublicEmptyState({
       <div className="font-display text-[32px] leading-none tracking-[-0.04em] text-[var(--color-near-black)]">
         {title}
       </div>
-      <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-[var(--color-warm-slate)]">{description}</p>
+      <p className="mx-auto mt-3 max-w-xl text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm">{description}</p>
       {action ? <div className="mt-6 flex justify-center">{action}</div> : null}
     </div>
   );
@@ -157,7 +157,7 @@ export function PublicSectionIntro({
       <h2 className="font-display text-[clamp(34px,4vw,56px)] leading-[0.92] tracking-[-0.05em] text-[var(--color-near-black)]">
         {title}
       </h2>
-      <p className="mt-5 text-sm leading-7 text-[var(--color-warm-slate)]">{description}</p>
+      <p className="mt-5 text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm">{description}</p>
     </div>
   );
 }
@@ -184,25 +184,25 @@ export function PublicPageHeader({
     <section className={clsx("px-6 pb-5 pt-24 md:px-12 md:pb-8 md:pt-32", className)}>
       <div className="mx-auto max-w-[1440px] border-b border-[var(--color-rule)] pb-5 md:pb-8">
         <SectionLabel className="mb-4">{section}</SectionLabel>
-        <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+        <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-[760px]">
             <h1 className="font-display text-[clamp(32px,8vw,62px)] leading-[0.92] tracking-[-0.05em] text-[var(--color-near-black)]">
               {title}
             </h1>
             {description ? (
-              <p className="mt-3 max-w-[60ch] text-[14px] leading-6 text-[var(--color-warm-slate)] md:text-[15px] md:leading-7">
+              <p className="mt-3 max-w-[60ch] text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-[15px] md:leading-7">
                 {description}
               </p>
             ) : null}
           </div>
           {stats?.length ? (
-            <dl className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-2 xl:text-right">
+            <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2 xl:text-right">
               {stats.map((stat, index) => (
                 <div key={index}>
-                  <dt className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+                  <dt className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">
                     {stat.label}
                   </dt>
-                  <dd className="mt-1.5 text-sm leading-6 text-[var(--color-near-black)]">{stat.value}</dd>
+                  <dd className="mt-1.5 text-[15px] leading-7 text-[var(--color-near-black)] md:text-sm md:leading-6">{stat.value}</dd>
                 </div>
               ))}
             </dl>
@@ -236,13 +236,13 @@ export function PublicCatalogHeader({
               {title}
             </h1>
             {description ? (
-              <p className="mt-2 text-sm leading-6 text-[var(--color-warm-slate)] md:text-[15px] md:leading-7">
+              <p className="mt-2 text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-[15px] md:leading-7">
                 {description}
               </p>
             ) : null}
           </div>
           {meta ? (
-            <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">{meta}</div>
+            <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">{meta}</div>
           ) : null}
         </div>
         {children ? <div className="mt-4 md:mt-5">{children}</div> : null}

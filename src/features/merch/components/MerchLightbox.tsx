@@ -75,7 +75,7 @@ export function MerchLightbox({ images, title, initialIndex, onClose }: MerchLig
       aria-modal="true"
       aria-label={title}
     >
-      <div className="absolute left-4 top-4 z-10 font-mono text-[11px] tracking-[0.12em] text-[var(--color-cream)] md:left-6 md:top-6">
+      <div className="absolute left-4 top-4 z-10 font-mono text-[12px] tracking-[0.12em] text-[var(--color-cream)] md:left-6 md:top-6 md:text-[11px]">
         {currentIndex + 1} / {images.length}
       </div>
 

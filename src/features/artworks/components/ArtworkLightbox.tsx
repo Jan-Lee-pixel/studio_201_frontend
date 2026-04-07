@@ -93,7 +93,7 @@ export function ArtworkLightbox({ artworks, initialIndex, onClose }: ArtworkLigh
       aria-modal="true"
       aria-label={currentArtwork.title}
     >
-      <div className="absolute left-4 top-4 z-10 font-mono text-[11px] tracking-[0.12em] text-[var(--color-cream)] md:left-6 md:top-6">
+      <div className="absolute left-4 top-4 z-10 font-mono text-[12px] tracking-[0.12em] text-[var(--color-cream)] md:left-6 md:top-6 md:text-[11px]">
         {currentIndex + 1} / {artworks.length}
       </div>
 
@@ -143,12 +143,12 @@ export function ArtworkLightbox({ artworks, initialIndex, onClose }: ArtworkLigh
               {currentArtwork.title}
             </div>
             {detailLine ? (
-              <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+              <div className="mt-2 font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">
                 {detailLine}
               </div>
             ) : null}
             {compactDescription ? (
-              <p className="mt-3 max-w-3xl text-sm leading-[1.7] text-[var(--color-warm-slate)]">
+              <p className="mt-3 max-w-3xl text-[15px] leading-[1.75] text-[var(--color-warm-slate)] md:text-sm md:leading-[1.7]">
                 {compactDescription}
               </p>
             ) : null}

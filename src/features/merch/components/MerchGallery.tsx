@@ -92,7 +92,7 @@ export function MerchGallery({ title, images }: MerchGalleryProps) {
                 >
                   <ChevronRight className="h-5 w-5" />
                 </button>
-                <div className="absolute bottom-3 right-3 rounded-full bg-[rgba(255,255,255,0.92)] px-3 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--color-dust)] shadow-[0_10px_18px_rgba(33,28,24,0.06)]">
+                <div className="absolute bottom-3 right-3 rounded-full bg-[rgba(255,255,255,0.92)] px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-dust)] shadow-[0_10px_18px_rgba(33,28,24,0.06)] md:py-1 md:text-[10px]">
                   {selectedIndex + 1} / {galleryImages.length}
                 </div>
               </>
