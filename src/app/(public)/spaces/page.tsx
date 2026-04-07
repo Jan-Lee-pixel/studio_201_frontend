@@ -40,12 +40,12 @@ export default function SpacesPage() {
 
             <div className="flex flex-wrap gap-x-8 gap-y-4 border-t border-[rgba(255,255,255,0.12)] pt-6">
               <div>
-                <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.52)]">Status</div>
-                <div className="mt-2 text-sm text-[var(--color-cream)]">Updates published seasonally</div>
+                <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.52)] md:text-[10px]">Status</div>
+                <div className="mt-2 text-[15px] leading-7 text-[var(--color-cream)] md:text-sm md:leading-6">Updates published seasonally</div>
               </div>
               <div>
-                <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.52)]">Now</div>
-                <div className="mt-2 text-sm text-[var(--color-cream)]">See exhibitions and events for current activity</div>
+                <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.52)] md:text-[10px]">Now</div>
+                <div className="mt-2 text-[15px] leading-7 text-[var(--color-cream)] md:text-sm md:leading-6">See exhibitions and events for current activity</div>
               </div>
             </div>
           </Reveal>
@@ -55,22 +55,22 @@ export default function SpacesPage() {
               <div className="grid gap-0 lg:grid-cols-[minmax(280px,0.88fr)_minmax(0,1.12fr)]">
                 <div className="min-h-[360px] bg-[radial-gradient(circle_at_22%_16%,rgba(243,217,186,0.22),transparent_28%),linear-gradient(180deg,#5a4030_0%,#3b2c20_100%)]" />
                 <div className="p-8 md:p-10">
-                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.56)]">Studio 201</div>
+                  <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.56)] md:text-[10px]">Studio 201</div>
                   <h2 className="mt-5 font-display text-[clamp(38px,4vw,58px)] leading-[0.9] tracking-[-0.05em] text-[var(--color-cream)]">
                     When a space update is ready, it should read like a real public notice.
                   </h2>
-                  <p className="mt-6 max-w-[44ch] text-sm leading-7 text-[rgba(240,237,229,0.72)]">
+                  <p className="mt-6 max-w-[44ch] text-[15px] leading-7 text-[rgba(240,237,229,0.72)] md:text-sm">
                     Until then, this page should stay honest and lightweight instead of pretending there is a fuller program than what has actually been published.
                   </p>
 
                   <div className="mt-8 grid gap-4 border-t border-[rgba(255,255,255,0.08)] pt-6 sm:grid-cols-2">
                     <div>
-                      <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.52)]">Current focus</div>
-                      <p className="mt-2 text-sm leading-7 text-[var(--color-cream)]">Exhibitions and public events</p>
+                      <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.52)] md:text-[10px]">Current focus</div>
+                      <p className="mt-2 text-[15px] leading-7 text-[var(--color-cream)] md:text-sm">Exhibitions and public events</p>
                     </div>
                     <div>
-                      <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.52)]">Updates</div>
-                      <p className="mt-2 text-sm leading-7 text-[rgba(240,237,229,0.72)]">
+                      <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.52)] md:text-[10px]">Updates</div>
+                      <p className="mt-2 text-[15px] leading-7 text-[rgba(240,237,229,0.72)] md:text-sm">
                         New space-related notes will appear here once they are part of the public program.
                       </p>
                     </div>
@@ -92,7 +92,7 @@ export default function SpacesPage() {
                   <h2 className="font-display text-[clamp(32px,4vw,48px)] leading-[0.94] tracking-[-0.05em] text-[var(--color-near-black)]">
                     Short-term programs and working rooms.
                   </h2>
-                  <p className="mt-4 text-sm leading-7 text-[var(--color-warm-slate)]">
+                  <p className="mt-4 text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm">
                     Follow temporary occupations, studio residencies, and related activity around the gallery.
                   </p>
                 </div>
@@ -103,11 +103,11 @@ export default function SpacesPage() {
               <Reveal>
                 <PublicSurface>
                   <div className="p-8 md:p-10">
-                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-sienna)]">Publishing note</div>
+                    <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-sienna)] md:text-[10px]">Publishing note</div>
                     <h2 className="mt-5 font-display text-[clamp(32px,4vw,50px)] leading-[0.92] tracking-[-0.05em] text-[var(--color-near-black)]">
                       Space updates will appear when they are confirmed.
                     </h2>
-                    <p className="mt-4 max-w-[48ch] text-sm leading-7 text-[var(--color-warm-slate)]">
+                    <p className="mt-4 max-w-[48ch] text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm">
                       That may include residency notes, coffee-room announcements, pop-ups, or temporary occupations around the gallery.
                     </p>
                     <div className="mt-8 flex flex-wrap gap-3">

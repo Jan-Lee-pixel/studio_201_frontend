@@ -46,14 +46,14 @@ export function MerchCard({
           </div>
           <div className="px-1 pb-1 pt-3">
             {channelLabel ? (
-              <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--color-dust)]">
+              <div className="font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-dust)] md:text-[10px]">
                 {channelLabel}
               </div>
             ) : null}
-            <h3 className="mt-0.5 font-body text-[15px] font-semibold leading-[1.28] tracking-[0.01em] text-[var(--color-near-black)] md:text-[16px]">
+            <h3 className="mt-0.5 font-body text-[16px] font-semibold leading-[1.3] tracking-[0.01em] text-[var(--color-near-black)] md:text-[16px]">
               {title}
             </h3>
-            <p className="mt-0.5 text-[14px] leading-6 text-[var(--color-near-black)]">
+            <p className="mt-0.5 text-[15px] leading-6 text-[var(--color-near-black)] md:text-[14px]">
               {priceLabel || "Inquiry only"}
             </p>
           </div>

@@ -70,15 +70,15 @@ function ProgramLink({
       className="group flex h-full flex-col justify-between rounded-[22px] border border-[var(--color-rule)] bg-white/85 p-6 shadow-[0_14px_34px_rgba(33,28,24,0.04)] transition-transform duration-200 hover:-translate-y-1"
     >
       <div>
-        <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-sienna)]">{eyebrow}</div>
+        <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-sienna)] md:text-[10px]">{eyebrow}</div>
         <h3 className="mt-4 font-display text-[30px] leading-[0.96] tracking-[-0.04em] text-[var(--color-near-black)]">
           {title}
         </h3>
-        <p className="mt-4 text-sm leading-7 text-[var(--color-warm-slate)]">{description}</p>
+        <p className="mt-4 text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm">{description}</p>
       </div>
       <div className="mt-6 flex items-center justify-between gap-4 border-t border-[var(--color-rule)] pt-4">
-        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">{meta}</span>
-        <span className="text-sm text-[var(--color-sienna)] transition-transform duration-200 group-hover:translate-x-1">
+        <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">{meta}</span>
+        <span className="text-[15px] text-[var(--color-sienna)] transition-transform duration-200 group-hover:translate-x-1 md:text-sm">
           Explore →
         </span>
       </div>
@@ -140,7 +140,7 @@ export default async function Home() {
 
         <div className="absolute inset-x-0 bottom-0 px-6 pb-14 pt-28 md:px-12 md:pb-24 md:pt-40">
           <Reveal className="max-w-[760px]">
-            <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-sienna)]">
+            <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-sienna)] md:text-[10px]">
               {heroLabel}
             </div>
             <h1 className="mt-4 max-w-[8ch] font-display text-[clamp(44px,13vw,94px)] leading-[0.94] tracking-[-0.05em] text-[var(--color-cream)] md:mt-5 md:max-w-none md:leading-[0.92]">
@@ -149,13 +149,13 @@ export default async function Home() {
             <div className="mt-3 font-sub text-[clamp(20px,5vw,30px)] italic text-[rgba(240,237,229,0.86)] md:mt-4">
               Studio 201
             </div>
-            <div className="mt-2 font-mono text-[11px] tracking-[0.08em] text-[rgba(240,237,229,0.66)] md:mt-3">
+            <div className="mt-2 font-mono text-[12px] tracking-[0.08em] text-[rgba(240,237,229,0.66)] md:mt-3 md:text-[11px]">
               {heroDates}
             </div>
             <div className="mt-8 md:mt-10">
               <Link
                 href={heroLink}
-                className="relative inline-block text-sm tracking-[0.03em] text-[var(--color-cream)] after:absolute after:bottom-[-3px] after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-300 hover:after:scale-x-100"
+                className="relative inline-block text-[16px] tracking-[0.03em] text-[var(--color-cream)] after:absolute after:bottom-[-3px] after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-300 hover:after:scale-x-100 md:text-sm"
               >
                 {featuredExhibition ? "View Exhibition →" : "Explore Exhibitions →"}
               </Link>
@@ -212,12 +212,12 @@ export default async function Home() {
 
               <Reveal>
                 <div className="rounded-[22px] border border-[var(--color-rule)] bg-[rgba(255,255,255,0.82)] p-6 shadow-[0_14px_34px_rgba(33,28,24,0.04)]">
-                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-sienna)]">
+                  <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-sienna)] md:text-[10px]">
                     Calendar Snapshot
                   </div>
                   <div className="mt-5 space-y-4">
                     {featuredEvents.length === 0 ? (
-                      <p className="text-sm leading-7 text-[var(--color-warm-slate)]">
+                      <p className="text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm">
                         No public events are scheduled right now. Check back here for openings, conversations, and
                         other Studio 201 gatherings.
                       </p>
@@ -228,7 +228,7 @@ export default async function Home() {
                           href={`/events/${event.slug}`}
                           className="grid gap-2 border-t border-[var(--color-rule)] pt-4 first:border-t-0 first:pt-0 md:grid-cols-[110px_minmax(0,1fr)]"
                         >
-                          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--color-dust)]">
+                          <div className="font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-dust)] md:text-[10px]">
                             {formatMonthLabel(event.startDate)}
                             {event.startDate ? (
                               <>
@@ -241,7 +241,7 @@ export default async function Home() {
                             <div className="font-display text-[24px] leading-none tracking-[-0.04em] text-[var(--color-near-black)]">
                               {event.title}
                             </div>
-                            <p className="mt-2 text-sm leading-6 text-[var(--color-warm-slate)]">
+                            <p className="mt-2 text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm md:leading-6">
                               {event.subtitle || event.venue || "Studio 201 program"}
                             </p>
                           </div>
@@ -277,13 +277,13 @@ export default async function Home() {
                     )}
                   </div>
                   <div className="p-8">
-                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-sienna)]">
+                    <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-sienna)] md:text-[10px]">
                       Featured Artist
                     </div>
                     <h2 className="mt-4 font-display text-[clamp(38px,4vw,58px)] leading-[0.9] tracking-[-0.05em] text-[var(--color-near-black)]">
                       {leadArtist?.fullName || "Studio 201 Roster"}
                     </h2>
-                    <p className="mt-5 max-w-[42ch] text-sm leading-7 text-[var(--color-warm-slate)]">
+                    <p className="mt-5 max-w-[42ch] text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm">
                       {leadArtist?.bio?.trim()
                         ? leadArtist.bio
                         : "Meet the artists connected to the current and recent Studio 201 program."}
@@ -291,7 +291,7 @@ export default async function Home() {
                     <div className="mt-8">
                       <Link
                         href={leadArtist?.slug ? `/artists/${leadArtist.slug}` : "/artists"}
-                        className="inline-flex items-center gap-2 text-sm tracking-[0.03em] text-[var(--color-sienna)]"
+                        className="inline-flex items-center gap-2 text-[15px] tracking-[0.03em] text-[var(--color-sienna)] md:text-sm"
                       >
                         View artist page →
                       </Link>
@@ -317,8 +317,8 @@ export default async function Home() {
                       <div className="font-display text-[28px] leading-none tracking-[-0.04em] text-[var(--color-near-black)]">
                         {artist.fullName}
                       </div>
-                      <p className="mt-2 text-xs uppercase tracking-[0.14em] text-[var(--color-dust)]">Studio 201 artist</p>
-                      <p className="mt-3 text-sm leading-6 text-[var(--color-warm-slate)]">
+                      <p className="mt-2 text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-xs">Studio 201 artist</p>
+                      <p className="mt-3 text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm md:leading-6">
                         {artist.bio?.trim()
                           ? `${artist.bio.slice(0, 120)}${artist.bio.length > 120 ? "..." : ""}`
                         : "Meet the artists connected to Studio 201 through exhibitions and public projects."}
@@ -344,7 +344,7 @@ export default async function Home() {
                   <div className="font-display text-[30px] leading-none tracking-[-0.04em] text-[var(--color-near-black)]">
                     Archive coming soon
                   </div>
-                  <p className="mx-auto mt-3 max-w-lg text-sm leading-7 text-[var(--color-warm-slate)]">
+                  <p className="mx-auto mt-3 max-w-lg text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm">
                     Past exhibitions will appear here as the public archive continues to grow.
                   </p>
                 </div>
@@ -369,11 +369,11 @@ export default async function Home() {
                           <div className="font-display text-[30px] leading-none tracking-[-0.04em] text-[var(--color-near-black)]">
                             {item.title}
                           </div>
-                          <p className="mt-2 text-sm leading-6 text-[var(--color-warm-slate)]">
+                          <p className="mt-2 text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm md:leading-6">
                             {formatDateRange(item.startDate, item.endDate)}
                           </p>
                         </div>
-                        <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+                        <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">
                           View show
                         </div>
                       </Link>
@@ -393,23 +393,23 @@ export default async function Home() {
                 <h2 className="font-display text-[clamp(36px,4vw,54px)] leading-[0.9] tracking-[-0.05em]">
                   Plan your visit.
                 </h2>
-                <p className="mt-4 text-sm leading-7 text-[rgba(240,237,229,0.72)]">
+                <p className="mt-4 text-[15px] leading-7 text-[rgba(240,237,229,0.72)] md:text-sm">
                   Use the public site to see what is on view now, follow related events, and move through the wider
                   Studio 201 program before you arrive.
                 </p>
 
                 <div className="mt-8 space-y-5">
                   <div className="border-t border-[rgba(255,255,255,0.12)] pt-5">
-                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.56)]">
+                    <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.56)] md:text-[10px]">
                       Location
                     </div>
                     <div className="mt-2 font-display text-[30px] leading-none tracking-[-0.04em]">Argao, Cebu</div>
                   </div>
                   <div className="border-t border-[rgba(255,255,255,0.12)] pt-5">
-                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.56)]">
+                    <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.56)] md:text-[10px]">
                       Program Flow
                     </div>
-                    <p className="mt-2 text-sm leading-7 text-[rgba(240,237,229,0.74)]">
+                    <p className="mt-2 text-[15px] leading-7 text-[rgba(240,237,229,0.74)] md:text-sm">
                       Follow exhibitions for what is currently on view, events for public gatherings, and the archive
                       for the gallery&apos;s longer memory.
                     </p>
@@ -419,13 +419,13 @@ export default async function Home() {
                 <div className="mt-8 flex flex-wrap gap-3">
                   <Link
                     href="/events"
-                    className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-[rgba(240,237,229,0.18)] px-5 text-sm text-[var(--color-cream)] transition-colors duration-200 hover:bg-[rgba(240,237,229,0.08)]"
+                    className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-[rgba(240,237,229,0.18)] px-5 text-[15px] text-[var(--color-cream)] transition-colors duration-200 hover:bg-[rgba(240,237,229,0.08)] md:text-sm"
                   >
                     View Events
                   </Link>
                   <Link
                     href="/archive"
-                    className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-[rgba(240,237,229,0.18)] px-5 text-sm text-[var(--color-cream)] transition-colors duration-200 hover:bg-[rgba(240,237,229,0.08)]"
+                    className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-[rgba(240,237,229,0.18)] px-5 text-[15px] text-[var(--color-cream)] transition-colors duration-200 hover:bg-[rgba(240,237,229,0.08)] md:text-sm"
                   >
                     Browse Archive
                   </Link>

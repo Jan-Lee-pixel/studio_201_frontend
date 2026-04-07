@@ -33,10 +33,10 @@ export function ArtistCard({ slug, image, name, medium, note, delay = 0 }: Artis
               {name}
             </div>
             {medium ? (
-              <div className="mt-1 font-sub text-[14px] italic text-[var(--color-warm-slate)]">{medium}</div>
+              <div className="mt-1 font-sub text-[15px] italic text-[var(--color-warm-slate)] md:text-[14px]">{medium}</div>
             ) : null}
             {note ? (
-              <p className="mt-2 text-[13px] leading-6 text-[var(--color-warm-slate)]">{note}</p>
+              <p className="mt-2 text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-[13px] md:leading-6">{note}</p>
             ) : null}
           </div>
         </article>

@@ -33,7 +33,7 @@ export default async function EventDocumentationPage({ params }: { params: Promi
           <PublicActionLink href={`/events/${slug}`} tone="ghost">
             Back to event
           </PublicActionLink>
-          <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+          <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">
             Event documentation
           </div>
         </div>
@@ -57,10 +57,10 @@ export default async function EventDocumentationPage({ params }: { params: Promi
 
               <PublicSurface tone="muted">
                 <div className="p-5 md:p-6">
-                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+                  <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">
                     Notes
                   </div>
-                  <p className="mt-3 text-sm leading-7 text-[var(--color-warm-slate)]">
+                  <p className="mt-3 text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm">
                     Photographs and video from the event will appear here once they are published.
                   </p>
                 </div>

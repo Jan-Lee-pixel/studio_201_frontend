@@ -161,7 +161,7 @@ export default function EventsPage({
               type="button"
               onClick={() => setFilter(option.id)}
               className={clsx(
-                "shrink-0 rounded-full border px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors duration-300",
+                "shrink-0 rounded-full border px-3.5 py-2.5 font-mono text-[11px] uppercase tracking-[0.12em] transition-colors duration-300 md:px-3 md:py-2 md:text-[10px]",
                 filter === option.id
                   ? "border-[var(--color-near-black)] bg-[var(--color-near-black)] text-[var(--color-cream)]"
                   : "border-[var(--color-rule)] text-[var(--color-dust)] hover:border-[var(--color-near-black)] hover:text-[var(--color-near-black)]",
@@ -185,7 +185,7 @@ export default function EventsPage({
               {groupedEvents.map((group, groupIndex) => (
                 <Reveal key={group.month} delay={((groupIndex % 3) + 1) as 1 | 2 | 3}>
                   <div className="grid gap-3 md:grid-cols-[120px_minmax(0,1fr)] md:gap-8">
-                    <div className="pt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:pt-2">
+                    <div className="pt-1 font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:pt-2 md:text-[10px]">
                       {group.month}
                     </div>
                     <div className="overflow-hidden rounded-[24px] border border-[var(--color-rule)] bg-[rgba(255,255,255,0.82)] px-4 shadow-[0_16px_38px_rgba(33,28,24,0.04)] md:rounded-[26px] md:px-8">

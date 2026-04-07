@@ -44,7 +44,7 @@ export function PublicProfileOwnerActions({
     return (
       <Link
         href="/artist/profile"
-        className="inline-flex items-center justify-center border border-[var(--color-near-black)] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-300 hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)]"
+        className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-[var(--color-near-black)] px-5 py-3 font-mono text-[12px] uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-300 hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)] md:min-h-[44px] md:text-[11px]"
       >
         Edit Profile
       </Link>
@@ -64,7 +64,7 @@ export function PublicProfileOwnerActions({
         {showEditProfile ? (
           <Link
             href="/artist/profile"
-            className="inline-flex items-center justify-center border border-[var(--color-near-black)] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-300 hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)]"
+            className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-[var(--color-near-black)] px-5 py-3 font-mono text-[12px] uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-300 hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)] md:min-h-[44px] md:text-[11px]"
           >
             Edit Profile
           </Link>
@@ -72,7 +72,7 @@ export function PublicProfileOwnerActions({
         {showManageArtworks ? (
           <Link
             href="/artist/artworks/manage"
-            className="inline-flex items-center justify-center border border-[var(--color-rule)] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-warm-slate)] transition-colors duration-300 hover:border-[var(--color-near-black)] hover:text-[var(--color-near-black)]"
+            className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-[var(--color-rule)] px-5 py-3 font-mono text-[12px] uppercase tracking-[0.12em] text-[var(--color-warm-slate)] transition-colors duration-300 hover:border-[var(--color-near-black)] hover:text-[var(--color-near-black)] md:min-h-[44px] md:text-[11px]"
           >
             Manage Artworks
           </Link>
@@ -83,18 +83,18 @@ export function PublicProfileOwnerActions({
 
   return (
     <div className="mt-10 max-w-[620px] rounded-[24px] border border-[var(--color-rule)] bg-[rgba(255,253,250,0.86)] p-5 md:p-6">
-      <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--color-dust)]">
+      <div className="font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-dust)] md:text-[10px]">
         Your public profile
       </div>
       <div className="mt-3 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <p className="max-w-[420px] text-sm leading-[1.7] text-[var(--color-warm-slate)]">
+        <p className="max-w-[420px] text-[15px] leading-[1.75] text-[var(--color-warm-slate)] md:text-sm md:leading-[1.7]">
           {ownerCopy}
         </p>
         <div className="flex flex-wrap gap-3">
           {showEditProfile ? (
             <Link
               href="/artist/profile"
-              className="inline-flex items-center justify-center border border-[var(--color-near-black)] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-300 hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)]"
+              className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-[var(--color-near-black)] px-5 py-3 font-mono text-[12px] uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-300 hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)] md:min-h-[44px] md:text-[11px]"
             >
               Edit Profile
             </Link>
@@ -102,7 +102,7 @@ export function PublicProfileOwnerActions({
           {showManageArtworks ? (
             <Link
               href="/artist/artworks/manage"
-              className="inline-flex items-center justify-center border border-[var(--color-rule)] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-warm-slate)] transition-colors duration-300 hover:border-[var(--color-near-black)] hover:text-[var(--color-near-black)]"
+              className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-[var(--color-rule)] px-5 py-3 font-mono text-[12px] uppercase tracking-[0.12em] text-[var(--color-warm-slate)] transition-colors duration-300 hover:border-[var(--color-near-black)] hover:text-[var(--color-near-black)] md:min-h-[44px] md:text-[11px]"
             >
               Manage Artworks
             </Link>

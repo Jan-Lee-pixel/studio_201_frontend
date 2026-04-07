@@ -121,22 +121,22 @@ function ProgramCard({
         <div className="p-5">
           <div className="flex flex-wrap items-center gap-3">
             <WorkspaceStatusPill tone={state.tone}>{state.label}</WorkspaceStatusPill>
-            <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">
               {formatDateRange(exhibition.startDate, exhibition.endDate)}
             </span>
           </div>
           <h2 className="mt-5 font-display text-[30px] leading-[0.94] tracking-[-0.04em] text-[var(--color-near-black)]">
             {exhibition.title}
           </h2>
-          <p className="mt-4 text-sm leading-7 text-[var(--color-warm-slate)]">
+          <p className="mt-4 text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm">
             {excerpt(
               exhibition.description,
               "Dates, artists, and published works are available on the exhibition page.",
             )}
           </p>
           <div className="mt-5 flex items-center justify-between gap-4 border-t border-[var(--color-rule)] pt-4">
-            <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">{note}</span>
-            <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-sienna)] transition-transform duration-200 group-hover:translate-x-1">
+            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">{note}</span>
+            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-sienna)] transition-transform duration-200 group-hover:translate-x-1 md:text-[10px]">
               Open exhibition
             </span>
           </div>
@@ -161,7 +161,7 @@ export default async function ExhibitionsPage() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[var(--color-parchment)] px-6 md:px-12">
         <div className="text-center">
-          <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--color-sienna)]">
+          <div className="mb-4 font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--color-sienna)] md:text-[10px]">
             Studio 201
           </div>
           <h1 className="font-display text-[clamp(36px,6vw,64px)] text-[var(--color-near-black)]">
@@ -200,7 +200,7 @@ export default async function ExhibitionsPage() {
               <div className="font-display text-[32px] leading-none tracking-[-0.04em] text-[var(--color-near-black)]">
                 No current program
               </div>
-              <p className="mx-auto mt-3 max-w-lg text-sm leading-7 text-[var(--color-warm-slate)]">
+              <p className="mx-auto mt-3 max-w-lg text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm">
                 There are no active or upcoming exhibitions right now, but the archive is still available below.
               </p>
             </div>
@@ -216,7 +216,7 @@ export default async function ExhibitionsPage() {
                 <SectionLabel>Archive Preview</SectionLabel>
               </Reveal>
               <Reveal>
-                <p className="mt-5 max-w-[48ch] text-sm leading-7 text-[var(--color-warm-slate)]">
+                <p className="mt-5 max-w-[48ch] text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm">
                   Past exhibitions remain part of the gallery record and can still be revisited here.
                 </p>
               </Reveal>
@@ -225,7 +225,7 @@ export default async function ExhibitionsPage() {
             <Reveal>
               <Link
                 href="/archive"
-                className="inline-flex min-h-[46px] w-full items-center justify-center rounded-full border border-[var(--color-near-black)] px-5 text-xs uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-200 hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)] sm:w-auto"
+                className="inline-flex min-h-[48px] w-full items-center justify-center rounded-full border border-[var(--color-near-black)] px-5 text-[12px] uppercase tracking-[0.12em] text-[var(--color-near-black)] transition-colors duration-200 hover:bg-[var(--color-near-black)] hover:text-[var(--color-cream)] sm:w-auto md:min-h-[46px] md:text-xs"
               >
                 Full Archive
               </Link>
@@ -237,7 +237,7 @@ export default async function ExhibitionsPage() {
               <div className="font-display text-[32px] leading-none tracking-[-0.04em] text-[var(--color-near-black)]">
                 Archive entries coming soon
               </div>
-              <p className="mx-auto mt-3 max-w-lg text-sm leading-7 text-[var(--color-warm-slate)]">
+              <p className="mx-auto mt-3 max-w-lg text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm">
                 Past exhibition records will appear here as they are connected to the public archive.
               </p>
             </div>
@@ -267,13 +267,13 @@ export default async function ExhibitionsPage() {
                         />
                       </div>
                       <div className="p-5">
-                        <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+                        <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">
                           {year || "Archive"}
                         </div>
                         <div className="mt-3 font-display text-[28px] leading-[0.94] tracking-[-0.04em] text-[var(--color-near-black)]">
                           {exhibition.title}
                         </div>
-                        <div className="mt-4 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-sienna)]">
+                        <div className="mt-4 font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-sienna)] md:text-[10px]">
                           Open record
                         </div>
                       </div>

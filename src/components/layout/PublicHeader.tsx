@@ -84,7 +84,7 @@ export function PublicHeader() {
 
   const linkClass = (isActive: boolean) =>
     clsx(
-      "relative font-body text-[11px] font-normal tracking-[0.1em] uppercase transition-colors duration-400 ease-out cursor-pointer",
+      "relative font-body text-[12px] font-normal tracking-[0.08em] uppercase transition-colors duration-400 ease-out cursor-pointer",
       {
         "text-[var(--color-warm-slate)] hover:text-[var(--color-near-black)]":
           (scrolled || !isHero) && !keepTransparent,
@@ -96,14 +96,14 @@ export function PublicHeader() {
     );
 
   const actionButtonClass = clsx(
-    "inline-flex min-h-[40px] items-center justify-center rounded-full px-4 border text-[10px] font-mono uppercase tracking-[0.14em] transition-colors duration-300 cursor-pointer",
+    "inline-flex min-h-[44px] items-center justify-center rounded-full px-5 border text-[11px] font-mono uppercase tracking-[0.14em] transition-colors duration-300 cursor-pointer",
     (scrolled || !isHero) && !keepTransparent
       ? "border-[var(--color-rule)] bg-[rgba(255,255,255,0.8)] text-[var(--color-near-black)] hover:border-[var(--color-near-black)] hover:bg-white"
       : "border-[rgba(240,237,229,0.16)] text-[var(--color-cream)] hover:bg-[rgba(240,237,229,0.08)]",
   );
 
   const mobileActionClass =
-    "inline-flex min-h-[46px] items-center justify-center rounded-full px-5 border border-[rgba(240,237,229,0.16)] font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-cream)] transition-colors duration-300 hover:bg-[rgba(240,237,229,0.08)]";
+    "inline-flex min-h-[50px] items-center justify-center rounded-full px-5 border border-[rgba(240,237,229,0.16)] font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-cream)] transition-colors duration-300 hover:bg-[rgba(240,237,229,0.08)]";
 
   const navLinks = [
     { href: "/exhibitions", label: "Exhibitions", active: pathname === "/exhibitions" || pathname.startsWith("/exhibitions/") },
@@ -180,7 +180,7 @@ export function PublicHeader() {
 
           {/* Mobile Toggle */}
           <button
-            className="md:hidden flex min-h-[40px] min-w-[40px] flex-col items-center justify-center gap-[5px] rounded-full border border-transparent bg-transparent p-1 cursor-pointer"
+            className="md:hidden flex min-h-[46px] min-w-[46px] flex-col items-center justify-center gap-[5px] rounded-full border border-transparent bg-transparent p-1 cursor-pointer"
             onClick={() => setMobileOpen(true)}
             aria-label="Menu"
           >
@@ -222,7 +222,7 @@ export function PublicHeader() {
         )}
       >
         <button
-          className="absolute right-5 top-5 font-mono text-[11px] tracking-[0.1em] text-[var(--color-dust)] bg-transparent border-none cursor-pointer md:right-12 md:top-6"
+          className="absolute right-5 top-5 font-mono text-[12px] tracking-[0.1em] text-[var(--color-dust)] bg-transparent border-none cursor-pointer md:right-12 md:top-6"
           onClick={() => setMobileOpen(false)}
         >
           CLOSE ×
@@ -243,18 +243,18 @@ export function PublicHeader() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
-                className="flex min-h-[60px] items-center justify-between rounded-[18px] border border-[rgba(240,237,229,0.08)] bg-[rgba(255,255,255,0.02)] px-4 text-[var(--color-cream)]"
+                  className="flex min-h-[64px] items-center justify-between rounded-[18px] border border-[rgba(240,237,229,0.08)] bg-[rgba(255,255,255,0.02)] px-5 text-[var(--color-cream)]"
               >
-                <span className="font-display text-[clamp(26px,8vw,40px)] leading-none tracking-[-0.03em]">
+                <span className="font-display text-[clamp(28px,8vw,40px)] leading-none tracking-[-0.03em]">
                   {link.label}
                 </span>
-                <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.42)]">
+                <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.42)]">
                   View
                 </span>
               </Link>
             ))}
           </div>
-          <div className="mt-5 flex flex-wrap items-center gap-5 font-mono text-[10px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.56)]">
+          <div className="mt-5 flex flex-wrap items-center gap-5 font-mono text-[11px] uppercase tracking-[0.14em] text-[rgba(240,237,229,0.56)]">
             <Link href="/archive" onClick={() => setMobileOpen(false)}>
               Archive
             </Link>

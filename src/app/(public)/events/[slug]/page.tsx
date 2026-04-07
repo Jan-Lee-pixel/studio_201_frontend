@@ -43,7 +43,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
           <PublicActionLink href="/events" tone="ghost">
             Back to events
           </PublicActionLink>
-          <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+          <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">
             {event.isExternal ? "External program" : "Studio 201 program"}
           </div>
         </div>
@@ -65,7 +65,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
             <div className="space-y-8 md:space-y-10">
               <div>
                 <SectionLabel>Event Details</SectionLabel>
-                <div className="mt-6 flex flex-wrap items-center gap-3 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">
+                <div className="mt-6 flex flex-wrap items-center gap-3 font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">
                   <span>{typeLabel}</span>
                   <span className="h-1 w-1 rounded-full bg-[var(--color-rule)]" />
                   <span>{event.isExternal ? "External" : "Studio 201"}</span>
@@ -86,27 +86,27 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
               <div className="border-y border-[var(--color-rule)]">
                 <div className="grid gap-0 md:grid-cols-2">
                   <div className="border-b border-[var(--color-rule)] px-0 py-5 md:border-r">
-                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Dates</div>
-                    <div className="mt-2 text-sm text-[var(--color-near-black)]">{eventDate}</div>
+                    <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">Dates</div>
+                    <div className="mt-2 text-[15px] leading-7 text-[var(--color-near-black)] md:text-sm md:leading-6">{eventDate}</div>
                   </div>
                   <div className="border-b border-[var(--color-rule)] px-0 py-5 md:pl-8">
-                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Venue</div>
-                    <div className="mt-2 text-sm text-[var(--color-near-black)]">{event.venue || "Studio 201"}</div>
+                    <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">Venue</div>
+                    <div className="mt-2 text-[15px] leading-7 text-[var(--color-near-black)] md:text-sm md:leading-6">{event.venue || "Studio 201"}</div>
                   </div>
                   <div className="border-b border-[var(--color-rule)] px-0 py-5 md:border-b-0 md:border-r">
-                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Time</div>
-                    <div className="mt-2 text-sm text-[var(--color-near-black)]">{event.timeLabel || "Schedule announced with the program"}</div>
+                    <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">Time</div>
+                    <div className="mt-2 text-[15px] leading-7 text-[var(--color-near-black)] md:text-sm md:leading-6">{event.timeLabel || "Schedule announced with the program"}</div>
                   </div>
                   <div className="px-0 py-5 md:pl-8">
-                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-dust)]">Documentation</div>
-                    <div className="mt-2 text-sm text-[var(--color-near-black)]">
+                    <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-dust)] md:text-[10px]">Documentation</div>
+                    <div className="mt-2 text-[15px] leading-7 text-[var(--color-near-black)] md:text-sm md:leading-6">
                       {event.hasDocumentation ? "Available" : "Not published yet"}
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="max-w-[720px] whitespace-pre-line text-sm leading-8 text-[var(--color-warm-slate)]">
+              <div className="max-w-[720px] whitespace-pre-line text-[15px] leading-8 text-[var(--color-warm-slate)] md:text-sm">
                 {event.description || "Event details will appear here once they are published."}
               </div>
 
@@ -116,7 +116,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
                     <div className="font-display text-[30px] leading-[1.08] tracking-[-0.03em] text-[var(--color-near-black)]">
                       Follow this event in the wider calendar.
                     </div>
-                    <p className="mt-3 max-w-[48ch] text-sm leading-7 text-[var(--color-warm-slate)]">
+                    <p className="mt-3 max-w-[48ch] text-[15px] leading-7 text-[var(--color-warm-slate)] md:text-sm">
                       Return to the full events page or open documentation when photographs or video are available.
                     </p>
                   </div>
